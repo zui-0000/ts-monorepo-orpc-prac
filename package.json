@@ -1,0 +1,24 @@
+{
+  "name": "ts-monorepo-orpc-prac",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.19.0",
+    "pnpm": ">=11.22.0"
+  },
+  "scripts": {
+    "prepare": "command -v hk >/dev/null 2>&1 && hk install || true",
+    "build": "pnpm -r run build",
+    "dev": "pnpm -r --parallel run dev",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "lint": "hk check --all",
+    "fix": "hk fix --all"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
+    "@commitlint/types": "catalog:"
+  }
+}
