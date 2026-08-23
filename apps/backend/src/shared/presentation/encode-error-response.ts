@@ -1,3 +1,8 @@
+import {
+  BadRequestError,
+  HttpStatus,
+  InternalServerError,
+} from "@orpc-prac/contract";
 import type { ORPCError } from "@orpc/server";
 
 /**
@@ -27,6 +32,21 @@ const fieldOf = (issue: ValidationIssue): string =>
 /** 契約が持たないエラーに割り当てる汎用コード (`<status>0` の 4 桁)。 */
 const genericCodeOf = (status: number): string => `${status}0`;
 
+/**
+ * oRPC が自前で投げるエラーの表題を、契約の文言に差し替える。
+ *
+ * **入力検証の失敗と 500 は、実装を経由せず oRPC が直接投げる。** そのため
+ * `error.message` は oRPC の既定 ("Input validation failed" 等) のままで、
+ * 契約が例示している日本語と食い違う。契約が文言を持つものはそちらを使う。
+ *
+ * ここに無いステータス (405 など) は契約に対応するエラーが無いため、
+ * oRPC の文言をそのまま通す。
+ */
+const TITLE_BY_STATUS: Readonly<Record<number, string>> = {
+  [HttpStatus.BAD_REQUEST]: BadRequestError.message,
+  [HttpStatus.INTERNAL_SERVER_ERROR]: InternalServerError.message,
+};
+
 export const encodeErrorResponseBody = (
   error: ORPCError<any, any>,
 ): unknown => {
@@ -38,7 +58,7 @@ export const encodeErrorResponseBody = (
   const base = {
     status: error.status,
     code: genericCodeOf(error.status),
-    title: error.message,
+    title: TITLE_BY_STATUS[error.status] ?? error.message,
   };
 
   if (!isIssueList(error.data)) {

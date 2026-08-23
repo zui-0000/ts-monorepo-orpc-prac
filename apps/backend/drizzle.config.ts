@@ -1,6 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 
-import { databaseUrl } from "./db/database-url.ts";
+import { databaseUrl } from "./src/shared/infrastructure/database-url.ts";
 
 // drizzle-kit (migration 生成/適用) の設定。
 // schema / out のパスはコマンド実行時の CWD (apps/backend) 基準で解決される点に注意。

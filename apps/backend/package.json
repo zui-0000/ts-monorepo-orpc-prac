@@ -19,8 +19,10 @@
     "@orpc-prac/contract": "workspace:*",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
+    "better-result": "catalog:",
     "drizzle-orm": "catalog:",
-    "hono": "catalog:"
+    "hono": "catalog:",
+    "valibot": "catalog:"
   },
   "devDependencies": {
     "@orpc-prac/typescript-config": "workspace:*",

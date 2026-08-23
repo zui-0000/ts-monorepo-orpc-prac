@@ -55,7 +55,7 @@ export const getUser = oc
     BAD_REQUEST_ERROR: BadRequestError,
     UNAUTHORIZED_ERROR: UnauthorizedError,
     FORBIDDEN_ERROR: ForbiddenError,
-    NOT_FOUND_ERROR: ResourceNotFoundError,
+    RESOURCE_NOT_FOUND_ERROR: ResourceNotFoundError,
     INTERNAL_SERVER_ERROR: InternalServerError,
   });
 
@@ -80,7 +80,7 @@ export const updateUser = oc
     BAD_REQUEST_ERROR: BadRequestError,
     UNAUTHORIZED_ERROR: UnauthorizedError,
     FORBIDDEN_ERROR: ForbiddenError,
-    NOT_FOUND_ERROR: ResourceNotFoundError,
+    RESOURCE_NOT_FOUND_ERROR: ResourceNotFoundError,
     MAIL_ADDRESS_DUPLICATION_ERROR: MailAddressDuplicationError,
     INTERNAL_SERVER_ERROR: InternalServerError,
   });
@@ -101,7 +101,7 @@ export const deleteUser = oc
     BAD_REQUEST_ERROR: BadRequestError,
     UNAUTHORIZED_ERROR: UnauthorizedError,
     FORBIDDEN_ERROR: ForbiddenError,
-    NOT_FOUND_ERROR: ResourceNotFoundError,
+    RESOURCE_NOT_FOUND_ERROR: ResourceNotFoundError,
     INTERNAL_SERVER_ERROR: InternalServerError,
   });
 
@@ -128,7 +128,7 @@ export const changePassword = oc
     UNAUTHORIZED_ERROR: UnauthorizedError,
     PASSWORD_MISMATCH_ERROR: PasswordMismatchError,
     FORBIDDEN_ERROR: ForbiddenError,
-    NOT_FOUND_ERROR: ResourceNotFoundError,
+    RESOURCE_NOT_FOUND_ERROR: ResourceNotFoundError,
     INTERNAL_SERVER_ERROR: InternalServerError,
   });
 

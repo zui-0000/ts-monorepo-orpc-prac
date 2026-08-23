@@ -1,4 +1,4 @@
-import { EnvName } from "../src/shared/infrastructure/env-name.ts";
+import { EnvName } from "./env-name.ts";
 
 /**
  * 接続情報を環境変数から読む。未設定なら throw する。

@@ -1,13 +1,19 @@
 import { contract } from "@orpc-prac/contract";
 import { implement } from "@orpc/server";
 
+import { appDeps } from "./app-deps.ts";
+import { getUserHandler } from "./contexts/user/presentation/get-user-handler.ts";
+
 /**
  * 契約の実装。
  *
- * **今はまだ器の確認用のダミー**で、固定値を返すだけ。
- * 業務ロジック (application / domain / infrastructure) はこの後で移植する。
+ * `actor` は「操作している本人」の id。認可 (checkUserIsSelf) が使う。
+ * **いまは認証が無いため呼び出し側が仮の値を入れている** — better-auth を
+ * 入れる段でここが本物になる。
  */
-const os = implement(contract);
+export type AppContext = { readonly actor: string };
+
+const os = implement(contract).$context<AppContext>();
 
 export const router = os.router({
   user: {
@@ -16,21 +22,7 @@ export const router = os.router({
       return { id: "018eef15-1234-7123-8123-123456789abc" };
     }),
 
-    get: os.user.get.handler(({ input, errors }) => {
-      if (input.id === "018eef15-0000-7000-8000-000000000000") {
-        throw errors.NOT_FOUND_ERROR({
-          data: {
-            status: 404,
-            code: "4040",
-            title: "指定されたリソースは存在しません",
-          },
-        });
-      }
-      return {
-        name: "惣流・アスカ・ラングレー",
-        mailAddress: "asuka@nerv.example.com",
-      };
-    }),
+    get: getUserHandler(appDeps),
 
     update: os.user.update.handler(({ input }) => {
       console.log("[update]", input.id, input.name);

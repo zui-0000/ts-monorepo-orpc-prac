@@ -48,6 +48,9 @@ catalogs:
     '@vitejs/plugin-react':
       specifier: ^6.1.0
       version: 6.1.0
+    better-result:
+      specifier: ^3.0.1
+      version: 3.0.1
     drizzle-kit:
       specifier: ^0.31.10
       version: 0.31.10
@@ -119,12 +122,18 @@ importers:
       '@orpc/server':
         specifier: 'catalog:'
         version: 1.15.0
+      better-result:
+        specifier: 'catalog:'
+        version: 3.0.1
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.2(bun-types@1.4.0)
       hono:
         specifier: 'catalog:'
         version: 4.13.3
+      valibot:
+        specifier: 'catalog:'
+        version: 1.4.2(typescript@7.0.2)
     devDependencies:
       '@orpc-prac/typescript-config':
         specifier: workspace:*
@@ -1391,6 +1400,9 @@ packages:
   argue-cli@3.1.0:
     resolution: {integrity: sha512-DhBpBfXL4SS2uC0N922MMajKR3CdrTG0u2or1PNYgXMsrSzViJrbtvT0nCLlLGUI0plam/ZZCs7aAauHtW9thw==}
     engines: {node: '>=22'}
+
+  better-result@3.0.1:
+    resolution: {integrity: sha512-rnCeqEXkKPHmz5MO5ZroPRDyHe4YvlNPyy7qj8cVcWs/GnvSvC3086G74/220W+wWcIWlXgzvcjskFV0A4blUQ==}
 
   buffer-from@1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
@@ -2788,6 +2800,8 @@ snapshots:
   argparse@2.0.1: {}
 
   argue-cli@3.1.0: {}
+
+  better-result@3.0.1: {}
 
   buffer-from@1.1.2: {}
 

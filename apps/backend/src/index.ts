@@ -21,10 +21,20 @@ const handler = new OpenAPIHandler(router, {
   ],
 });
 
+/**
+ * 操作している本人の id を決める。
+ *
+ * **これは認証ではない。** ヘッダの値をそのまま信じているので、
+ * 誰でも他人を名乗れる。better-auth を入れる段でセッションから引く形に
+ * 差し替える。それまで動作確認ができるよう受け口だけ用意している。
+ */
+const resolveActor = (request: Request): string =>
+  request.headers.get("x-actor-id") ?? "";
+
 app.use("/api/*", async (c, next) => {
   const { matched, response } = await handler.handle(c.req.raw, {
     prefix: "/api",
-    context: {},
+    context: { actor: resolveActor(c.req.raw) },
   });
   if (matched) {
     return c.newResponse(response.body, response);

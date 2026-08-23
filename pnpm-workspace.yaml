@@ -25,6 +25,7 @@ catalog:
   "@types/react": ^19.2.18
   "@types/react-dom": ^19.2.4
   "@vitejs/plugin-react": ^6.1.0
+  better-result: ^3.0.1
   drizzle-kit: ^0.31.10
   drizzle-orm: ^0.45.2
   hono: ^4.13.3

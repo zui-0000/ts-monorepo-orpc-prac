@@ -1,0 +1,74 @@
+import { Result } from "better-result";
+import * as v from "valibot";
+
+import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
+import type { RepositoryError } from "~/shared/errors/repository-error.ts";
+import { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
+
+import { UserIdSchema } from "../domain/model/value-objects/user-id.ts";
+import { checkUserIsSelf } from "../domain/services/check-user-is-self.ts";
+
+export type GetUserQueryDeps = {
+  readonly getUserQueryService: GetUserQueryService;
+};
+
+export type GetUserQueryInput = {
+  readonly id: string;
+  readonly actor: string;
+};
+
+/**
+ * 素の文字列を値オブジェクトへ変換する。
+ *
+ * **ここで parse するのは、境界を越えた値を信用しないため。** 契約 (oRPC) が
+ * 形を検証済みでも、それは「HTTP の入力として妥当か」であって
+ * 「ドメインの値として妥当か」とは別の問い。actor は認証から来るので
+ * 契約の検証を通っていない。
+ */
+const GetUserQueryValues = v.object({ id: UserIdSchema, actor: UserIdSchema });
+
+export type GetUserQueryOutput = {
+  readonly name: string;
+  readonly mailAddress: string;
+};
+
+export type GetUserQueryParams = { readonly id: UserId };
+
+type UserId = v.InferOutput<typeof UserIdSchema>;
+
+/**
+ * ユーザー取得クエリのポート (読み取り側 / CQRS のクエリ経路)。
+ */
+export type GetUserQueryService = {
+  readonly execute: (
+    params: GetUserQueryParams,
+  ) => Promise<Result<GetUserQueryOutput | undefined, RepositoryError>>;
+};
+
+export type GetUserQueryError =
+  | ForbiddenError
+  | ResourceNotFoundError
+  | RepositoryError;
+
+/**
+ * ユーザーを取得する (CQRS のクエリ)。
+ */
+export const getUserQuery =
+  (deps: GetUserQueryDeps) =>
+  (
+    input: GetUserQueryInput,
+  ): Promise<Result<GetUserQueryOutput, GetUserQueryError>> =>
+    Result.gen(async function* () {
+      const { id, actor } = v.parse(GetUserQueryValues, input);
+
+      yield* checkUserIsSelf(id, actor);
+
+      const user = yield* Result.await(
+        deps.getUserQueryService.execute({ id }),
+      );
+      if (user === undefined) {
+        return Result.err(new ResourceNotFoundError());
+      }
+
+      return Result.ok(user);
+    });

@@ -1,0 +1,89 @@
+import type {
+  ForbiddenErrorData,
+  InternalServerErrorData,
+  ResourceNotFoundErrorData,
+} from "@orpc-prac/contract";
+
+import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
+import type { RepositoryError } from "~/shared/errors/repository-error.ts";
+import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
+import { ErrorPayload } from "~/shared/presentation/constants/error-payload.ts";
+
+/**
+ * presentation 層が契約のエラーへ翻訳できるエラーの集合。ステータスの昇順に並べる。
+ *
+ * ドメイン/アプリケーションは HTTP を知らないため、**対応付けをこの 1 ファイルに
+ * 閉じ込める。** ユースケースが増えても翻訳規則は 1 箇所にあり、
+ * 同じ失敗が経路ごとに違うステータスで返る事故が起きない。
+ */
+export type ApplicationError =
+  | ForbiddenError
+  | ResourceNotFoundError
+  | RepositoryError;
+
+/**
+ * 契約が生成するエラー構築子の形。**キーと data の対応が契約と 1 対 1。**
+ * 誤った payload を渡すとここで型エラーになる。
+ */
+type ErrorFactories = {
+  readonly FORBIDDEN_ERROR: (o: { data: ForbiddenErrorData }) => Error;
+  readonly RESOURCE_NOT_FOUND_ERROR: (o: {
+    data: ResourceNotFoundErrorData;
+  }) => Error;
+  readonly INTERNAL_SERVER_ERROR: (o: {
+    data: InternalServerErrorData;
+  }) => Error;
+};
+
+/**
+ * そのエラーを翻訳するのに必要な契約のキーだけを導く。
+ *
+ * ユースケースが `ForbiddenError` しか返さないなら `"FORBIDDEN_ERROR"` だけを
+ * 要求する。**契約で宣言していないエラーを使おうとすると呼び出し側で型エラー**
+ * になるため、経路ごとの `.errors()` と食い違わない。
+ */
+type ErrorKeyOf<E> =
+  | (E extends ForbiddenError ? "FORBIDDEN_ERROR" : never)
+  | (E extends ResourceNotFoundError ? "RESOURCE_NOT_FOUND_ERROR" : never)
+  | (E extends RepositoryError ? "INTERNAL_SERVER_ERROR" : never);
+
+/**
+ * アプリケーションのエラーを、契約が定めたエラーへ翻訳する。
+ *
+ * `match` は**網羅性を型が見張る**ので、`ApplicationError` に 1 つ足すと
+ * ここがコンパイルエラーになる。翻訳漏れのまま通ることがない。
+ *
+ * ```ts
+ * if (result.isOk()) return result.value;
+ * throw handleErrorResponse(result.error, errors);
+ * ```
+ */
+export const handleErrorResponse = <E extends ApplicationError>(
+  error: E,
+  errors: Pick<ErrorFactories, ErrorKeyOf<E>>,
+): Error => {
+  // **型を広げるのはここだけ。**
+  //
+  // `Pick` で絞った型は match の内側からキーが見えない (絞り込みが分配されない)
+  // ため、全キーを持つ形に戻して扱う。
+  //
+  // これが安全なのは、入口の `Pick<ErrorFactories, ErrorKeyOf<E>>` が
+  // 「E が必要とするキーを errors が持つこと」を既に検査しているため。
+  // match は E に含まれる事由の枝しか実行しないので、
+  // **実行時に存在しないキーへは到達しない。**
+  const factories = errors as ErrorFactories;
+
+  return error.match<ApplicationError, Error>({
+    ForbiddenError: () =>
+      factories.FORBIDDEN_ERROR({ data: ErrorPayload.Forbidden }),
+
+    ResourceNotFoundError: () =>
+      factories.RESOURCE_NOT_FOUND_ERROR({
+        data: ErrorPayload.ResourceNotFound,
+      }),
+
+    // インフラ由来。原因 (cause) は外に出さず、ログにのみ残す。
+    RepositoryError: () =>
+      factories.INTERNAL_SERVER_ERROR({ data: ErrorPayload.InternalServer }),
+  });
+};

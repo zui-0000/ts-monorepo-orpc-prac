@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/bun-sql";
 import { migrate } from "drizzle-orm/bun-sql/migrator";
 
-import { databaseUrl } from "./database-url.ts";
+import { databaseUrl } from "../src/shared/infrastructure/database-url.ts";
 
 // マイグレーション適用スクリプト。
 // drizzle-kit の migrate は Bun ネイティブ SQL ドライバに非対応 (pg/postgres.js 等を要求) のため、
