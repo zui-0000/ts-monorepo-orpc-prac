@@ -1,5 +1,6 @@
 import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
 import type { MailAddressDuplicationError } from "~/shared/errors/mail-address-duplication-error.ts";
+import type { PasswordMismatchError } from "~/shared/errors/password-mismatch-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
 
@@ -14,8 +15,7 @@ import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-e
  *
  * **ここに無いエラーがある。** 理由は 3 種類。
  *
- * 1. **まだ移していないだけ** — `ConflictError` (汎用)、`PasswordMismatchError`
- *    (changePassword)、`UnauthorizedError` (認証)。
+ * 1. **まだ移していないだけ** — `ConflictError` (汎用)、`UnauthorizedError` (認証)。
  *    ユースケースを移すたびにここへ足す
  *
  * 2. **実装が投げることが無い** — `BadRequestError` と `InternalServerError`。
@@ -25,6 +25,7 @@ import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-e
  *    throw し、oRPC の既定の 500 になる (設計関連/ADR-04)
  */
 export type ApplicationError =
+  | PasswordMismatchError
   | ForbiddenError
   | ResourceNotFoundError
   | MailAddressDuplicationError
@@ -38,6 +39,7 @@ export type ApplicationError =
  * (追加情報を持つのは BadRequestError だけで、あれは oRPC が直接投げる)。
  */
 type ErrorFactories = {
+  readonly PASSWORD_MISMATCH_ERROR: () => Error;
   readonly FORBIDDEN_ERROR: () => Error;
   readonly RESOURCE_NOT_FOUND_ERROR: () => Error;
   readonly MAIL_ADDRESS_DUPLICATION_ERROR: () => Error;
@@ -52,6 +54,7 @@ type ErrorFactories = {
  * になるため、経路ごとの `.errors()` と食い違わない。
  */
 type ErrorKeyOf<E> =
+  | (E extends PasswordMismatchError ? "PASSWORD_MISMATCH_ERROR" : never)
   | (E extends ForbiddenError ? "FORBIDDEN_ERROR" : never)
   | (E extends ResourceNotFoundError ? "RESOURCE_NOT_FOUND_ERROR" : never)
   | (E extends MailAddressDuplicationError
@@ -86,6 +89,8 @@ export const handleErrorResponse = <E extends ApplicationError>(
   const factories = errors as ErrorFactories;
 
   return error.match<ApplicationError, Error>({
+    PasswordMismatchError: () => factories.PASSWORD_MISMATCH_ERROR(),
+
     ForbiddenError: () => factories.FORBIDDEN_ERROR(),
 
     ResourceNotFoundError: () => factories.RESOURCE_NOT_FOUND_ERROR(),

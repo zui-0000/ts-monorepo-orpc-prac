@@ -5,22 +5,29 @@ import type { MailAddressDuplicationError } from "~/shared/errors/mail-address-d
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 
 import type { User } from "./model/user.ts";
+import type { UserId } from "./model/value-objects/user-id.ts";
 
 /**
  * User 集約の永続化ポート (書き込み側 / CQRS のコマンド経路)。
- *
- * **読み取り専用の経路はここに来ない。** 一覧や単票の取得は集約を復元せず
- * 必要な列だけを引く (`GetUserQueryService`)。ここに現れる `findByMailAddress` は
- * 重複検証という**書き込みの前提**を満たすためのもので、集約を丸ごと返す。
- *
- * **今あるのは create が必要とする 2 つだけ。** 更新・削除はそのユースケースを
- * 移す段で足す (`updateProfile` / `updatePassword` / `findById` / `deleteById`)。
+ * 読み取り専用の経路はここに来ない (集約を復元せず必要な列だけ引く)。
  */
 export type UserRepository = {
   readonly create: (
     user: User,
   ) => Promise<Result<void, MailAddressDuplicationError | RepositoryError>>;
+  /** 名前とメールアドレスだけを書く。 */
+  readonly updateProfile: (
+    user: User,
+  ) => Promise<Result<void, MailAddressDuplicationError | RepositoryError>>;
+  /** ハッシュ済みパスワードだけを書く。メールを書かないので重複は起きない。 */
+  readonly updatePassword: (
+    user: User,
+  ) => Promise<Result<void, RepositoryError>>;
+  readonly findById: (
+    id: UserId,
+  ) => Promise<Result<User | undefined, RepositoryError>>;
   readonly findByMailAddress: (
     mailAddress: MailAddress,
   ) => Promise<Result<User | undefined, RepositoryError>>;
+  readonly deleteById: (id: UserId) => Promise<Result<void, RepositoryError>>;
 };

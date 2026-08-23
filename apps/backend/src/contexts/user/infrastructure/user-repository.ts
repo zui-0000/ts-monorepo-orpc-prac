@@ -1,5 +1,5 @@
 import { Result } from "better-result";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 import { parseInvariant } from "~/shared/domain/parse-invariant.ts";
 import { MailAddressDuplicationError } from "~/shared/errors/mail-address-duplication-error.ts";
@@ -60,6 +60,47 @@ export const userRepository = (db: Database): UserRepository => ({
       .mapError(handleMailAddressDuplicationError)
       .map(() => undefined),
 
+  updateProfile: async (user) =>
+    (
+      await Result.tryPromise(() =>
+        db
+          .update(tUser)
+          .set({
+            name: user.name,
+            mailAddress: user.mailAddress,
+            updatedAt: user.updatedAt,
+          })
+          .where(eq(tUser.id, user.id)),
+      )
+    )
+      .mapError(handleDbError)
+      .mapError(handleMailAddressDuplicationError)
+      .map(() => undefined),
+
+  updatePassword: async (user) =>
+    (
+      await Result.tryPromise(() =>
+        db
+          .update(tUser)
+          .set({
+            hashedPassword: user.hashedPassword,
+            updatedAt: user.updatedAt,
+          })
+          .where(eq(tUser.id, user.id)),
+      )
+    )
+      .mapError(handleDbError)
+      .map(() => undefined),
+
+  findById: async (id) =>
+    (
+      await Result.tryPromise(() =>
+        db.select().from(tUser).where(eq(tUser.id, id)).limit(1),
+      )
+    )
+      .mapError(handleDbError)
+      .map(restoreUser),
+
   // 大小を無視して引く。保存は入力どおりで、同一性の判定だけ lower() で行う。
   // **DB 側の一意索引も lower() で張ってある** — 揃っていないと索引が効かない。
   findByMailAddress: async (mailAddress) =>
@@ -74,4 +115,9 @@ export const userRepository = (db: Database): UserRepository => ({
     )
       .mapError(handleDbError)
       .map(restoreUser),
+
+  deleteById: async (id) =>
+    (await Result.tryPromise(() => db.delete(tUser).where(eq(tUser.id, id))))
+      .mapError(handleDbError)
+      .map(() => undefined),
 });

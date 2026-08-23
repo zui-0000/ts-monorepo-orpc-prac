@@ -4,6 +4,7 @@ import type { MailAddress } from "~/shared/domain/model/value-objects/mail-addre
 import { MailAddressDuplicationError } from "~/shared/errors/mail-address-duplication-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 
+import type { UserId } from "../model/value-objects/user-id.ts";
 import type { UserRepository } from "../user-repository.ts";
 
 /**
@@ -13,24 +14,24 @@ import type { UserRepository } from "../user-repository.ts";
  * 集約 1 つを見ても答えが出ない (他の全ユーザーを知る必要がある) ため、
  * 集約にも値オブジェクトにも属さない。
  *
- * 要求するのは `findByMailAddress` **だけ**。`Pick` で絞るのは、このサービスが
+ * 要求するのは `findByMailAddress` だけ。`Pick` で絞るのは、このサービスが
  * 書き込みをしないことを型で示すため。
  *
- * ---
- *
- * **更新を移す段では引数がもう 1 つ要る。** 重複判定から自分自身を除外しないと、
- * メールアドレスを変えない更新が「既に使われている」で常に失敗する。
+ * `excluding` には重複判定から除外するユーザーを渡す。**更新で必須** —
+ * 無いとメールアドレスを変えない更新が常に「既に使われている」で失敗する。
  */
 export const checkMailAddressDuplication = (
   deps: { readonly userRepository: Pick<UserRepository, "findByMailAddress"> },
   mailAddress: MailAddress,
+  options: { readonly excluding?: UserId } = {},
 ): Promise<Result<void, MailAddressDuplicationError | RepositoryError>> =>
   Result.gen(async function* () {
     const user = yield* Result.await(
       deps.userRepository.findByMailAddress(mailAddress),
     );
 
-    if (user !== undefined) {
+    // 除外対象本人以外の誰かが使っていれば重複。
+    if (user !== undefined && user.id !== options.excluding) {
       return Result.err(new MailAddressDuplicationError());
     }
 

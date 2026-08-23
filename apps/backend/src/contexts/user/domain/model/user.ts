@@ -1,3 +1,4 @@
+import { Result } from "better-result";
 import * as v from "valibot";
 
 import type { Clock } from "~/shared/domain/clock.ts";
@@ -6,8 +7,11 @@ import {
   MailAddressSchema,
 } from "~/shared/domain/model/value-objects/mail-address.ts";
 import { parseInvariant } from "~/shared/domain/parse-invariant.ts";
+import type { PasswordHasher } from "~/shared/domain/password-hasher.ts";
 import type { UuidGenerator } from "~/shared/domain/uuid-generator.ts";
+import { PasswordMismatchError } from "~/shared/errors/password-mismatch-error.ts";
 
+import type { Password } from "./value-objects/password.ts";
 import {
   type UserHashedPassword,
   UserHashedPasswordSchema,
@@ -51,3 +55,48 @@ export const createUser = (
     updatedAt: timestamp,
   };
 };
+
+/**
+ * プロフィールを変更した集約を返す。元の User は書き換えない。
+ * 契約が PUT (全置換) なので「変更後の値で差し替える」操作として表現する。
+ */
+export const changeUserProfile = (
+  deps: { readonly clock: Clock },
+  user: User,
+  params: { readonly name: UserName; readonly mailAddress: MailAddress },
+): User => ({
+  ...user,
+  name: params.name,
+  mailAddress: params.mailAddress,
+  updatedAt: deps.clock.now(),
+});
+
+/**
+ * 渡された平文が、このユーザーの現在のパスワードかを確かめる。
+ * 集約 1 つで答えが出るためドメインサービスではなく集約に置く。
+ */
+export const verifyUserPassword = async (
+  deps: { readonly passwordHasher: PasswordHasher },
+  user: User,
+  plainText: Password,
+): Promise<Result<void, PasswordMismatchError>> => {
+  const matched = await deps.passwordHasher.verify(
+    plainText,
+    user.hashedPassword,
+  );
+  return matched ? Result.ok() : Result.err(new PasswordMismatchError());
+};
+
+/**
+ * パスワードを変更した集約を返す。受け取るのはハッシュ済みの値だけで、
+ * 平文も本人確認もここには現れない。
+ */
+export const changeUserPassword = (
+  deps: { readonly clock: Clock },
+  user: User,
+  hashedPassword: UserHashedPassword,
+): User => ({
+  ...user,
+  hashedPassword,
+  updatedAt: deps.clock.now(),
+});
