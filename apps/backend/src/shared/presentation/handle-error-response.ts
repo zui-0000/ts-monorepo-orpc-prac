@@ -12,7 +12,7 @@ import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-e
  *
  * ---
  *
- * **契約が定義しているのに、ここに無いものがある。** 理由は 2 種類。
+ * **ここに無いエラーがある。** 理由は 3 種類。
  *
  * 1. **まだ移していないだけ** — `ConflictError` (汎用)、`PasswordMismatchError`
  *    (changePassword)、`UnauthorizedError` (認証)。
@@ -20,6 +20,9 @@ import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-e
  *
  * 2. **実装が投げることが無い** — `BadRequestError` と `InternalServerError`。
  *    どちらも oRPC が入力検証・出力検証で直接投げる
+ *
+ * 3. **`Result` に乗らない** — `InvariantViolationError`。実装の誤りなので
+ *    throw し、oRPC の既定の 500 になる (設計関連/ADR-04)
  */
 export type ApplicationError =
   | ForbiddenError
