@@ -33,6 +33,7 @@ catalog:
   react-dom: ^19.2.8
   oxfmt: ^0.64.0
   oxlint: ^1.79.0
+  oxlint-tsgolint: ^7.0.2001
   typescript: ^7.0.2
   valibot: ^1.4.2
   vite: ^8.2.2

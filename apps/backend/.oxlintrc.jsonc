@@ -1,0 +1,26 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // **この設定はこのパッケージだけのもの。** 契約や frontend とは見るものが違うため
+  // extends では繋がない (共通なのは plugins と categories くらい)。
+  "plugins": ["typescript", "unicorn", "oxc", "promise", "node"],
+  "categories": {
+    "correctness": "error",
+  },
+  "options": {
+    // 型情報を要するルールを有効にする (oxlint-tsgolint が担当)。
+    // await 忘れ (no-floating-promises) など、構文だけでは分からない誤りを拾う。
+    // DB アクセスと Result の受け渡しが増えるほど効いてくる。
+    "typeAware": true,
+  },
+  "rules": {
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }],
+    "typescript/consistent-type-imports": "error",
+    // オブジェクトの形は type で統一する。interface は宣言のマージで
+    // 第三者が黙って項目を生やせるため、ポートの定義には向かない。
+    "typescript/consistent-type-definitions": "off",
+    "require-unicode-regexp": "error",
+  },
+  "env": {
+    "builtin": true,
+  },
+}

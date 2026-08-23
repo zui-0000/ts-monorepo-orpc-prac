@@ -19,3 +19,14 @@ pre-commit:
       root: packages/contract/
       glob: "packages/contract/src/**/*.ts"
       run: pnpm build
+
+    backend-check:
+      # 型情報を使う lint (no-floating-promises 等) はここで走る。
+      root: apps/backend/
+      glob: "apps/backend/**/*.ts"
+      run: pnpm check:lint && pnpm check:type
+
+    frontend-check:
+      root: apps/frontend/
+      glob: "apps/frontend/**/*.{ts,tsx}"
+      run: pnpm check:lint && pnpm check:type

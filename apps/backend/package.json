@@ -9,7 +9,11 @@
     "check:type": "tsc --noEmit",
     "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "bun db/migrate.ts",
-    "db:studio": "drizzle-kit studio --config ./drizzle.config.ts"
+    "db:studio": "drizzle-kit studio --config ./drizzle.config.ts",
+    "check:lint": "oxlint -c .oxlintrc.jsonc",
+    "format:check": "oxfmt --check src db",
+    "format:fix": "oxfmt src db",
+    "lint:fix": "pnpm check:lint --fix && pnpm format:fix && pnpm check:type"
   },
   "dependencies": {
     "@orpc-prac/contract": "workspace:*",
@@ -21,6 +25,8 @@
   "devDependencies": {
     "@orpc-prac/tsconfig": "workspace:*",
     "@types/bun": "catalog:",
-    "drizzle-kit": "catalog:"
+    "drizzle-kit": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:"
   }
 }

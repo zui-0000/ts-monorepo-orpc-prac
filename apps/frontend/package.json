@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm check:type && vite build",
+    "build": "pnpm lint:fix && vite build",
     "preview": "vite preview",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "check:lint": "oxlint -c .oxlintrc.jsonc",
+    "format:check": "oxfmt --check src",
+    "format:fix": "oxfmt src",
+    "lint:fix": "pnpm check:lint --fix && pnpm format:fix && pnpm check:type"
   },
   "dependencies": {
     "@orpc-prac/contract": "workspace:*",
@@ -22,6 +26,8 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "vite": "catalog:"
   }
 }

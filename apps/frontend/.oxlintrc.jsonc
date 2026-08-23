@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // **この設定はこのパッケージだけのもの。** backend / 契約とは見るものが違う。
+  "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error",
+  },
+  "options": {
+    // 型情報を要するルールを有効にする (oxlint-tsgolint が担当)。
+    // fetch や送信処理の await 忘れを拾う。
+    "typeAware": true,
+  },
+  "rules": {
+    // **PascalCase も許す。** React ではコンポーネントのファイル名を型名と
+    // 揃えるのが慣習で (App.tsx)、エコシステムの生成物もその形で出てくる。
+    // 既定は kebab-case のままにして、コンポーネント以外が釣られないようにする。
+    "unicorn/filename-case": [
+      "error",
+      { "cases": { "kebabCase": true, "pascalCase": true } },
+    ],
+    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-type-definitions": "off",
+    "require-unicode-regexp": "error",
+  },
+  "env": {
+    "builtin": true,
+  },
+}
