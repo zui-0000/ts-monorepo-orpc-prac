@@ -1,36 +1,15 @@
+import { userRouter } from "~/contexts/user/presentation/user-router.ts";
 import { os } from "~/shared/presentation/os.ts";
 
-import { appDeps } from "./app-deps.ts";
-import { getUserHandler } from "./contexts/user/presentation/get-user-handler.ts";
+import type { AppDeps } from "./app-deps.ts";
 
-export const router = os.router({
-  user: {
-    create: os.user.create.handler(({ input }) => {
-      console.log("[create]", input.name, input.mailAddress);
-      return { id: "018eef15-1234-7123-8123-123456789abc" };
-    }),
-
-    get: getUserHandler(appDeps),
-
-    update: os.user.update.handler(({ input }) => {
-      console.log("[update]", input.id, input.name);
-    }),
-
-    delete: os.user.delete.handler(({ input }) => {
-      console.log("[delete]", input.id);
-    }),
-
-    changePassword: os.user.changePassword.handler(({ input, errors }) => {
-      if (input.currentPassword === input.newPassword) {
-        throw errors.PASSWORD_MISMATCH_ERROR({
-          data: {
-            status: 401,
-            code: "4011",
-            title: "現在のパスワードが正しくありません",
-          },
-        });
-      }
-      console.log("[changePassword]", input.id);
-    }),
-  },
-});
+/**
+ * 契約の実装を合成する。知っているのは**どのコンテキストを繋ぐか**だけ。
+ *
+ * 各コンテキストの実装は所有者が持つ (`contexts/<ctx>/presentation/<ctx>-router.ts`)。
+ * コンテキストが増えてもここは 1 行増えるだけで済む。
+ */
+export const router = (deps: AppDeps) =>
+  os.router({
+    user: userRouter(deps),
+  });
