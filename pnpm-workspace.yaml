@@ -6,6 +6,8 @@ allowBuilds:
   # 利用状況を送信するだけのパッケージ。動作に不要なので実行させない。
   "@scarf/scarf": false
   esbuild: true
+  # ネイティブバイナリを postinstall で配置する (dependency-cruiser のパーサー)。
+  "@swc/core": true
   # プラットフォーム別バイナリを postinstall で配置する。
   lefthook: true
 
@@ -20,12 +22,14 @@ catalog:
   "@orpc/openapi-client": ^1.15.0
   "@orpc/server": ^1.15.0
   "@orpc/valibot": ^1.15.0
+  "@swc/core": ^1.16.1
   "@types/bun": ^1.4.0
   "@types/node": ^24.13.3
   "@types/react": ^19.2.18
   "@types/react-dom": ^19.2.4
   "@vitejs/plugin-react": ^6.1.0
   better-result: ^3.0.1
+  dependency-cruiser: ^18.2.0
   drizzle-kit: ^0.31.10
   drizzle-orm: ^0.45.2
   hono: ^4.13.3

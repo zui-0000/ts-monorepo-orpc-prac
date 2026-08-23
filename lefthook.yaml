@@ -35,10 +35,11 @@ pre-commit:
       run: pnpm check:lint && pnpm check:type && pnpm build:artifacts
 
     backend:
-      # 型情報を使う lint (no-floating-promises 等) はここで走る。
+      # 型情報を使う lint (no-floating-promises 等) と、
+      # 依存の向き (dependency-cruiser) をここで見る。
       root: apps/backend/
       glob: "apps/backend/**"
-      run: pnpm check:lint && pnpm check:type
+      run: pnpm check:lint && pnpm check:type && pnpm check:deps
 
     frontend:
       root: apps/frontend/

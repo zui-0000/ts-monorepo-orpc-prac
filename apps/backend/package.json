@@ -11,10 +11,11 @@
     "db:migrate": "bun db/migrate.ts",
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts",
     "check:lint": "oxlint -c .oxlintrc.jsonc",
+    "check:deps": "depcruise src --config .dependency-cruiser.mjs --output-type err-long",
     "test": "bun test",
     "format:check": "oxfmt --check src db",
     "format:fix": "oxfmt src db",
-    "lint:fix": "pnpm check:lint --fix && pnpm format:fix && pnpm check:type"
+    "lint:fix": "pnpm check:lint --fix && pnpm format:fix && pnpm check:type && pnpm check:deps"
   },
   "dependencies": {
     "@orpc-prac/contract": "workspace:*",
@@ -27,7 +28,9 @@
   },
   "devDependencies": {
     "@orpc-prac/typescript-config": "workspace:*",
+    "@swc/core": "catalog:",
     "@types/bun": "catalog:",
+    "dependency-cruiser": "catalog:",
     "drizzle-kit": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
