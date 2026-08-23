@@ -1,0 +1,26 @@
+{
+  "name": "@orpc-prac/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
+    "db:migrate": "bun db/migrate.ts",
+    "db:studio": "drizzle-kit studio --config ./drizzle.config.ts"
+  },
+  "dependencies": {
+    "@orpc-prac/contract": "workspace:*",
+    "@orpc/openapi": "catalog:",
+    "@orpc/server": "catalog:",
+    "drizzle-orm": "catalog:",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@orpc-prac/tsconfig": "workspace:*",
+    "@types/bun": "catalog:",
+    "drizzle-kit": "catalog:"
+  }
+}

@@ -1,11 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "_comment": "Bun をランタイムにするパッケージ向け。bun init の既定に合わせてある。.ts 拡張子の import を許可し、実行は Bun に任せる。",
+  "_comment": "Bun をランタイムにするパッケージ向け。bun init の既定に合わせてある。.ts 拡張子の import を許可し、実行は Bun に任せる。types に bun を明示するのは、pnpm の厳格な node_modules 構造では @types の自動検出が効かないため。",
   "extends": "./base.json",
   "compilerOptions": {
     "module": "preserve",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": [
+      "bun"
+    ]
   }
 }
