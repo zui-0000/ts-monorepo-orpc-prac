@@ -8,18 +8,17 @@
     "pnpm": ">=11.22.0"
   },
   "scripts": {
-    "prepare": "command -v hk >/dev/null 2>&1 && hk install || true",
+    "prepare": "lefthook install",
     "build": "pnpm -r run build",
     "dev": "pnpm -r --parallel run dev",
     "typecheck": "pnpm -r run typecheck",
-    "test": "pnpm -r run test",
-    "lint": "hk check --all",
-    "fix": "hk fix --all"
+    "test": "pnpm -r run test"
   },
   "devDependencies": {
     "@commitlint/cli": "catalog:",
     "@commitlint/config-conventional": "catalog:",
     "@commitlint/types": "catalog:",
+    "lefthook": "catalog:",
     "typescript": "catalog:"
   }
 }

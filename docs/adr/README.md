@@ -12,7 +12,7 @@
 
 | # | タイトル | ステータス | 決定日 |
 | --- | --- | --- | --- |
-| [ADR-01](./ライブラリ関連/ADR-01-コミットメッセージ規約にhkとcommitlintを採用.md) | コミットメッセージ規約に hk と commitlint を採用 | accepted | 2026-08-22 |
+| [ADR-01](./ライブラリ関連/ADR-01-コミットメッセージ規約にlefthookとcommitlintを採用.md) | コミットメッセージ規約に lefthook と commitlint を採用 | accepted | 2026-08-23 |
 | [ADR-02](./ライブラリ関連/ADR-02-pnpm-catalogはフラットな単一カタログを採用.md) | pnpm catalog はフラットな単一カタログを採用 | accepted | 2026-08-22 |
 | [ADR-03](./ライブラリ関連/ADR-03-バリデーションライブラリにvalibotを採用.md) | バリデーションライブラリに valibot を採用 | accepted | 2026-08-23 |
 

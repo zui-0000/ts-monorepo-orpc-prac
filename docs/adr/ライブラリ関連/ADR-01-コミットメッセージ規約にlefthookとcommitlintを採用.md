@@ -1,12 +1,12 @@
 ---
 status: accepted
-date: 2026-08-22
+date: 2026-08-23
 decision-makers: zui
 consulted: Claude
 informed:
 ---
 
-# コミットメッセージ規約に hk と commitlint を採用
+# コミットメッセージ規約に lefthook と commitlint を採用
 
 ## 背景と課題 (Context and Problem Statement)
 
@@ -18,8 +18,13 @@ informed:
   過程で削除した
 - コミットメッセージは**日本語で書く**
 
-ここで「フックをいつ・どう発火させるか」と「メッセージが規約に沿うかをどう検証するか」は**別の関心事**である。前者は hk で確定しているため、
-後者に何を使うかを決める必要がある。
+ここで「**フックをいつ・どう発火させるか**」と「**メッセージが規約に沿うかを
+どう検証するか**」は別の関心事であり、それぞれ何を使うかを決める必要がある。
+
+当初はフック管理を hk のまま進めたが、後に**依存の管理方針**が固まった
+（→ ADR-02: 依存は `pnpm-workspace.yaml` の catalog に集約する）。
+hk は mise で入れるバイナリでこの方針から外れる唯一の存在だったため、
+npm パッケージとして配布される lefthook へ移した。
 
 ## 決定要因 (Decision Drivers)
 
@@ -28,35 +33,42 @@ informed:
 * 規約を後から調整できること
 * 設定ミスに気づけること（黙って素通りしないこと）
 * コミットのたびに走るため、実行時間が実用的であること
+* 依存が catalog で一元管理できること（→ ADR-02）
 
 ## 検討した選択肢 (Considered Options)
+
+**メッセージの検証**
 
 * hk 内蔵の `check_conventional_commit`
 * commitlint（npm）
 * committed（Rust）
 * cocogitto
 
+**フックの管理**
+
+* hk（mise で入れるバイナリ）
+* lefthook（npm パッケージ）
+
 ## 決定 (Decision Outcome)
 
-**選択: 「フック管理は hk、メッセージ検証は commitlint」**
+**選択: 「フック管理は lefthook、メッセージ検証は commitlint」**
 
-`hk.pkl` の `commit-msg` フックから commitlint を呼ぶ。
+`lefthook.yml` の `commit-msg` フックから commitlint を呼ぶ。
 
-```pkl
-hooks {
-    ["commit-msg"] {
-        steps {
-            ["commitlint"] {
-                check = "./node_modules/.bin/commitlint --edit {{commit_msg_file}}"
-            }
-        }
-    }
-}
+```yml
+commit-msg:
+  commands:
+    commitlint:
+      # {1} は git が渡す第 1 引数 = コミットメッセージファイルのパス
+      run: ./node_modules/.bin/commitlint --edit {1}
 ```
 
-決め手は **`git merge` を妨げない唯一の選択肢**であり、かつ日本語向けに
-規約を調整できる点。依存はワークスペースルートに置き、`catalog:` 参照と
-する（→ ADR-02）。
+検証に commitlint を選ぶ決め手は **`git merge` を妨げない唯一の選択肢**で
+あり、かつ日本語向けに規約を調整できる点。
+
+フック管理に lefthook を選ぶ決め手は、**npm パッケージとして catalog に
+載せられる**点。依存はすべて `pnpm-workspace.yaml` に集約する方針
+（→ ADR-02）に対し、hk だけが mise 管理のバイナリで例外になっていた。
 
 - `@commitlint/cli` ^21.2.2
 - `@commitlint/config-conventional` ^21.2.2
@@ -67,13 +79,13 @@ hooks {
 
 ```jsonc
 "scripts": {
-  "prepare": "command -v hk >/dev/null 2>&1 && hk install || true"
+  "prepare": "lefthook install"
 }
 ```
 
 `prepare` は pnpm が install 後に自動実行するライフサイクルスクリプトで、
-husky が採用しているのと同じ仕組み。**`hk` の有無を確認してから実行する
-ガードは必須**（理由は補足情報の「セットアップの仕組み」を参照）。
+husky が採用しているのと同じ仕組み。lefthook は npm 依存なので
+`node_modules/.bin` から解決でき、PATH の有無を気にしなくてよい。
 
 `commitlint.config.js`:
 
@@ -105,11 +117,13 @@ build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
   ルール名の typo が防げる
 * Good, because TypeScript エコシステムの定番であり、情報を探しやすい
 * Good, because 旧 `committed.toml` の意図を 12 項目中 10 項目まで再現できた
-* Bad, because フック 1 回あたり **0.45 秒**かかる。hk 内蔵（Rust）なら
-  数十 ms で済むため、明確な速度劣化である
-* Bad, because 依存が 3 つ増える
-* Bad, because clone しただけではフックが有効にならない。`hk install` が
-  別途必要（`prepare` スクリプトで自動化したが、仕組みの理解は必要）
+* Good, because フック管理も含めて依存が catalog に揃った。mise で管理する
+  ものは言語ランタイムだけになる
+* Neutral, because 不正なメッセージの検出は実測 0.08 秒。hk 経由（0.45 秒）
+  より速く、体感できる待ちは無い
+* Bad, because 依存が増える（commitlint 3 つ + lefthook）
+* Bad, because clone しただけではフックが有効にならない。`lefthook install`
+  が別途必要（`prepare` スクリプトで自動化したが、仕組みの理解は必要）
 * Bad, because `no_fixup` / `no_wip` 相当は実現できていない
 
 ### 確認方法 (Confirmation)
@@ -138,19 +152,18 @@ git merge --no-ff <branch>
 # -> "Not committing merge" で止まったらフックがマージを妨げている
 ```
 
-**4. hk のバージョンが `mise.toml` と一致しているか**
+**4. フックがそもそも登録されているか**
 
 ```bash
-which hk        # PATH 上の実体
-mise which hk   # mise.toml が指すもの
-# -> 食い違っていたらシェルを開き直す
+ls .git/hooks/ | grep -v sample
+# -> commit-msg と pre-commit が出れば登録済み
 ```
 
-**5. フックがそもそも登録されているか**
+**5. マージが詰まないか**
 
 ```bash
-git config --get-regexp '^hook\.'
-# -> hook.hk-commit-msg.command が出れば登録済み
+git merge --no-ff <branch>
+# -> 完了すれば正常。commitlint は merge コミットを既定で無視する
 ```
 
 **6. clone した人の環境で有効になるか**
@@ -160,8 +173,8 @@ git config --get-regexp '^hook\.'
 ```bash
 git clone <repo> /tmp/verify && cd /tmp/verify
 mise install
-pnpm install                                  # prepare が hk install を実行
-git config --get-regexp '^hook\.'             # 登録されていること
+pnpm install                                  # prepare が lefthook install を実行
+ls /tmp/verify/.git/hooks/ | grep -v sample   # commit-msg が出ること
 git commit --allow-empty -m "update stuff"    # 弾かれること
 ```
 
@@ -171,7 +184,7 @@ git commit --allow-empty -m "update stuff"    # 弾かれること
 
 ## 各選択肢の評価 (Pros and Cons of the Options)
 
-### hk 内蔵の `check_conventional_commit`
+### メッセージの検証: hk 内蔵の `check_conventional_commit`
 
 hk には conventional commit チェッカーが内蔵されている
 （`hk util check-conventional-commit`）。ソース
@@ -213,7 +226,7 @@ Not committing merge; use 'git commit' to complete the merge.
 なお `git revert` は commit-msg フックを呼ばないため、`Revert "..."` は
 この選択肢でも問題にならなかった（実測で確認）。**問題は merge だけ**である。
 
-### commitlint（npm）— 採用
+### メッセージの検証: commitlint — 採用
 
 * Good, because **`defaultIgnores` により merge / revert / fixup を
   設定ゼロでスキップする**
@@ -270,7 +283,7 @@ pnpm は厳格で node_modules 直下にシンボリックリンクを張らな�
 
 フック全体では 0.90 秒 → 0.45 秒に半減した。
 
-### committed（Rust）
+### メッセージの検証: committed
 
 削除する前まで使っていたもの。`committed.toml` で細かく設定できる。
 
@@ -283,13 +296,43 @@ pnpm は厳格で node_modules 直下にシンボリックリンクを張らな�
   無効化する必要があり、実効ルールは commitlint とほぼ同じになる
 * Bad, because TypeScript プロジェクトの依存管理（catalog）の外に出る
 
-### cocogitto
+### メッセージの検証: cocogitto
 
 * Good, because conventional commits に特化している
 * Bad, because `cog.toml` という別の設定ファイルが必要
 * Bad, because 今回の要件に対して commitlint 以上の利点が見当たらなかった
 
 候補として挙げたのみで、詳細な評価は行っていない。
+
+### フックの管理: hk
+
+* Good, because Rust 製で速い
+* Good, because builtin が豊富（`check_conventional_commit` / `prettier` /
+  `eslint` などが 1 行で使える）
+* Good, because mise の作者による実装で、mise との統合が前提にある
+* Bad, because **mise で入れるバイナリなので catalog に載せられない**。
+  依存を `pnpm-workspace.yaml` に集約する方針（→ ADR-02）から外れる唯一の存在だった
+* Bad, because 設定が Pkl。`amends "package://github.com/jdx/hk/releases/…"` の
+  ような記述が必要で、YAML に比べて書き方を調べる場面が多い
+* Bad, because 新しく情報が少ない
+
+### フックの管理: lefthook — 採用
+
+* Good, because **npm パッケージとして catalog に載る**。依存の管理方針が揃う
+* Good, because 設定が YAML で、`root` / `glob` / `parallel` といった
+  モノレポ向けの機能が素直に書ける
+* Good, because 実績があり情報を探しやすい
+* Neutral, because builtin は持たずコマンドを直接書く。ただし本プロジェクトが
+  hk で使っていた builtin は無かった（commitlint を直接呼んでいた）ため失うものが無い
+* Bad, because postinstall でバイナリを配置するため `allowBuilds` の許可が要る
+
+**乗り換えの実測**
+
+| 確認 | 結果 |
+| --- | --- |
+| 不正なメッセージを弾く | ✅（0.08 秒。hk 経由では 0.45 秒） |
+| 日本語 + 英大文字略語が通る | ✅ |
+| 非 FF マージが詰まない | ✅ |
 
 ## 補足情報 (More Information)
 
@@ -325,37 +368,28 @@ pnpm は厳格で node_modules 直下にシンボリックリンクを張らな�
 
 ### セットアップの仕組み
 
-**clone しただけではフックは有効にならない。** `hk.pkl` をコミットしても、
-フックの登録先は `.git/config`（または `.git/hooks/`）であり、
-**`.git` の中身は clone されない**ためである。
+**clone しただけではフックは有効にならない。** `lefthook.yml` をコミットしても、
+フックの登録先は `.git/hooks/` であり、**`.git` の中身は clone されない**ためである。
 
 使い捨ての clone で実測したところ、以下が確認できた。
 
 | 手順 | フックの状態 |
 | --- | --- |
 | `git clone` 直後 | **未登録**。`update stuff` がそのまま通ってしまう |
-| `mise install` | バイナリが入るだけ。**登録されない** |
-| `pnpm install` | commitlint が `node_modules` に入る |
-| `hk install` | **ここで初めて登録される** |
+| `mise install` | ランタイムが入るだけ。**登録されない** |
+| `pnpm install` | commitlint と lefthook が `node_modules` に入る |
+| `lefthook install` | **ここで初めて登録される** |
 
 この 3 手順を 2 手順に減らすため、`package.json` に `prepare` スクリプトを
 置いた。結果、clone した人がやることは以下だけになる。
 
 ```bash
-mise install    # node / pnpm / hk
-pnpm install    # commitlint + prepare で hk install も走る
+mise install    # node / pnpm / bun
+pnpm install    # 依存 + prepare で lefthook install も走る
 ```
 
-**ガードが必須な理由**
-
-`prepare` を素の `hk install` にすると、`hk` が PATH に無い環境で
-**インストール自体が失敗する**。CI で mise を使わず pnpm だけセットアップ
-する構成が該当する。実測結果:
-
-| `prepare` の中身 | hk 無しでの `pnpm install --frozen-lockfile` |
-| --- | --- |
-| `hk install` | **exit 1**（`sh: hk: command not found`） |
-| `command -v hk >/dev/null 2>&1 && hk install \|\| true` | exit 0（スキップ） |
+lefthook は npm 依存なので `node_modules/.bin` から呼べる。hk のときに必要
+だった「PATH に無ければ飛ばす」ガードは要らない。
 
 **`prepare` が走る条件**
 
@@ -371,19 +405,12 @@ pnpm 11 は `optimisticRepeatInstall` が既定で有効なため、依存に変
 clone 直後は必ず `node_modules` が無いため目的は達成される。
 既存環境でフックを入れ直すときは `pnpm run prepare` を使う。
 
-**git のバージョンで登録方式が変わる**
+**postinstall の許可が要る**
 
-hk は git のバージョンを見て方式を切り替える（実測で両方を確認）。
-
-| git のバージョン | 登録方式 |
-| --- | --- |
-| 2.54 以上 | config-based hooks（`hook.<name>.command`）。`.git/hooks/` を汚さない |
-| 2.53 以下 | `.git/hooks/` にスクリプトシムを書く |
-
-macOS 付属の `/usr/bin/git` は 2.50.1 であり、Homebrew 版（2.55.0）と
-挙動が分かれる。**どちらの方式でもフックは正しく動作する**が、
-`git config --get-regexp '^hook\.'` で確認できるのは前者だけなので、
-検証時は `.git/hooks/` も見ること。
+lefthook はプラットフォーム別バイナリを `optionalDependencies` で配り、
+postinstall で配置する。pnpm 11 は既定で全てのビルドスクリプトを拒否する
+ため、`pnpm-workspace.yaml` の `allowBuilds` に許可を書く必要がある
+（`pnpm approve-builds` が追記する）。
 
 ### ローカルフックの限界（重要な認識）
 
@@ -408,6 +435,8 @@ macOS 付属の `/usr/bin/git` は 2.50.1 であり、Homebrew 版（2.55.0）�
 
 ### 学び: サイレント失敗を踏んだ話
 
+フック管理が hk だった時期の出来事だが、**教訓は道具に依らない**ため残す。
+
 **hk 1.54.1 は `Builtins.check_conventional_commit` を解決できないとき、
 エラーも警告も出さずに黙ってスキップした。**
 
@@ -429,10 +458,15 @@ macOS 付属の `/usr/bin/git` は 2.50.1 であり、Homebrew 版（2.55.0）�
 - **フックを入れたら必ず NG メッセージで実地確認する**（→ 確認方法の節）
 - `mise.toml` を書き換えたらシェルを開き直す（PATH は起動時に固定される）
 - CI や GUI の git クライアントなど mise activate が効かない環境では、
-  同じ理由でフックが動かない可能性がある
+  同じ理由で道具が見つからない可能性がある
+
+lefthook は npm 依存で `node_modules/.bin` から解決するため、この経路の
+PATH ずれは起きにくい。ただし**「設定したのに効いていない」に気づけない**
+という失敗の形そのものは、どの道具でも起こりうる。
 
 ### 参考
 
 - `man githooks` — commit-msg は git-commit と git-merge から呼ばれる
-- hk のソース: `src/cli/util/check_conventional_commit.rs`
+- https://lefthook.dev/ — 設定の記法（`{1}` などのテンプレート）
 - https://commitlint.js.org/reference/configuration.html
+- hk のソース: `src/cli/util/check_conventional_commit.rs`（検証内容の確認に使用）

@@ -46,6 +46,9 @@ export const generateOpenApiSpec = async (options?: OpenApiSpecOptions) =>
       version: "0.0.0",
       description: "backend が提供する API の契約一覧。",
     },
+    // 各操作が .route({ tags }) で参照するタグの定義。
+    // ここに無いタグを使うと Swagger で説明が出ない (openapi:lint が検出する)。
+    tags: [{ name: "Users", description: "ユーザーの登録・取得・更新・削除" }],
     customErrorResponseBodySchema: (definedErrors) =>
       errorResponseBodySchema(definedErrors) as never,
     ...(options?.servers ? { servers: [...options.servers] } : {}),

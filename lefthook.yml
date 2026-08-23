@@ -1,0 +1,21 @@
+# git hooks の設定。
+#
+# clone した人は pnpm install だけで有効になる (package.json の prepare が
+# lefthook install を呼ぶ)。フックの登録先は .git/ 配下なので、
+# 設定ファイルを共有するだけでは有効にならない点に注意。
+
+commit-msg:
+  commands:
+    commitlint:
+      # {1} は git が渡す第 1 引数 = コミットメッセージファイルのパス。
+      run: ./node_modules/.bin/commitlint --edit {1}
+
+pre-commit:
+  parallel: true
+  commands:
+    openapi-lint:
+      # 契約が変わったときだけ走らせる。生成される OpenAPI 仕様に
+      # 説明やタグの欠落が無いかを見る (型検査では見つからない類)。
+      root: packages/contract/
+      glob: "packages/contract/src/**/*.ts"
+      run: bun scripts/lint-openapi.ts

@@ -17,7 +17,8 @@
     "build": "tsc --build",
     "typecheck": "tsc --build && tsc --noEmit -p scripts",
     "preview": "bun --hot scripts/preview.ts",
-    "clean": "tsc --build --clean"
+    "clean": "tsc --build --clean",
+    "openapi:lint": "bun scripts/lint-openapi.ts"
   },
   "dependencies": {
     "@orpc/contract": "catalog:",
@@ -27,6 +28,8 @@
   },
   "devDependencies": {
     "@orpc-prac/tsconfig": "workspace:*",
+    "@stoplight/spectral-core": "catalog:",
+    "@stoplight/spectral-rulesets": "catalog:",
     "@types/bun": "catalog:",
     "@types/swagger-ui-dist": "catalog:",
     "swagger-ui-dist": "catalog:",
