@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "build": "pnpm lint:fix && tsc --build && pnpm build:openapi",
+    "build": "pnpm lint:fix && rm -rf dist && tsc --build && pnpm build:openapi",
     "build:openapi": "node scripts/build-openapi.ts",
     "check:type": "tsc --noEmit -p .",
     "check:lint": "oxlint -c .oxlintrc.jsonc",

@@ -16,6 +16,7 @@ pre-commit:
     contract-build:
       # 契約が変わったときだけ走らせる。lint / 整形 / 型検査を通し、
       # 契約が dist と OpenAPI 仕様まで組み上がることを確かめる。
+      # build は毎回 dist を作り直す (消したファイルの成果物が残るため)。
       root: packages/contract/
       glob: "packages/contract/src/**/*.ts"
       run: pnpm build
