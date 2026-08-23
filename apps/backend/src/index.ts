@@ -1,9 +1,11 @@
+import { encodeErrorResponseBody } from "@orpc-prac/contract/error-encoder";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { onError } from "@orpc/server";
 import { Hono } from "hono";
 
+import type { AuthenticatedCaller } from "~/shared/domain/model/authenticated-caller.ts";
+
 import { router } from "./router.ts";
-import { encodeErrorResponseBody } from "./shared/presentation/encode-error-response.ts";
 
 const app = new Hono();
 
@@ -22,19 +24,20 @@ const handler = new OpenAPIHandler(router, {
 });
 
 /**
- * 操作している本人の id を決める。
+ * 認証を通った相手を決める。
  *
  * **これは認証ではない。** ヘッダの値をそのまま信じているので、
  * 誰でも他人を名乗れる。better-auth を入れる段でセッションから引く形に
  * 差し替える。それまで動作確認ができるよう受け口だけ用意している。
  */
-const resolveActor = (request: Request): string =>
-  request.headers.get("x-actor-id") ?? "";
+const resolveCaller = (request: Request): AuthenticatedCaller => ({
+  userId: request.headers.get("x-actor-id") ?? "",
+});
 
 app.use("/api/*", async (c, next) => {
   const { matched, response } = await handler.handle(c.req.raw, {
     prefix: "/api",
-    context: { actor: resolveActor(c.req.raw) },
+    context: { caller: resolveCaller(c.req.raw) },
   });
   if (matched) {
     return c.newResponse(response.body, response);

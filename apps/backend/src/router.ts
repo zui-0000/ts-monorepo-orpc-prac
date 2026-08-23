@@ -1,18 +1,12 @@
 import { contract } from "@orpc-prac/contract";
 import { implement } from "@orpc/server";
 
+import type { AppContext } from "~/shared/presentation/app-context.ts";
+
 import { appDeps } from "./app-deps.ts";
 import { getUserHandler } from "./contexts/user/presentation/get-user-handler.ts";
 
-/**
- * 契約の実装。
- *
- * `actor` は「操作している本人」の id。認可 (checkUserIsSelf) が使う。
- * **いまは認証が無いため呼び出し側が仮の値を入れている** — better-auth を
- * 入れる段でここが本物になる。
- */
-export type AppContext = { readonly actor: string };
-
+/** 契約の実装。 */
 const os = implement(contract).$context<AppContext>();
 
 export const router = os.router({

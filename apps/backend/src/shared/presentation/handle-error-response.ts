@@ -15,6 +15,23 @@ import { ErrorPayload } from "~/shared/presentation/constants/error-payload.ts";
  * ドメイン/アプリケーションは HTTP を知らないため、**対応付けをこの 1 ファイルに
  * 閉じ込める。** ユースケースが増えても翻訳規則は 1 箇所にあり、
  * 同じ失敗が経路ごとに違うステータスで返る事故が起きない。
+ *
+ * ---
+ *
+ * **契約が定義しているのに、ここに無いものがある。** 理由は 2 種類。
+ *
+ * 1. **まだ移していないだけ** — `ConflictError` / `MailAddressDuplicationError`
+ *    (create)、`PasswordMismatchError` (changePassword)、`UnauthorizedError`
+ *    (認証)。ユースケースを移すたびにここへ足す
+ *
+ * 2. **実装が投げることが無い** — `BadRequestError` と `InternalServerError`
+ *
+ *    前者は**入力検証の失敗で、oRPC が契約のスキーマを見て直接投げる**。
+ *    移行元では decodeInput が担っていた仕事を oRPC が引き取ったため、
+ *    実装が組み立てる場面が無い。
+ *    後者も oRPC が直接投げるか、`RepositoryError` からの翻訳で出る。
+ *
+ *    どちらも本文の組み立ては契約側 (`@orpc-prac/contract/error-encoder`) が持つ。
  */
 export type ApplicationError =
   | ForbiddenError

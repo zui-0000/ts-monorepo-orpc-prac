@@ -1,6 +1,7 @@
 import { contract } from "@orpc-prac/contract";
 import { implement } from "@orpc/server";
 
+import type { AppContext } from "~/shared/presentation/app-context.ts";
 import { handleErrorResponse } from "~/shared/presentation/handle-error-response.ts";
 
 import {
@@ -8,7 +9,7 @@ import {
   getUserQuery,
 } from "../application/get-user-query.ts";
 
-const os = implement(contract).$context<{ readonly actor: string }>();
+const os = implement(contract).$context<AppContext>();
 
 /**
  * ID を指定してユーザーを取得する (GET /users/{id})。
@@ -21,7 +22,7 @@ export const getUserHandler = (deps: GetUserQueryDeps) => {
   const query = getUserQuery(deps);
 
   return os.user.get.handler(async ({ input, errors, context }) => {
-    const result = await query({ id: input.id, actor: context.actor });
+    const result = await query({ id: input.id, actor: context.caller.userId });
 
     if (result.isOk()) {
       return result.value;
