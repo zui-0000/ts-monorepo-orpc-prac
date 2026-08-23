@@ -29,7 +29,7 @@ export const router = os.router({
       // 契約に無いエラーは投げられない（型エラーになる）
       throw errors.NOT_FOUND_ERROR({ data: { status: 404, code: '4040', title: '...' } })
     }),
-    // 契約の 5 操作をすべて実装しないと型が通らない
+    // 契約が持つ操作をすべて実装しないと型が通らない
   },
 })
 ```
@@ -46,7 +46,7 @@ src/
 ├── index.ts                    contract のルート（これを import する）
 ├── contexts/
 │   └── user/
-│       ├── contract.ts         5 操作の組み立て（route + input + output + errors）
+│       ├── contract.ts         操作の組み立て（route + input + output + errors）
 │       ├── create-user-request.ts    リクエスト本文
 │       ├── create-user-response.ts   レスポンス本文
 │       ├── get-user-response.ts
@@ -63,25 +63,88 @@ src/
 
 ```ts
 export const getUser = oc
-  .route({ method: HttpMethod.GET, path: '/users/{id}', successStatus: HttpStatus.OK })
-  .input(UserIdParamSchema)          // path パラメータ
-  .output(GetUserResponseSchema)     // レスポンス本文
+  .route({
+    method: HttpMethod.GET,
+    path: '/users/{id}',
+    successStatus: HttpStatus.OK,
+    operationId: 'getUser',        // クライアント生成時の関数名になる
+    tags: ['Users'],               // Swagger 上のグループ
+    summary: 'IDを指定してユーザーを取得する',
+    description: '要認証。本人のリソースだけを取得できる。',
+  })
+  .input(UserIdParamSchema)        // path パラメータ
+  .output(GetUserResponseSchema)   // レスポンス本文
   .errors({ NOT_FOUND_ERROR: ResourceNotFoundError, /* … */ })
 ```
+
+**`summary` などは `.route()` に書く。** JSDoc は TypeScript のコメントに過ぎず、
+OpenAPI には届かない。仕様に出したい説明はここに書く。
 
 **エラーは 3 つを 1 ファイルに揃えて持つ。** status・code・message・スキーマが
 散らばると、409 なのに message が 400 用、といったズレが起きる。
 
 ```ts
-// shared/errors/bad-request-error.ts
-export const BadRequestErrorSchema = v.object({ status: …, code: v.literal('4000'), … })
-export type BadRequestErrorData = v.InferOutput<typeof BadRequestErrorSchema>
-export const BadRequestError = { status: …, message: '…', data: BadRequestErrorSchema } as const
+// shared/errors/resource-not-found-error.ts
+export const ResourceNotFoundErrorSchema = v.pipe(
+  v.object({
+    status: v.literal(HttpStatus.NOT_FOUND),
+    code: v.literal('4040'),
+    title: ErrorTitleSchema,
+  }),
+  v.examples([{ status: 404, code: '4040', title: '指定されたリソースは存在しません' }]),
+)
+
+export type ResourceNotFoundErrorData = v.InferOutput<typeof ResourceNotFoundErrorSchema>
+
+/** oRPC の .errors() に渡すエラー仕様 */
+export const ResourceNotFoundError = {
+  status: HttpStatus.NOT_FOUND,
+  message: '指定されたリソースは存在しません',
+  data: ResourceNotFoundErrorSchema,
+} as const
 ```
 
 エラーコードは `<HTTP ステータス><連番>` の 4 桁で、**リテラル型で持つ**。
 同じ 401 でも `4010`（認証情報が不正）と `4011`（現在のパスワードが違う）が
 型で区別でき、取り違えるとコンパイルエラーになる。
+
+### エラー応答の形
+
+oRPC は既定でエラーを封筒に包む。`{ defined, code, status, message, data }` という形で、
+契約が定めた形は `data` の中に入る。あれは **oRPC クライアントが型安全にエラーを
+扱うための形式**（`isInferableError` で「宣言済みのエラーか」を判別する）であって、
+この API が外に公開する契約ではない。
+
+そこで仕様の生成時に封筒を外し、**契約が定めた形だけ**を宣言している。
+
+```ts
+// openapi.ts
+customErrorResponseBodySchema: (definedErrors) => {
+  const schemas = definedErrors.map(([, , , dataSchema]) => dataSchema)
+  return schemas.length === 1 ? schemas[0] : { oneOf: schemas }
+}
+```
+
+同じステータスに複数のエラーがある場合（401 の `4010` と `4011`）は `oneOf` で並ぶため、
+`code` のリテラルで判別できる直和になる。
+
+**実装側にも同じ処置が要る。** ここで直せるのは「仕様が何を宣言するか」だけで、
+実行時に封筒を被せるのは oRPC のランタイム。`apps/backend` が
+`customErrorResponseBodyEncoder` で実応答を揃えている。片方だけだと
+**仕様と実物が食い違う**。
+
+### エラーの内訳に文言を持たない
+
+`ErrorItem` は `{ field }` だけで、`message` を持たない。TypeSpec 版には
+`message` があったが、意図的に外している。
+
+検証ライブラリが作る文言には**入力値が乗る**（実測: パスワードに数値を送ると
+`Invalid type: Expected string but received 12345` が返った）。文言は生成側の
+都合で変わるため、安全かどうかを見張り続けられない。契約の `Password` には
+「入力専用で、レスポンスに含めないこと」と書いてあり、それはエラー応答にも及ぶ。
+
+**`field` は path から組み立てるので、構造的に値が入りようがない。**
+文言が必要になったら、フィールドごとの定型文をこちら側で持つこと。
 
 **path パラメータと本文は分けて定義する。** oRPC は既定（`inputStructure: 'compact'`）で
 両者を 1 つの input に統合するが、本文スキーマ側に `id` を含めない。
@@ -149,6 +212,7 @@ export type UserName = v.InferOutput<typeof UserNameSchema>
 | 文字数制限 | `v.pipe(v.string(), v.minLength(1), v.maxLength(100))` |
 | 正規表現 | `v.pipe(v.string(), v.regex(re, 'メッセージ'))` |
 | 説明の付与 | `v.description('...')`（pipe の一部として） |
+| 例の付与 | `v.examples(['user@example.com'])` |
 | ISO 日時 | `v.pipe(v.string(), v.isoTimestamp())` |
 | 任意項目 | `v.optional(X)` |
 | オブジェクトの合成 | `v.object({ ...A.entries, ...B.entries })` |

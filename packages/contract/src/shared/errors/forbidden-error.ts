@@ -1,7 +1,7 @@
-import * as v from 'valibot'
+import * as v from "valibot";
 
-import { HttpStatus } from '../constants/index.js'
-import { ErrorTitleSchema } from './error-title.js'
+import { HttpStatus } from "../constants/index.js";
+import { ErrorTitleSchema } from "./error-title.js";
 
 /**
  * 操作する権限が無い (汎用)。
@@ -20,18 +20,19 @@ import { ErrorTitleSchema } from './error-title.js'
  */
 export const ForbiddenErrorSchema = v.pipe(
   v.object({
-  status: v.literal(HttpStatus.FORBIDDEN),
-  code: v.literal('4030'),
-  title: ErrorTitleSchema,
-}),
-  v.examples([{ status: 403, code: '4030', title: 'この操作を行う権限がありません' }]),
-)
+    status: v.literal(HttpStatus.FORBIDDEN),
+    code: v.literal("4030"),
+    title: ErrorTitleSchema,
+  }),
+  v.examples([
+    { status: 403, code: "4030", title: "この操作を行う権限がありません" },
+  ]),
+);
 
-export type ForbiddenErrorData = v.InferOutput<typeof ForbiddenErrorSchema>
+export type ForbiddenErrorData = v.InferOutput<typeof ForbiddenErrorSchema>;
 
-/** oRPC の .errors() に渡すエラー仕様 */
 export const ForbiddenError = {
   status: HttpStatus.FORBIDDEN,
-  message: 'この操作を行う権限がありません',
+  message: "この操作を行う権限がありません",
   data: ForbiddenErrorSchema,
-} as const
+} as const;
