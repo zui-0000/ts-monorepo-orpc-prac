@@ -27,7 +27,7 @@ export const router = os.router({
     get: os.user.get.handler(({ input, errors }) => {
       // input.id は UserId として検証済み
       // 契約に無いエラーは投げられない（型エラーになる）
-      throw errors.NOT_FOUND_ERROR({ data: { status: 404, code: '4040', title: '...' } })
+      throw errors.RESOURCE_NOT_FOUND_ERROR()
     }),
     // 契約が持つ操作をすべて実装しないと型が通らない
   },
@@ -80,114 +80,62 @@ export const getUser = oc
 **`summary` などは `.route()` に書く。** JSDoc は TypeScript のコメントに過ぎず、
 OpenAPI には届かない。仕様に出したい説明はここに書く。
 
-**エラーは 3 つを 1 ファイルに揃えて持つ。** status・code・message・スキーマが
-散らばると、409 なのに message が 400 用、といったズレが起きる。
+**エラーは `status` と `message` だけを持つ。**
 
 ```ts
 // shared/errors/resource-not-found-error.ts
-export const ResourceNotFoundErrorSchema = v.pipe(
-  v.object({
-    status: v.literal(HttpStatus.NOT_FOUND),
-    code: v.literal('4040'),
-    title: ErrorTitleSchema,
-  }),
-  v.examples([{ status: 404, code: '4040', title: '指定されたリソースは存在しません' }]),
-)
-
-export type ResourceNotFoundErrorData = v.InferOutput<typeof ResourceNotFoundErrorSchema>
-
-/** oRPC の .errors() に渡すエラー仕様 */
 export const ResourceNotFoundError = {
   status: HttpStatus.NOT_FOUND,
   message: '指定されたリソースは存在しません',
-  data: ResourceNotFoundErrorSchema,
 } as const
 ```
 
-エラーコードは `<HTTP ステータス><連番>` の 4 桁で、**リテラル型で持つ**。
-同じ 401 でも `4010`（認証情報が不正）と `4011`（現在のパスワードが違う）が
-型で区別でき、取り違えるとコンパイルエラーになる。
+投げるときも引数が要らない。
+
+```ts
+throw errors.RESOURCE_NOT_FOUND_ERROR()
+```
+
+`data` を持つのは**追加情報があるエラーだけ**で、いまは `BadRequestError` の
+`errors`（どの項目が不正か）のみ。
 
 ### エラー応答の形
 
-oRPC は既定でエラーを封筒に包む。`{ defined, code, status, message, data }` という形で、
-契約が定めた形は `data` の中に入る。あれは **oRPC クライアントが型安全にエラーを
-扱うための形式**（`isInferableError` で「宣言済みのエラーか」を判別する）であって、
-この API が外に公開する契約ではない。
+oRPC はエラーを封筒に包んで返す。**その封筒をそのまま契約とする。**
 
-そこで仕様の生成時に封筒を外し、**契約が定めた形だけ**を宣言している。
-
-```ts
-// openapi.ts
-customErrorResponseBodySchema: (definedErrors) => {
-  const schemas = definedErrors.map(([, , , dataSchema]) => dataSchema)
-  return schemas.length === 1 ? schemas[0] : { oneOf: schemas }
+```json
+{
+  "defined": true,
+  "code": "FORBIDDEN_ERROR",
+  "status": 403,
+  "message": "この操作を行う権限がありません"
 }
 ```
 
-同じステータスに複数のエラーがある場合（401 の `4010` と `4011`）は `oneOf` で並ぶため、
-`code` のリテラルで判別できる直和になる。
+`status` と `message` が封筒に載るため、**本文で二重に持たない**。だから
+エラー定義が上のように痩せている。
 
-**実装側にも同じ処置が要る。** ここで直せるのは「仕様が何を宣言するか」だけで、
-実行時に封筒を被せるのは oRPC のランタイム。`apps/backend` が
-`customErrorResponseBodyEncoder` で実応答を揃えている。片方だけだと
-**仕様と実物が食い違う**。
+**業務コード（4 桁）は持たない。** `code` に契約のキーがそのまま出るためで、
+同じステータスの 2 つ（401 の `UNAUTHORIZED_ERROR` と `PASSWORD_MISMATCH_ERROR`）は
+名前で区別できる。数字の体系を別に維持する理由が無い。
 
-### エラーの内訳に文言を持たない
-
-`ErrorItem` は `{ field }` だけで、`message` を持たない。TypeSpec 版には
-`message` があったが、意図的に外している。
-
-検証ライブラリが作る文言には**入力値が乗る**（実測: パスワードに数値を送ると
-`Invalid type: Expected string but received 12345` が返った）。文言は生成側の
-都合で変わるため、安全かどうかを見張り続けられない。契約の `Password` には
-「入力専用で、レスポンスに含めないこと」と書いてあり、それはエラー応答にも及ぶ。
-
-**`field` は path から組み立てるので、構造的に値が入りようがない。**
-文言が必要になったら、フィールドごとの定型文をこちら側で持つこと。
-
-**path パラメータと本文は分けて定義する。** oRPC は既定（`inputStructure: 'compact'`）で
-両者を 1 つの input に統合するが、本文スキーマ側に `id` を含めない。
-フロントのフォーム型として本文だけを使えるようにするため。
+クライアントは型付きのまま分岐できる。
 
 ```ts
-.input(v.object({ ...UpdateUserRequestSchema.entries, ...UserIdParamSchema.entries }))
+catch (error) {
+  if (isDefinedError(error) && error.code === 'FORBIDDEN_ERROR') {
+    // error.data も型が絞られる
+  }
+}
 ```
 
-## 相対 import に `.js` が必要な理由
+**封筒を外すと、この判別が働かなくなる。** 実測では `isDefinedError()` が
+`false` を返し、`code` も `"FORBIDDEN"`（HTTP 由来の汎用値）に化けた。
+`.errors()` を書いた意味がクライアント側で消えるため、封筒ごと受け入れている。
 
-このパッケージは `module: "nodenext"` でビルドする（`@orpc-prac/typescript-config/node.json`）。
-そのため**相対 import には拡張子が必須**で、しかも `.ts` ではなく `.js` と書く。
-
-```ts
-import { UuidSchema } from './uuid.js'              // ✅
-import { UserIdSchema } from './model/index.js'     // ✅ ディレクトリは index.js を明示
-import { UuidSchema } from './uuid'                 // 🚫 TS2835
-import { UuidSchema } from './uuid.ts'              // 🚫 TS5097
-```
-
-理由は 2 つが噛み合うため。
-
-1. **Node の ESM は拡張子を省略できない**。CommonJS の `require` と違い、
-   `./foo` から `./foo.js` を推測しない。ディレクトリの暗黙 `index` も無い
-2. **TypeScript は import パスを書き換えない**。書いたパスがそのまま出力される
-
-つまり「**実行時に正しいパス**」を書く必要がある。ソースが `.ts` でも、動くのは
-コンパイル後の `.js` だから `.js` と書く。
-
-**この制約はこのパッケージの中だけ**の話。`apps/frontend`（Vite）は
-`bundler.json`、`apps/backend`（Bun）は `bun.json` を継承するため、
-どちらも拡張子を書く必要はない。
-
-### なぜ契約だけ Node なのか
-
-契約は backend（Bun）と frontend（Vite）の**両方から読まれる共有物**なので、
-どちらのランタイムにも寄らない。このパッケージは Bun に依存しない。
-
-Bun 前提（`src` を直接参照）にすると `.js` 拡張子は不要になるが、
-**消費側の tsconfig にまで `allowImportingTsExtensions` が要求され**、
-Project References も使えなくなる（バンドルサイズは変わらなかった）。
-拡張子を書く手間はこのパッケージの中に閉じるので、そちらを選んでいる。
+引き換えに `defined` が応答に出る。oRPC を使っているという実装の事実が
+API の表面に現れるが、**型付きエラーと引き換えなら許容する**という判断
+（[ADR](../../docs/adr/)）。
 
 ## valibot の書き方
 

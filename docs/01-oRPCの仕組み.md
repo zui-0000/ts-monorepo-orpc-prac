@@ -7,16 +7,16 @@
 
 ## 契約が担うもの / 実装が担うもの
 
-|                             | 担当                                  |
-| --------------------------- | ------------------------------------- |
-| 入力・出力のスキーマ        | **契約** (`.input()` / `.output()`)   |
-| HTTP メソッドとパス         | **契約** (`.route()`)                 |
-| 型付きエラーの定義          | **契約** (`.errors()`)                |
-| 入力の検証と 400 の判断     | **oRPC**                              |
-| 出力の検証と 500 の判断     | **oRPC**                              |
-| エラー本文の形              | **契約** (`server/error-encoder.ts`)  |
-| 業務ロジックと失敗の種類    | **実装**                              |
-| 失敗 → 契約のエラーへの翻訳 | **実装** (`handle-error-response.ts`) |
+|                                  | 担当                                    |
+| -------------------------------- | --------------------------------------- |
+| 入力・出力のスキーマ             | **契約** (`.input()` / `.output()`)     |
+| HTTP メソッドとパス              | **契約** (`.route()`)                   |
+| エラーの定義（status / message） | **契約** (`.errors()`)                  |
+| 入力の検証と 400 の判断          | **oRPC**                                |
+| 出力の検証と 500 の判断          | **oRPC**                                |
+| エラー応答の形                   | **oRPC の封筒**（契約として受け入れる） |
+| 業務ロジックと失敗の種類         | **実装**                                |
+| 失敗 → 契約のエラーへの翻訳      | **実装** (`handle-error-response.ts`)   |
 
 **実装が書くのはハンドラの中身だけ。** 入力検証も応答の組み立ても
 コードに現れない。契約に書いたことが、そのまま実行時の門番になる。
@@ -26,16 +26,22 @@
 ```
 リクエスト
   ↓
-① 入力検証          validateInput      契約の .input() で検証
-  ↓ 失敗 → 400
-② ハンドラ実行       実装が書いた関数
+① ミドルウェア      os.use(...)        検証エラーを捕まえる
+  ↓
+② 入力検証          validateInput      契約の .input() で検証
+  ↓ 失敗 → ① へ戻り BAD_REQUEST_ERROR に翻訳される
+③ ハンドラ実行      実装が書いた関数
   ↓ 例外 → 500
-③ 出力検証          validateOutput     契約の .output() で検証
+④ 出力検証          validateOutput     契約の .output() で検証
   ↓ 失敗 → 500
-④ 応答の組み立て     encodeError        本文だけ差し替え可能
+⑤ 応答の組み立て    encodeError        封筒のまま返す
 ```
 
-### ① 入力検証 — 400 を決めるのは oRPC
+**①が②より先にあるのは既定ではない。** `implement(contract, {
+initialInputValidationIndex: 1 })` で入力検証の位置を後ろへずらしている
+（後述）。
+
+### ② 入力検証 — 400 を決めるのは oRPC
 
 `@orpc/server` の `validateInput` がこう書かれている。
 
@@ -63,14 +69,24 @@ async function validateInput(procedure, input) {
 - **`schema["~standard"].validate()` を呼んでいる。** これが
   [Standard Schema](https://standardschema.dev/) で、oRPC は valibot を知らない。
   共通の口だけを叩くため、zod でも arktype でも同じコードが動く
-  (契約を zod から valibot へ替えたとき構造を変えずに済んだのはこのため)
+  （契約を zod から valibot へ替えたとき構造を変えずに済んだのはこのため）
 - **`"BAD_REQUEST"` が固定で書かれている。** 契約にも実装にも選択の余地は無い
 
-**`data` と `cause` に送信値が入る**点に注意する。`issues` の `input` はもちろん、
-`cause` には `data: input` で入力そのものが入る。ここを素通しすると
-パスワードのような値が応答に載る。
+**このエラーは契約の `.errors()` を経由しない。** そのため `defined: false` に
+なり、放っておくと oRPC の素の封筒が外へ出る。実測ではこうだった。
 
-### ② ハンドラの例外 — 500 になる
+```json
+{"defined":false,"code":"BAD_REQUEST","status":400,"message":"Input validation failed",
+ "data":{"issues":[{"kind":"validation","type":"regex","input":"bad",
+                    "expected":"/^[0-9a-f]{8}-.../u","received":"\"bad\"",
+                    "path":[{"input":{"id":"bad"},"key":"id","value":"bad"}]}]}}
+```
+
+3 つまずい。**送信値が丸見え**（`input` / `received` / `path[].value`）、
+**検証パターンが漏れる**（`expected`）、**表題が英語**。パスワード変更で
+同じことが起きれば平文が応答に載る。
+
+### ③ ハンドラの例外 — 500 になる
 
 素の `Error` を投げると `toORPCError` を通って 500 になる。実測:
 
@@ -78,14 +94,12 @@ async function validateInput(procedure, input) {
 $ # update ハンドラを throw new Error("意図的な失敗（実験）") に差し替えて
 $ curl -X PUT .../users/{id} -d '{"name":"...","mailAddress":"..."}'
 HTTP 500
-{"status":500,"code":"5000","title":"サーバーで予期せぬエラーが発生しました"}
+{"defined":false,"code":"INTERNAL_SERVER_ERROR","status":500,"message":"Internal server error"}
 ```
 
-**例外の文言は応答に出ない。** 出さないのは実装側の設定
-(`TITLE_BY_STATUS` で契約の文言に差し替えている) で、外すと
-`"意図的な失敗（実験）"` がそのままクライアントへ届く。
+例外の文言は応答に出ない（oRPC が伏せる）。
 
-### ③ 出力検証 — こちらも 500
+### ④ 出力検証 — こちらも 500
 
 ```js
 async function validateOutput(procedure, output) {
@@ -102,87 +116,112 @@ async function validateOutput(procedure, output) {
 **入力が契約と違えば 400、出力が契約と違えば 500。**
 呼び出し側の落ち度か、実装の落ち度か、で分かれている。
 
-### ④ 応答の組み立て — 本文だけ差し替えられる
+## エラー応答は封筒をそのまま契約とする
 
-`@orpc/openapi` の `StandardOpenAPICodec`:
-
-```js
-encodeError(error) {
-  const body = this.customErrorResponseBodyEncoder?.(error) ?? error.toJSON();
-  return {
-    status: error.status,      // ← encoder は status に触れない
-    body: this.serializer.serialize(body, ...),
-  };
+```json
+{
+  "defined": true,
+  "code": "FORBIDDEN_ERROR",
+  "status": 403,
+  "message": "この操作を行う権限がありません"
 }
 ```
 
-**差し替えられるのは本文だけ。** 「400 ではなく 422 を返す」ようなことは、
-契約側でも実装側でもできない。
+`status` と `message` が封筒に載るため、**契約のエラー定義は
+`{ status, message }` だけを持つ**。`data` を持つのは追加情報がある
+`BadRequestError`（`errors`）のみ。
 
-encoder を外すと oRPC の素の形が出る (実測):
+**業務コード（4 桁）は持たない。** `code` に契約のキーが出るため、
+同じステータスの 2 つ（401 の `UNAUTHORIZED_ERROR` と
+`PASSWORD_MISMATCH_ERROR`）は名前で区別できる。
+
+### なぜ封筒を剥がさないのか
+
+以前は `customErrorResponseBodyEncoder` で封筒を外し、
+`{status, code, title}` という REST 寄りの形にしていた。やめた理由は
+**クライアント側の型判別が死ぬ**から。実測でこうなった。
+
+|                    | 封筒を剥がす                       | 封筒のまま                        |
+| ------------------ | ---------------------------------- | --------------------------------- |
+| `isDefinedError()` | **false**                          | **true**                          |
+| `code`             | `"FORBIDDEN"`（HTTP 由来の汎用値） | `"FORBIDDEN_ERROR"`（契約のキー） |
+| `data`             | 生の HTTP 応答が入れ子で入る       | 契約が定めたもの                  |
+
+剥がすと契約の `.errors()` を書いた意味がクライアント側で消える。
+引き換えに `defined` が応答に出るが、**型付きエラーと引き換えなら許容する**
+という判断（[ADR](./adr/)）。
+
+### OpenAPI 仕様も封筒の形で出す
+
+`openapi.ts` では応答スキーマを上書きしない。仕様と実際の応答が一致し、
+`code` が `const` で固定されるため、**クライアントは仕様を見るだけで
+どのキーが来るか分かる**。
 
 ```json
-{"defined":false,"code":"BAD_REQUEST","status":400,"message":"Input validation failed",
- "data":{"issues":[{"kind":"validation","type":"regex","input":"bad", ...}]}}
+{ "defined": {"const": true}, "code": {"const": "FORBIDDEN_ERROR"},
+  "status": {"const": 403}, "message": {"type":"string","default":"..."} }
 ```
 
-`defined` や `data.issues` は **oRPC クライアント向けの封筒**であって
-この API の契約ではない。`input` に送信値が入っている点も見えている。
+同じステータスに複数のエラーがある場合は `oneOf` で並び、`code` で判別できる
+直和になる。
 
-## エラー応答が組み立てられる場所
+## 入力検証エラーを契約のエラーへ翻訳する
 
-```
-packages/contract/src/server/
-├── error-encoder.ts             封筒を剥がして振り分ける
-└── encode-bad-request-error.ts  400 の本文を組む（フィールド名だけ残す）
-
-apps/backend/src/shared/presentation/
-├── handle-error-response.ts     Result のエラー → 契約のエラー
-└── constants/error-payload.ts   翻訳に使う payload
-```
-
-実装が書くのはこの 1 行だけ。
+oRPC が投げる 400 は `defined: false` なので、そのままでは上の利点が得られず、
+送信値も漏れる。**ミドルウェアで捕まえて投げ直す。**
 
 ```ts
-new OpenAPIHandler(router, {
-  customErrorResponseBodyEncoder: encodeErrorResponseBody,   // 契約から import
-});
+// shared/presentation/os.ts
+export const os = implement(contract, { initialInputValidationIndex: 1 })
+  .$context<AppContext>()
+  .use(async ({ next, errors }) => {
+    try {
+      return await next();
+    } catch (error) {
+      const data = toBadRequestData(error);   // issue → フィールド名だけ
+      if (data === undefined) throw error;
+      throw errors.BAD_REQUEST_ERROR({ data });
+    }
+  });
 ```
 
-**契約側に置いたのは、形を決めるのが契約の仕事だから。** 実装側で組み立てると
-契約を直しても応答が古いまま、という食い違いが型検査を素通りする
-(実際、表題が oRPC の既定 `"Input validation failed"` のまま返っていた時期がある)。
+**`initialInputValidationIndex` が鍵。** 既定は `0` で「全ミドルウェアより前に
+検証する」意味なので、検証エラーを捕まえる余地が無い。
 
-## 型付きエラー (`.errors()`)
-
-契約に書いたエラーは、実装から**キーで投げる**。
-
-```ts
-throw errors.FORBIDDEN_ERROR({ data: { status: 403, code: "4030", title: "..." } });
+```js
+// @orpc/server の executeProcedureInternal
+const inputValidationIndex = Math.min(Math.max(0, procedure["~orpc"].inputValidationIndex), middlewares.length);
+const next = async (index, context, input) => {
+  if (index === inputValidationIndex) {
+    currentInput = await validateInput(procedure, currentInput);
+  }
 ```
 
-こうして投げたものは `error.defined === true` になり、`data` がそのまま応答本文になる。
-一方 oRPC が自分で投げるもの (入力検証の 400、出力検証の 500) は `defined === false`
-で、封筒を剥がす処理が要る。**encoder が最初に `defined` で分岐するのはこのため。**
+`1` にすると最初のミドルウェアの後ろへ移るため、その手前で `try/catch` できる。
+結果はこうなる。
 
-### エラーキーは OpenAPI 仕様に出ない
+```json
+{"defined":true,"code":"BAD_REQUEST_ERROR","status":400,
+ "message":"リクエスト内容が不正です","data":{"errors":[{"field":"id"}]}}
+```
 
-`FORBIDDEN_ERROR` のようなキーは**クライアント側で `isDefinedError()` の判別に使う
-内部識別子**で、HTTP には出ない。実測でも生成した仕様に出現回数 0 だった。
-仕様に載るのは `status` / `code` / `title` だけなので、キーの改名は
-外から見た振る舞いを変えない。
+送信値も検証パターンも消え、文言は契約のものになり、`defined: true` で
+クライアントが型判別できる。
 
-### 契約が定義していても実装が投げないものがある
+**各ハンドラはこれを意識しない。** 共有の `os` に載せてあるため、
+ユースケースを増やしても書くのはハンドラの中身だけ。
+
+## 契約が定義していても実装が投げないものがある
 
 | 契約のエラー                                    | 実装が投げるか                                                |
 | ----------------------------------------------- | ------------------------------------------------------------- |
 | `ForbiddenError` / `ResourceNotFoundError` など | 投げる（ユースケースの失敗）                                  |
-| `BadRequestError`                               | **投げない** — 入力検証で oRPC が直接投げる                   |
+| `BadRequestError`                               | **ミドルウェアだけが投げる** — 入力検証の翻訳                 |
 | `InternalServerError`                           | **投げない** — oRPC が直接投げるか `RepositoryError` から翻訳 |
 
-移行元 (Hono + zod) では `decodeInput` が `BadRequestError` を組み立てていたが、
-その仕事は oRPC が引き取った。**契約と実装のエラー一覧が 1 対 1 にならないのは、
-移し忘れではなく役割分担の反映。**
+移行元（Hono + zod）では `decodeInput` が `BadRequestError` を組み立てていたが、
+その仕事は oRPC とミドルウェアが引き取った。**契約と実装のエラー一覧が
+1 対 1 にならないのは、移し忘れではなく役割分担の反映。**
 
 ## 落とし穴
 
@@ -198,8 +237,8 @@ match(handlers) {
 }
 ```
 
-そのため `err: (e) => { throw errors.FORBIDDEN_ERROR(...) }` と書くと、
-**型付きの 403 が「予期せぬ失敗」扱いになり 500 で返る** (実測)。
+そのため `err: (e) => { throw errors.FORBIDDEN_ERROR() }` と書くと、
+**型付きの 403 が「予期せぬ失敗」扱いになり 500 で返る**（実測）。
 
 `Result` は失敗を戻り値で表す道具なので、その中で例外を投げるのは矛盾
 — という思想は筋が通っている。ただし **oRPC は逆にエラーを投げて伝える**ため、
@@ -212,18 +251,14 @@ if (result.isOk()) {
 throw handleErrorResponse(result.error, errors);
 ```
 
-`match` が向くのは**両方の枝が値を返す**とき (`handle-error-response.ts` の
-`error.match({...})` がそれ)。
+`match` が向くのは**両方の枝が値を返す**とき（`handle-error-response.ts` の
+`error.match({...})` がそれ）。
 
-### `v.examples()` は検査されない
+### 応答スキーマを上書きすると空になることがある
 
-契約が `v.examples([{ status: 400, ..., title: "リクエスト内容が不正です" }])` と
-例示していても、**それは検査されない**。`title` の型は
-`ErrorTitleSchema`（ただの string）なので、英語の
-`"Input validation failed"` でもスキーマ検証は通ってしまう。
-
-型検査でも `pnpm build` の仕様検査でも検出できない類の食い違いなので、
-**応答の文言は契約から引く** (`BadRequestError.message`)。
+`customErrorResponseBodySchema` で「各エラーの `data` を集める」実装をしていたが、
+エラーが `data` を持たなくなった時点で `"content": {}` になった。
+**仕様が「何も返さない」と宣言する**状態で、型検査でも仕様検査でも気付けない。
 
 ## 参考
 
