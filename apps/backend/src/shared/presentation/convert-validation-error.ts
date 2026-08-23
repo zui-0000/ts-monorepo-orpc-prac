@@ -1,6 +1,8 @@
 import type { BadRequestErrorData } from "@orpc-prac/contract";
 import { ORPCError } from "@orpc/server";
 
+import { formatViolations } from "./log-failure.ts";
+
 /**
  * oRPC の入力検証エラーから、契約の `BadRequestError` に渡す `data` を作る。
  * 検証エラーでなければ `undefined` を返す（そのまま投げ直す合図）。
@@ -21,6 +23,8 @@ import { ORPCError } from "@orpc/server";
 
 /** 検証ライブラリが返す issue のうち、ここで使う部分だけ。 */
 type ValidationIssue = {
+  readonly type?: string;
+  readonly requirement?: unknown;
   readonly path?: readonly { readonly key?: unknown }[];
 };
 
@@ -31,9 +35,16 @@ const fieldOf = (issue: ValidationIssue): string =>
     .filter((key): key is string | number => key !== undefined)
     .join(".");
 
-export const toBadRequestData = (
+export type ValidationFailure = {
+  /** 応答に載せるもの。**フィールド名だけ。** */
+  readonly data: BadRequestErrorData;
+  /** ログに残すもの。**規則の情報だけで、値は含まない。** */
+  readonly violations: string;
+};
+
+export const toValidationFailure = (
   error: unknown,
-): BadRequestErrorData | undefined => {
+): ValidationFailure | undefined => {
   const isInputValidationError =
     error instanceof ORPCError &&
     error.code === "BAD_REQUEST" &&
@@ -47,5 +58,8 @@ export const toBadRequestData = (
   const issues = (error.data as { issues?: ValidationIssue[] })?.issues ?? [];
   const fields = [...new Set(issues.map(fieldOf))].filter(Boolean);
 
-  return { errors: fields.map((field) => ({ field })) };
+  return {
+    data: { errors: fields.map((field) => ({ field })) },
+    violations: formatViolations(issues),
+  };
 };

@@ -3,6 +3,7 @@ import { onError } from "@orpc/server";
 import { Hono } from "hono";
 
 import type { AuthenticatedCaller } from "~/shared/domain/model/authenticated-caller.ts";
+import { logFailure } from "~/shared/presentation/log-failure.ts";
 
 import { router } from "./router.ts";
 
@@ -14,11 +15,7 @@ const app = new Hono();
  * REST 形式で書かれているため。
  */
 const handler = new OpenAPIHandler(router, {
-  interceptors: [
-    onError((error) => {
-      console.error("[orpc]", error);
-    }),
-  ],
+  interceptors: [onError(logFailure)],
 });
 
 /**
