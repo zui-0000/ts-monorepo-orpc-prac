@@ -1,7 +1,7 @@
-import { Spectral } from '@stoplight/spectral-core'
-import { oas } from '@stoplight/spectral-rulesets'
+import spectralCore from '@stoplight/spectral-core'
+import spectralRulesets from '@stoplight/spectral-rulesets'
 
-import { generateOpenApiSpec } from '../src/openapi.ts'
+import { generateOpenApiSpec } from '../dist/openapi.js'
 
 /**
  * 契約から生成した OpenAPI 仕様を検査する。
@@ -12,6 +12,11 @@ import { generateOpenApiSpec } from '../src/openapi.ts'
  * 型検査では見つからない指摘 (説明の欠落、タグの未定義、例の不足) を拾う。
  * 直すのは常に契約側で、仕様は派生物なので触らない。
  */
+
+// Spectral は CommonJS のため、名前付き import ではなく default 経由で取る。
+const { Spectral } = spectralCore
+const { oas } = spectralRulesets
+
 const spectral = new Spectral()
 
 spectral.setRuleset({
@@ -28,7 +33,7 @@ const SEVERITY = ['error', 'warn', 'info', 'hint'] as const
 
 // servers は配信側 (backend) が渡すもので契約は知らない。
 // 検査に必要なだけなので、ここでは仮の値を置く。
-const spec = await generateOpenApiSpec({ servers: [{ url: "/api" }] })
+const spec = await generateOpenApiSpec({ servers: [{ url: '/api' }] })
 const results = await spectral.run(spec as never)
 
 if (results.length === 0) {

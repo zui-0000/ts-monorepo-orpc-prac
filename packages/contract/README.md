@@ -179,6 +179,17 @@ import { UuidSchema } from './uuid.ts'              // 🚫 TS5097
 `bundler.json`、`apps/backend`（Bun）は `bun.json` を継承するため、
 どちらも拡張子を書く必要はない。
 
+### なぜ契約だけ Node なのか
+
+契約は backend（Bun）と frontend（Vite）の**両方から読まれる共有物**なので、
+どちらのランタイムにも寄らない。`scripts/` の開発用ツールも Node で動かしており、
+このパッケージは Bun に依存しない。
+
+Bun 前提（`src` を直接参照）にすると `.js` 拡張子は不要になるが、
+**消費側の tsconfig にまで `allowImportingTsExtensions` が要求され**、
+Project References も使えなくなる（バンドルサイズは変わらなかった）。
+拡張子を書く手間はこのパッケージの中に閉じるので、そちらを選んでいる。
+
 ## valibot の書き方
 
 スキーマは **valibot** で書く。zod ではない（理由は
@@ -226,8 +237,8 @@ export type UserName = v.InferOutput<typeof UserNameSchema>
 pnpm preview   # http://localhost:4000
 ```
 
-Swagger UI が立ち上がり、契約から生成した仕様を表示する。`--hot` で動くので、
-契約を編集して再読み込みすれば即座に反映される。
+Swagger UI が立ち上がり、契約から生成した仕様を表示する。**要求のたびに契約を
+焼き直してから読む**ため、編集してブラウザを再読み込みすれば即座に反映される。
 
 型が通ることと、意図した API になっていることは別。**`summary` や `example` の
 指定漏れは型検査では見つからない**ので、契約を変えたらここで目視する。
@@ -257,9 +268,9 @@ const spec = await generateOpenApiSpec({ servers: [{ url: '/api' }] })
 
 | コマンド | 内容 |
 | --- | --- |
-| `pnpm build` | `dist` に `.js` と `.d.ts` を出力する |
-| `pnpm typecheck` | `src` と `scripts` の両方を型検査する |
+| `pnpm build` | `src` を型検査 → `dist` 出力 → 成果物を仕様検査 |
+| `pnpm check:type` | 成果物を作らずに `src` の型だけを検査する |
+| `pnpm lint:openapi` | 生成した仕様を Spectral で検査する（`dist` が要る） |
 | `pnpm preview` | Swagger UI で契約を表示する |
-| `pnpm clean` | ビルド成果物を消す |
 
 `exports` が `dist` を指すため、**apps から使う前にビルドが必要**。

@@ -14,11 +14,10 @@
     }
   },
   "scripts": {
-    "build": "tsc --build",
-    "typecheck": "tsc --build && tsc --noEmit -p scripts",
-    "preview": "bun --hot scripts/preview.ts",
-    "clean": "tsc --build --clean",
-    "openapi:lint": "bun scripts/lint-openapi.ts"
+    "build": "pnpm check:type && tsc --build && pnpm lint:openapi",
+    "check:type": "tsc --noEmit -p .",
+    "lint:openapi": "node scripts/lint-openapi.ts",
+    "preview": "node scripts/preview.ts"
   },
   "dependencies": {
     "@orpc/contract": "catalog:",
@@ -30,7 +29,6 @@
     "@orpc-prac/tsconfig": "workspace:*",
     "@stoplight/spectral-core": "catalog:",
     "@stoplight/spectral-rulesets": "catalog:",
-    "@types/bun": "catalog:",
     "@types/swagger-ui-dist": "catalog:",
     "swagger-ui-dist": "catalog:",
     "typescript": "catalog:"

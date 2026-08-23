@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
-    "typecheck": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "bun db/migrate.ts",
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts"

@@ -1,5 +1,10 @@
 {
-  "extends": "@orpc-prac/tsconfig/bun.json",
+  "extends": "@orpc-prac/tsconfig/node.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false
+  },
   "include": ["."],
   "references": [{ "path": ".." }]
 }

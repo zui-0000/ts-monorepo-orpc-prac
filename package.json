@@ -11,7 +11,7 @@
     "prepare": "lefthook install",
     "build": "pnpm -r run build",
     "dev": "pnpm -r --parallel run dev",
-    "typecheck": "pnpm -r run typecheck",
+    "check:type": "pnpm -r run check:type",
     "test": "pnpm -r run test"
   },
   "devDependencies": {
