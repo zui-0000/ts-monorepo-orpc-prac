@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot";
 
 /**
  * エラーの内訳。**どのフィールドが不正だったか**だけを伝える。
@@ -10,9 +10,9 @@ import * as v from 'valibot'
  */
 export const ErrorItemSchema = v.pipe(
   v.object({
-    field: v.pipe(v.string(), v.description('不正だったフィールド名')),
+    field: v.pipe(v.string(), v.description("不正だったフィールド名")),
   }),
-  v.examples([{ field: 'mailAddress' }]),
-)
+  v.examples([{ field: "mailAddress" }]),
+);
 
-export type ErrorItem = v.InferOutput<typeof ErrorItemSchema>
+export type ErrorItem = v.InferOutput<typeof ErrorItemSchema>;

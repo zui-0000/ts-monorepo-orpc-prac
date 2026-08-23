@@ -1,7 +1,7 @@
-import { contract } from '@orpc-prac/contract'
-import type { ApiClient } from '@orpc-prac/contract'
-import { createORPCClient } from '@orpc/client'
-import { OpenAPILink } from '@orpc/openapi-client/fetch'
+import { contract } from "@orpc-prac/contract";
+import type { ApiClient } from "@orpc-prac/contract";
+import { createORPCClient } from "@orpc/client";
+import { OpenAPILink } from "@orpc/openapi-client/fetch";
 
 /**
  * 契約から導かれる API クライアント。
@@ -11,6 +11,6 @@ import { OpenAPILink } from '@orpc/openapi-client/fetch'
  */
 const link = new OpenAPILink(contract, {
   url: `${window.location.origin}/api`,
-})
+});
 
-export const client: ApiClient = createORPCClient(link)
+export const client: ApiClient = createORPCClient(link);

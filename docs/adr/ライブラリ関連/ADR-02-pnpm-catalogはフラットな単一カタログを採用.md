@@ -22,17 +22,17 @@ pnpm には **catalog** という機能がある。`pnpm-workspace.yaml` に
 
 ## 決定要因 (Decision Drivers)
 
-* パッケージ間でバージョンが絶対にズレないこと（型共有が壊れないため）
-* 依存を追加・更新する手順が単純であること
-* `pnpm add --save-catalog` などの標準ツールと衝突しないこと
-* 現在および当面の規模（10〜20 エントリ程度）に見合っていること
-* 分類のために迷う時間が発生しないこと
+- パッケージ間でバージョンが絶対にズレないこと（型共有が壊れないため）
+- 依存を追加・更新する手順が単純であること
+- `pnpm add --save-catalog` などの標準ツールと衝突しないこと
+- 現在および当面の規模（10〜20 エントリ程度）に見合っていること
+- 分類のために迷う時間が発生しないこと
 
 ## 検討した選択肢 (Considered Options)
 
-* デフォルトカタログ 1 つ（フラット）
-* named catalogs でレイヤー別に分割（shared / frontend / backend / パッケージ別）
-* named catalogs を dependencies / devDependencies で分割
+- デフォルトカタログ 1 つ（フラット）
+- named catalogs でレイヤー別に分割（shared / frontend / backend / パッケージ別）
+- named catalogs を dependencies / devDependencies で分割
 
 ## 決定 (Decision Outcome)
 
@@ -62,17 +62,17 @@ pnpm 本体のリポジトリも `@commitlint/cli` をデフォルトカタロ�
 
 ### 結果 (Consequences)
 
-* Good, because 全依存のバージョンを 1 ファイルで見渡せる
-* Good, because バージョンのズレが**構造的に**発生しない
+- Good, because 全依存のバージョンを 1 ファイルで見渡せる
+- Good, because バージョンのズレが**構造的に**発生しない
   （同じパッケージを 2 箇所に書く余地が無い）
-* Good, because `pnpm add --save-catalog` が自動でアルファベット順に
+- Good, because `pnpm add --save-catalog` が自動でアルファベット順に
   挿入してくれるため、整列の手間がない
-* Good, because 実案件のプラクティスと一致しているため情報を探しやすい
-* Bad, because バージョン更新が手作業になる（`pnpm update` が catalog を
+- Good, because 実案件のプラクティスと一致しているため情報を探しやすい
+- Bad, because バージョン更新が手作業になる（`pnpm update` が catalog を
   更新しないため。詳細は下記）
-* Bad, because ルート専用の依存まで catalog に載るため、参照が 1 段
+- Bad, because ルート専用の依存まで catalog に載るため、参照が 1 段
   間接的になる
-* Neutral, because 依存が 100 エントリを超えるような規模になった場合は
+- Neutral, because 依存が 100 エントリを超えるような規模になった場合は
   再検討が必要（nuxt の実例を参照）
 
 ### 確認方法 (Confirmation)
@@ -125,15 +125,15 @@ catalog:
   zod: ^4.1.5
 ```
 
-* Good, because 同じパッケージを 2 箇所に書く余地が無く、ズレが構造的に
+- Good, because 同じパッケージを 2 箇所に書く余地が無く、ズレが構造的に
   起きない
-* Good, because 参照が `"catalog:"` だけで済み最短
-* Good, because `pnpm add --save-catalog` がそのまま使える
-* Good, because 8〜17 エントリ規模の実案件（vuejs/core, element-plus,
+- Good, because 参照が `"catalog:"` だけで済み最短
+- Good, because `pnpm add --save-catalog` がそのまま使える
+- Good, because 8〜17 エントリ規模の実案件（vuejs/core, element-plus,
   pnpm 本体）と同じ形
-* Neutral, because 「どこで使うか」の情報は YAML に現れないが、
+- Neutral, because 「どこで使うか」の情報は YAML に現れないが、
   それは `pnpm why` で引ける（後述）
-* Bad, because 100 エントリを超える規模では見通しが悪くなる可能性がある
+- Bad, because 100 エントリを超える規模では見通しが悪くなる可能性がある
 
 ### named catalogs でレイヤー別に分割
 
@@ -147,12 +147,12 @@ catalogs:
 
 実際に組んで検証した。スラッシュを含むカタログ名も動作する。
 
-* Good, because カタログ名で分類が明示される
-* Good, because `--save-catalog-name=<name>` で追加すれば、意図した
+- Good, because カタログ名で分類が明示される
+- Good, because `--save-catalog-name=<name>` で追加すれば、意図した
   カタログに入る
-* Bad, because **同じパッケージが複数カタログに重複する**。実測では
+- Bad, because **同じパッケージが複数カタログに重複する**。実測では
   `typescript` が 3 箇所、`zod` が 4 箇所に定義される結果になった
-* Bad, because **重複はバージョン分裂を招く**。「shared だけ上げて
+- Bad, because **重複はバージョン分裂を招く**。「shared だけ上げて
   frontend を上げ忘れた」シナリオを再現したところ、以下が起きた
 
   ```
@@ -163,9 +163,10 @@ catalogs:
 
   **`pnpm install` は警告を一切出さない。** oRPC のコントラクト共有が
   静かに壊れる典型パターンである
-* Bad, because 分類に迷う依存が出る（zod は shared か backend か）。
+
+- Bad, because 分類に迷う依存が出る（zod は shared か backend か）。
   共有範囲が変わるたびに定義と参照の両方を書き換える必要がある
-* Bad, because **単一パッケージ専用カタログは存在意義が無い**。
+- Bad, because **単一パッケージ専用カタログは存在意義が無い**。
   `packages/contract` カタログを参照するのはそのパッケージ 1 つだけであり、
 
   ```jsonc
@@ -185,8 +186,8 @@ catalogs:
   devDependencies: { typescript: ^5.9.2 }
 ```
 
-* Good, because `--save-catalog-name` で追加すれば分類が自動で保たれる
-* Bad, because lockfile に**完全に独立した 2 エントリ**として記録される。
+- Good, because `--save-catalog-name` で追加すれば分類が自動で保たれる
+- Bad, because lockfile に**完全に独立した 2 エントリ**として記録される。
   片方だけ更新すれば即座にズレる
 
   ```yaml
@@ -197,12 +198,12 @@ catalogs:
       zod: { specifier: ^4.0.0, version: 4.4.3 }   # 別管理
   ```
 
-* Bad, because **同じパッケージが片方では prod・別では dev** になる
+- Bad, because **同じパッケージが片方では prod・別では dev** になる
   ケースが普通に存在するため、分類表として最初から破綻している。
   実測でも `zod` が `packages/contract` では dependencies、
   `apps/server` では devDependencies として、`catalog:` 1 つで同一
   バージョンに解決されることを確認した
-* Bad, because prod / dev の情報は**各パッケージの `package.json` に
+- Bad, because prod / dev の情報は**各パッケージの `package.json` に
   既にある**ため、同じ事実を 2 箇所で管理することになる
 
   ```jsonc
@@ -212,7 +213,7 @@ catalogs:
   "devDependencies": { "typescript": "catalog:" } // ここが dev と言っている
   ```
 
-* Bad, because 依存の種別を prod から dev に変えるとき、`package.json` の
+- Bad, because 依存の種別を prod から dev に変えるとき、`package.json` の
   位置だけでなく catalog 参照名も書き換える必要がある
 
 ## 補足情報 (More Information)
@@ -234,13 +235,13 @@ Gradle の Version Catalog も `[libraries]` はフラットな辞書であり�
 
 ### 実案件の調査結果
 
-| リポジトリ | catalog の使い方 | エントリ数 |
-| --- | --- | --- |
-| vuejs/core | デフォルトカタログ 1 つ・フラット | 8 |
-| element-plus | デフォルトカタログ 1 つ・フラット | 17 |
-| pnpm/pnpm | デフォルトカタログ 1 つ・フラット | 多数 |
-| vitejs/vite | catalog 未使用（overrides 等は使用） | - |
-| nuxt/nuxt | **named catalogs を 7 つに分割** | 193 |
+| リポジトリ   | catalog の使い方                     | エントリ数 |
+| ------------ | ------------------------------------ | ---------- |
+| vuejs/core   | デフォルトカタログ 1 つ・フラット    | 8          |
+| element-plus | デフォルトカタログ 1 つ・フラット    | 17         |
+| pnpm/pnpm    | デフォルトカタログ 1 つ・フラット    | 多数       |
+| vitejs/vite  | catalog 未使用（overrides 等は使用） | -          |
+| nuxt/nuxt    | **named catalogs を 7 つに分割**     | 193        |
 
 element-plus は `prettier` `typescript` `tsx`（dev）と
 `vue` `@floating-ui/dom`（prod）を**意図的に混ぜてフラットに並べている**。
@@ -252,15 +253,15 @@ pnpm 本体も同様にフラットで、`@commitlint/cli` のような開発ツ
 当初「分割している実例は無い」と考えていたが、**これは誤りだった**。
 nuxt/nuxt は named catalogs を 7 つ運用している。
 
-| カタログ | 数 | 用途（原文コメントより） |
-| --- | --- | --- |
-| `app-runtime` | 23 | nuxt アプリランタイムで import されるもの |
-| `nitro-runtime` | 5 | サーバーランタイムで import されるもの |
-| `vue` | 6 | vue コンパイラ / ツーリング |
-| `vite` | 7 | vite / rolldown / oxc ツールチェーン |
-| `webpack` | 20 | webpack / rspack パイプライン |
-| `build` | 63 | 公開パッケージのビルド時依存 |
-| `dev` | 69 | 開発 / テスト / ワークスペースツーリング（pinned） |
+| カタログ        | 数  | 用途（原文コメントより）                           |
+| --------------- | --- | -------------------------------------------------- |
+| `app-runtime`   | 23  | nuxt アプリランタイムで import されるもの          |
+| `nitro-runtime` | 5   | サーバーランタイムで import されるもの             |
+| `vue`           | 6   | vue コンパイラ / ツーリング                        |
+| `vite`          | 7   | vite / rolldown / oxc ツールチェーン               |
+| `webpack`       | 20  | webpack / rspack パイプライン                      |
+| `build`         | 63  | 公開パッケージのビルド時依存                       |
+| `dev`           | 69  | 開発 / テスト / ワークスペースツーリング（pinned） |
 
 注目すべきは分割の基準が「フロント / バック」のような**レイヤー別ではなく、
 依存の性質・役割別**である点。「実行時に import されるか」「ビルド時にだけ
@@ -393,10 +394,10 @@ catalog:
 
 同じファイルに同居しているため混同しやすいが、**役割が完全に異なる**。
 
-| フィールド | 役割 |
-| --- | --- |
+| フィールド  | 役割                                              |
+| ----------- | ------------------------------------------------- |
 | `packages:` | **どのディレクトリが workspace の一員か**を決める |
-| `catalog:` | **バージョンをどこに書くか**を決める |
+| `catalog:`  | **バージョンをどこに書くか**を決める              |
 
 - ルートで `pnpm install` すると全階層のパッケージが入る
   → これは **`packages:` の働き**。catalog を 1 つも使っていなくても同じ

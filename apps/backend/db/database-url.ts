@@ -1,4 +1,4 @@
-import { EnvName } from '../src/shared/infrastructure/env-name.ts'
+import { EnvName } from "../src/shared/infrastructure/env-name.ts";
 
 /**
  * 接続情報を環境変数から読む。未設定なら throw する。
@@ -11,12 +11,12 @@ import { EnvName } from '../src/shared/infrastructure/env-name.ts'
  * `Failed query: CREATE SCHEMA IF NOT EXISTS "drizzle"` で、環境変数の話が一言も出てこない。
  */
 export const databaseUrl = (): string => {
-  const url = process.env[EnvName.DatabaseUrl]
-  if (url === undefined || url === '') {
+  const url = process.env[EnvName.DatabaseUrl];
+  if (url === undefined || url === "") {
     throw new Error(
       `${EnvName.DatabaseUrl} が設定されていません。` +
-        '.env を確認してください (未設定のまま進むと既定の接続先へ繋ぎにいきます)。',
-    )
+        ".env を確認してください (未設定のまま進むと既定の接続先へ繋ぎにいきます)。",
+    );
   }
-  return url
-}
+  return url;
+};

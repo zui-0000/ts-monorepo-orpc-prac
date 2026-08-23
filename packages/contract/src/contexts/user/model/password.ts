@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot";
 
 /**
  * パスワード(平文)。入力専用で、レスポンスに含めないこと。
@@ -13,8 +13,8 @@ export const PasswordSchema = v.pipe(
   v.string(),
   v.minLength(12),
   v.maxLength(128),
-  v.description('パスワード(平文)。入力専用で、レスポンスに含めないこと'),
-  v.examples(['************']),
-)
+  v.description("パスワード(平文)。入力専用で、レスポンスに含めないこと"),
+  v.examples(["************"]),
+);
 
-export type Password = v.InferOutput<typeof PasswordSchema>
+export type Password = v.InferOutput<typeof PasswordSchema>;

@@ -7,8 +7,6 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": [
-      "bun"
-    ]
+    "types": ["bun"]
   }
 }

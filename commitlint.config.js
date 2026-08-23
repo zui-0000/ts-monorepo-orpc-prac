@@ -8,21 +8,21 @@
 
 /** @type {import('@commitlint/types').UserConfig} */
 export default {
-  extends: ['@commitlint/config-conventional'],
+  extends: ["@commitlint/config-conventional"],
 
   rules: {
     // --- 文字数制限: 全て無効化 ---
     // 日本語は1文字の情報量が多く、既定の100文字だと本文の折り返しで
     // 誤検知しやすいため無効化する。
-    'header-max-length': [0],
-    'body-max-line-length': [0],
-    'footer-max-line-length': [0],
+    "header-max-length": [0],
+    "body-max-line-length": [0],
+    "footer-max-line-length": [0],
 
     // --- 英語前提のチェック: 無効化 ---
     // 既定では subject 先頭の大文字を弾くため、日本語で書いていても
     // 「feat: NPEを修正」「feat: UserAPIを追加」のように
     // 英大文字の略語で始まると弾かれてしまう。実測で確認済み。
-    'subject-case': [0],
+    "subject-case": [0],
   },
 
   // --- 以下は @commitlint/config-conventional の既定をそのまま使う ---

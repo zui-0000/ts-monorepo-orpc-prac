@@ -7,7 +7,7 @@
  */
 export const EnvName = {
   /** DB の接続先。未設定だと Bun.sql が**既定の接続先へフォールバックする**。 */
-  DatabaseUrl: 'DATABASE_URL',
-} as const
+  DatabaseUrl: "DATABASE_URL",
+} as const;
 
-export type EnvName = (typeof EnvName)[keyof typeof EnvName]
+export type EnvName = (typeof EnvName)[keyof typeof EnvName];

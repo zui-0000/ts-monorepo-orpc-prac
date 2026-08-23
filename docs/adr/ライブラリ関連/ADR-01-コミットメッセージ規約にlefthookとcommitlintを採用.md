@@ -28,26 +28,26 @@ npm パッケージとして配布される lefthook へ移した。
 
 ## 決定要因 (Decision Drivers)
 
-* 日本語のコミットメッセージで誤検知しないこと
-* `git merge` / `git pull` を妨げないこと（マージが詰まないこと）
-* 規約を後から調整できること
-* 設定ミスに気づけること（黙って素通りしないこと）
-* コミットのたびに走るため、実行時間が実用的であること
-* 依存が catalog で一元管理できること（→ ADR-02）
+- 日本語のコミットメッセージで誤検知しないこと
+- `git merge` / `git pull` を妨げないこと（マージが詰まないこと）
+- 規約を後から調整できること
+- 設定ミスに気づけること（黙って素通りしないこと）
+- コミットのたびに走るため、実行時間が実用的であること
+- 依存が catalog で一元管理できること（→ ADR-02）
 
 ## 検討した選択肢 (Considered Options)
 
 **メッセージの検証**
 
-* hk 内蔵の `check_conventional_commit`
-* commitlint（npm）
-* committed（Rust）
-* cocogitto
+- hk 内蔵の `check_conventional_commit`
+- commitlint（npm）
+- committed（Rust）
+- cocogitto
 
 **フックの管理**
 
-* hk（mise で入れるバイナリ）
-* lefthook（npm パッケージ）
+- hk（mise で入れるバイナリ）
+- lefthook（npm パッケージ）
 
 ## 決定 (Decision Outcome)
 
@@ -111,20 +111,20 @@ build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
 
 ### 結果 (Consequences)
 
-* Good, because merge / revert / fixup コミットが**設定ゼロ**で正しく
+- Good, because merge / revert / fixup コミットが**設定ゼロ**で正しく
   スキップされる
-* Good, because 規約を細かく制御でき、`@commitlint/types` による型で
+- Good, because 規約を細かく制御でき、`@commitlint/types` による型で
   ルール名の typo が防げる
-* Good, because TypeScript エコシステムの定番であり、情報を探しやすい
-* Good, because 旧 `committed.toml` の意図を 12 項目中 10 項目まで再現できた
-* Good, because フック管理も含めて依存が catalog に揃った。mise で管理する
+- Good, because TypeScript エコシステムの定番であり、情報を探しやすい
+- Good, because 旧 `committed.toml` の意図を 12 項目中 10 項目まで再現できた
+- Good, because フック管理も含めて依存が catalog に揃った。mise で管理する
   ものは言語ランタイムだけになる
-* Neutral, because 不正なメッセージの検出は実測 0.08 秒。hk 経由（0.45 秒）
+- Neutral, because 不正なメッセージの検出は実測 0.08 秒。hk 経由（0.45 秒）
   より速く、体感できる待ちは無い
-* Bad, because 依存が増える（commitlint 3 つ + lefthook）
-* Bad, because clone しただけではフックが有効にならない。`lefthook install`
+- Bad, because 依存が増える（commitlint 3 つ + lefthook）
+- Bad, because clone しただけではフックが有効にならない。`lefthook install`
   が別途必要（`prepare` スクリプトで自動化したが、仕組みの理解は必要）
-* Bad, because `no_fixup` / `no_wip` 相当は実現できていない
+- Bad, because `no_fixup` / `no_wip` 相当は実現できていない
 
 ### 確認方法 (Confirmation)
 
@@ -197,13 +197,13 @@ hk には conventional commit チェッカーが内蔵されている
 4. scope の括弧が正しいか（空 `()`・二重 `(a)(b)` は弾く）
 5. description が空でないか
 
-* Good, because 追加依存がゼロ
-* Good, because Rust 製で高速（数十 ms）
-* Good, because `fixup!` / `squash!` / `amend!` を自動スキップし、
+- Good, because 追加依存がゼロ
+- Good, because Rust 製で高速（数十 ms）
+- Good, because `fixup!` / `squash!` / `amend!` を自動スキップし、
   `git rebase --autosquash` を妨げない
-* Neutral, because 日本語は素通りする（全角・半角どちらの句点も通る）
-* Bad, because **外から変えられるパラメータが `--allowed-types` ただ 1 つ**
-* Bad, because **`git merge` が詰む**（決定的な欠点。詳細は下記）
+- Neutral, because 日本語は素通りする（全角・半角どちらの句点も通る）
+- Bad, because **外から変えられるパラメータが `--allowed-types` ただ 1 つ**
+- Bad, because **`git merge` が詰む**（決定的な欠点。詳細は下記）
 
 **マージが詰む問題（この選択肢を却下した理由）**
 
@@ -228,26 +228,26 @@ Not committing merge; use 'git commit' to complete the merge.
 
 ### メッセージの検証: commitlint — 採用
 
-* Good, because **`defaultIgnores` により merge / revert / fixup を
+- Good, because **`defaultIgnores` により merge / revert / fixup を
   設定ゼロでスキップする**
 
-  | メッセージ | 結果 |
-  | --- | --- |
-  | `Merge branch 'feature'` | 通る |
+  | メッセージ                       | 結果 |
+  | -------------------------------- | ---- |
+  | `Merge branch 'feature'`         | 通る |
   | `Merge pull request #1 from a/b` | 通る |
-  | `Revert "feat: x"` | 通る |
-  | `fixup! feat: x` | 通る |
+  | `Revert "feat: x"`               | 通る |
+  | `fixup! feat: x`                 | 通る |
 
-* Good, because ルールを細かく制御できる
-* Good, because `@commitlint/types` で型安全に設定できる。型定義は
+- Good, because ルールを細かく制御できる
+- Good, because `@commitlint/types` で型安全に設定できる。型定義は
   `rules?: Partial<RulesConfig>` であり、`RulesConfig` はルール名が文字列
   リテラルで**全て列挙**されている。各ルールに専用の型
   （`LengthRuleConfig` / `CaseRuleConfig` など）も付いているため、
   **名前の typo も値の形の誤りも型エラーになる**
-* Neutral, because 既定のままだと日本語で誤検知するが、無効化で対処できる
+- Neutral, because 既定のままだと日本語で誤検知するが、無効化で対処できる
   （下記）
-* Bad, because Node プロセスの起動コストがかかる（0.45 秒）
-* Bad, because 依存が 3 つ増える
+- Bad, because Node プロセスの起動コストがかかる（0.45 秒）
+- Bad, because 依存が 3 つ増える
 
 **日本語対応で無効化が必要だった項目（いずれも実測で確認）**
 
@@ -276,10 +276,10 @@ pnpm は厳格で node_modules 直下にシンボリックリンクを張らな�
 
 実測で 2 倍近い差が出たため、直接パスで呼ぶ。
 
-| 呼び方 | 所要時間 |
-| --- | --- |
-| `pnpm exec commitlint` | 0.77〜0.83 秒 |
-| `./node_modules/.bin/commitlint` | 0.38 秒 |
+| 呼び方                           | 所要時間      |
+| -------------------------------- | ------------- |
+| `pnpm exec commitlint`           | 0.77〜0.83 秒 |
+| `./node_modules/.bin/commitlint` | 0.38 秒       |
 
 フック全体では 0.90 秒 → 0.45 秒に半減した。
 
@@ -287,71 +287,71 @@ pnpm は厳格で node_modules 直下にシンボリックリンクを張らな�
 
 削除する前まで使っていたもの。`committed.toml` で細かく設定できる。
 
-* Good, because Rust 製で高速
-* Good, because `merge_commit = true` でマージコミットを対象外にできる
-* Good, because `no_wip` / `no_fixup` がある
-* Good, because 既存の設定ファイルをそのまま流用できた
-* Bad, because 依存が 1 つ増える（mise 管理のバイナリ）
-* Bad, because 設定の大半（長さ制限・大文字・命令形）を日本語向けに
+- Good, because Rust 製で高速
+- Good, because `merge_commit = true` でマージコミットを対象外にできる
+- Good, because `no_wip` / `no_fixup` がある
+- Good, because 既存の設定ファイルをそのまま流用できた
+- Bad, because 依存が 1 つ増える（mise 管理のバイナリ）
+- Bad, because 設定の大半（長さ制限・大文字・命令形）を日本語向けに
   無効化する必要があり、実効ルールは commitlint とほぼ同じになる
-* Bad, because TypeScript プロジェクトの依存管理（catalog）の外に出る
+- Bad, because TypeScript プロジェクトの依存管理（catalog）の外に出る
 
 ### メッセージの検証: cocogitto
 
-* Good, because conventional commits に特化している
-* Bad, because `cog.toml` という別の設定ファイルが必要
-* Bad, because 今回の要件に対して commitlint 以上の利点が見当たらなかった
+- Good, because conventional commits に特化している
+- Bad, because `cog.toml` という別の設定ファイルが必要
+- Bad, because 今回の要件に対して commitlint 以上の利点が見当たらなかった
 
 候補として挙げたのみで、詳細な評価は行っていない。
 
 ### フックの管理: hk
 
-* Good, because Rust 製で速い
-* Good, because builtin が豊富（`check_conventional_commit` / `prettier` /
+- Good, because Rust 製で速い
+- Good, because builtin が豊富（`check_conventional_commit` / `prettier` /
   `eslint` などが 1 行で使える）
-* Good, because mise の作者による実装で、mise との統合が前提にある
-* Bad, because **mise で入れるバイナリなので catalog に載せられない**。
+- Good, because mise の作者による実装で、mise との統合が前提にある
+- Bad, because **mise で入れるバイナリなので catalog に載せられない**。
   依存を `pnpm-workspace.yaml` に集約する方針（→ ADR-02）から外れる唯一の存在だった
-* Bad, because 設定が Pkl。`amends "package://github.com/jdx/hk/releases/…"` の
+- Bad, because 設定が Pkl。`amends "package://github.com/jdx/hk/releases/…"` の
   ような記述が必要で、YAML に比べて書き方を調べる場面が多い
-* Bad, because 新しく情報が少ない
+- Bad, because 新しく情報が少ない
 
 ### フックの管理: lefthook — 採用
 
-* Good, because **npm パッケージとして catalog に載る**。依存の管理方針が揃う
-* Good, because 設定が YAML で、`root` / `glob` / `parallel` といった
+- Good, because **npm パッケージとして catalog に載る**。依存の管理方針が揃う
+- Good, because 設定が YAML で、`root` / `glob` / `parallel` といった
   モノレポ向けの機能が素直に書ける
-* Good, because 実績があり情報を探しやすい
-* Neutral, because builtin は持たずコマンドを直接書く。ただし本プロジェクトが
+- Good, because 実績があり情報を探しやすい
+- Neutral, because builtin は持たずコマンドを直接書く。ただし本プロジェクトが
   hk で使っていた builtin は無かった（commitlint を直接呼んでいた）ため失うものが無い
-* Bad, because postinstall でバイナリを配置するため `allowBuilds` の許可が要る
+- Bad, because postinstall でバイナリを配置するため `allowBuilds` の許可が要る
 
 **乗り換えの実測**
 
-| 確認 | 結果 |
-| --- | --- |
-| 不正なメッセージを弾く | ✅（0.08 秒。hk 経由では 0.45 秒） |
-| 日本語 + 英大文字略語が通る | ✅ |
-| 非 FF マージが詰まない | ✅ |
+| 確認                        | 結果                               |
+| --------------------------- | ---------------------------------- |
+| 不正なメッセージを弾く      | ✅（0.08 秒。hk 経由では 0.45 秒） |
+| 日本語 + 英大文字略語が通る | ✅                                 |
+| 非 FF マージが詰まない      | ✅                                 |
 
 ## 補足情報 (More Information)
 
 ### 旧 committed 設定との対応表
 
-| committed | commitlint | 状態 |
-| --- | --- | --- |
-| `style = "conventional"` | `extends: config-conventional` | 達成 |
-| `allowed_types` 11 種 | `type-enum` 既定と完全一致 | 達成（記述不要） |
-| `allowed_scopes = []` | `scope-enum` 制限なし | 達成 |
-| `subject_length = 0` | `header-max-length: [0]` | 達成 |
-| `line_length = 0` | `body-max-line-length: [0]` | 達成 |
-| `hard_line_length = 0` | `footer-max-line-length: [0]` | 達成 |
-| `subject_capitalized = false` | `subject-case: [0]` | 達成 |
-| `imperative_subject = false` | 該当ルールが存在しない | 達成 |
-| `subject_not_punctuated = true` | `subject-full-stop` 既定 | 達成 |
-| `merge_commit = true` | `defaultIgnores` | 達成（設定不要） |
-| `no_fixup = true` | 無し（fixup! はスキップされる） | **未達** |
-| `no_wip = true` | 無し（`wip:` は type-enum で弾ける） | **部分的** |
+| committed                       | commitlint                           | 状態             |
+| ------------------------------- | ------------------------------------ | ---------------- |
+| `style = "conventional"`        | `extends: config-conventional`       | 達成             |
+| `allowed_types` 11 種           | `type-enum` 既定と完全一致           | 達成（記述不要） |
+| `allowed_scopes = []`           | `scope-enum` 制限なし                | 達成             |
+| `subject_length = 0`            | `header-max-length: [0]`             | 達成             |
+| `line_length = 0`               | `body-max-line-length: [0]`          | 達成             |
+| `hard_line_length = 0`          | `footer-max-line-length: [0]`        | 達成             |
+| `subject_capitalized = false`   | `subject-case: [0]`                  | 達成             |
+| `imperative_subject = false`    | 該当ルールが存在しない               | 達成             |
+| `subject_not_punctuated = true` | `subject-full-stop` 既定             | 達成             |
+| `merge_commit = true`           | `defaultIgnores`                     | 達成（設定不要） |
+| `no_fixup = true`               | 無し（fixup! はスキップされる）      | **未達**         |
+| `no_wip = true`                 | 無し（`wip:` は type-enum で弾ける） | **部分的**       |
 
 12 項目中 10 項目を達成。未達の 2 つは以下の理由で許容した。
 
@@ -373,12 +373,12 @@ pnpm は厳格で node_modules 直下にシンボリックリンクを張らな�
 
 使い捨ての clone で実測したところ、以下が確認できた。
 
-| 手順 | フックの状態 |
-| --- | --- |
-| `git clone` 直後 | **未登録**。`update stuff` がそのまま通ってしまう |
-| `mise install` | ランタイムが入るだけ。**登録されない** |
-| `pnpm install` | commitlint と lefthook が `node_modules` に入る |
-| `lefthook install` | **ここで初めて登録される** |
+| 手順               | フックの状態                                      |
+| ------------------ | ------------------------------------------------- |
+| `git clone` 直後   | **未登録**。`update stuff` がそのまま通ってしまう |
+| `mise install`     | ランタイムが入るだけ。**登録されない**            |
+| `pnpm install`     | commitlint と lefthook が `node_modules` に入る   |
+| `lefthook install` | **ここで初めて登録される**                        |
 
 この 3 手順を 2 手順に減らすため、`package.json` に `prepare` スクリプトを
 置いた。結果、clone した人がやることは以下だけになる。
@@ -396,11 +396,11 @@ lefthook は npm 依存なので `node_modules/.bin` から呼べる。hk のと
 pnpm 11 は `optimisticRepeatInstall` が既定で有効なため、依存に変更が
 なければ install 処理ごとスキップされ、`prepare` も実行されない。
 
-| 状況 | `prepare` |
-| --- | --- |
-| `node_modules` が無い状態で `pnpm install` | 走る |
+| 状況                                              | `prepare`    |
+| ------------------------------------------------- | ------------ |
+| `node_modules` が無い状態で `pnpm install`        | 走る         |
 | `node_modules` がある状態（`--force` を付けても） | **走らない** |
-| `pnpm run prepare` を直接実行 | 走る |
+| `pnpm run prepare` を直接実行                     | 走る         |
 
 clone 直後は必ず `node_modules` が無いため目的は達成される。
 既存環境でフックを入れ直すときは `pnpm run prepare` を使う。
@@ -446,12 +446,12 @@ postinstall で配置する。pnpm 11 は既定で全てのビルドスクリプ
 
 切り分けの実測結果:
 
-| 実行方法 | 終了コード | 判定 |
-| --- | --- | --- |
-| hk 1.54.1 で直接 | 0 | 素通り |
-| hk 1.56.0 で直接 | 1 | 正しく弾く |
-| git hook 経由（素の PATH） | 0 | 素通り |
-| git hook 経由（PATH=1.56.0） | 1 | 正しく弾く |
+| 実行方法                     | 終了コード | 判定       |
+| ---------------------------- | ---------- | ---------- |
+| hk 1.54.1 で直接             | 0          | 素通り     |
+| hk 1.56.0 で直接             | 1          | 正しく弾く |
+| git hook 経由（素の PATH）   | 0          | 素通り     |
+| git hook 経由（PATH=1.56.0） | 1          | 正しく弾く |
 
 教訓は以下の通り。
 
