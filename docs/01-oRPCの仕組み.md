@@ -211,6 +211,65 @@ const next = async (index, context, input) => {
 **各ハンドラはこれを意識しない。** 共有の `os` に載せてあるため、
 ユースケースを増やしても書くのはハンドラの中身だけ。
 
+### 公式は送信値の露出を警告していない
+
+[公式ドキュメント](https://orpc.dev/docs/error-handling)は
+「`ORPCError.data` はクライアントに送られるので機密情報を入れるな」と
+繰り返し警告している。しかし**警告の対象は「実装が入れるもの」**であり、
+oRPC 自身が `data.issues` と `cause` に送信値を入れることには触れていない。
+
+[Validation Errors のページ](https://orpc.dev/docs/advanced/validation-errors)も
+`z.prettifyError()` / `z.flattenError()` で整形する例を示すのみで、
+**機密の露出に関する記載は無い**（2026-08-23 時点。v2 も同様）。
+
+GitHub issue を検索しても同種の報告は見つからず、むしろ
+[#1027](https://github.com/middleapi/orpc/issues/1027) のように
+「出力検証の詳細が足りない、入力と同じように出してほしい」という
+**逆方向の要望**が上がっている。
+
+つまりここで挟んでいるミドルウェアは、**公式に案内のある手順ではない。**
+
+### ログも塞ぐ
+
+漏洩経路は応答だけではない。APM やログ基盤へ送られる**ログも同じ**なので、
+値を書かない形にしてある。
+
+```
+level=WARN message=リクエストを受け付けられませんでした
+  status=400 code=BAD_REQUEST_ERROR violations=password:min_length(12)
+```
+
+**規則の側だけを残す。** `password` が `min_length(12)` で落ちたことは分かるが、
+何を送ったかは残らない。issue のうち安全なのは `type` / `requirement` /
+`expected` で、`input` と `received` と `message` には値が入る
+(`min_length` の `received` は長さだが、`regex` では値そのものになる)。
+
+**ログを出すのはミドルウェア。** 翻訳するとフィールド名しか残らないため、
+規則を記録できるのはこの時点だけになる。
+
+| 経路               | 出すもの                                               |
+| ------------------ | ------------------------------------------------------ |
+| HTTP 応答          | 違反フィールド名だけ                                   |
+| ミドルウェアのログ | 違反フィールドと規則                                   |
+| `onError` のログ   | 4xx は status/code のみ、**5xx だけ cause とスタック** |
+
+4xx で `cause` を出さないのは、そこに検証ライブラリの生データ
+(送信値を含む) が入りうるため。
+
+**`onError` は入力検証の失敗を記録しない。** ミドルウェアが翻訳する時点で
+内訳つきで記録済みのものが流れてくるため、両方書くと同じ失敗が 2 行になり、
+しかも後から来るほうは内訳を持たない。
+
+```
+level=WARN status=403 code=FORBIDDEN_ERROR defined=true
+level=WARN status=400 code=BAD_REQUEST_ERROR violations=mailAddress:regex,password:min_length(12)
+```
+
+`requirement` を出すのは**数値と文字列のときだけ**。`regex` の requirement は
+正規表現そのもので、書き出すと検証パターンが漏れる。これは型情報を使う lint
+(`no-base-to-string`) が検出した — 文字列化すると `[object Object]` になる、
+という指摘から気付いた。
+
 ## 契約が定義していても実装が投げないものがある
 
 | 契約のエラー                                    | 実装が投げるか                                                |
