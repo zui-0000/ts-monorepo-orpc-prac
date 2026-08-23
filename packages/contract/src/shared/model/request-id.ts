@@ -10,6 +10,7 @@ import { UuidSchema } from './uuid.js'
 export const RequestIdSchema = v.pipe(
   UuidSchema,
   v.description('リクエストの相関ID (UUID v7)'),
+  v.examples(['018eef15-1234-7123-8123-123456789abc']),
 )
 
 export type RequestId = v.InferOutput<typeof RequestIdSchema>

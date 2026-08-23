@@ -30,6 +30,7 @@ export const MailAddressSchema = v.pipe(
     'メールアドレスの形式が不正です',
   ),
   v.description('メールアドレス (RFC 5322準拠)'),
+  v.examples(['user@example.com']),
 )
 
 export type MailAddress = v.InferOutput<typeof MailAddressSchema>

@@ -5,6 +5,7 @@ export const CreatedAtSchema = v.pipe(
   v.string(),
   v.isoTimestamp(),
   v.description('作成日時'),
+  v.examples(['2025-01-01T12:00:00Z']),
 )
 
 export type CreatedAt = v.InferOutput<typeof CreatedAtSchema>

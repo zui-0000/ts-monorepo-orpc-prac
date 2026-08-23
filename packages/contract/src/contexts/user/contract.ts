@@ -42,6 +42,10 @@ export const createUser = oc
     method: HttpMethod.POST,
     path: '/users',
     successStatus: HttpStatus.CREATED,
+    operationId: 'createUser',
+    tags: ['Users'],
+    summary: 'ユーザーを新規作成する',
+    description: 'サインアップを想定しているため認証は不要。',
   })
   .input(CreateUserRequestSchema)
   .output(CreateUserResponseSchema)
@@ -57,6 +61,10 @@ export const getUser = oc
     method: HttpMethod.GET,
     path: '/users/{id}',
     successStatus: HttpStatus.OK,
+    operationId: 'getUser',
+    tags: ['Users'],
+    summary: 'IDを指定してユーザーを取得する',
+    description: '要認証。本人のリソースだけを取得できる。',
   })
   .input(UserIdParamSchema)
   .output(GetUserResponseSchema)
@@ -74,6 +82,10 @@ export const updateUser = oc
     method: HttpMethod.PUT,
     path: '/users/{id}',
     successStatus: HttpStatus.NO_CONTENT,
+    operationId: 'updateUser',
+    tags: ['Users'],
+    summary: 'ユーザーを更新する',
+    description: '要認証。本人のリソースだけを更新できる。',
   })
   .input(v.object({ ...UpdateUserRequestSchema.entries, ...UserIdParamSchema.entries }))
   .output(v.void())
@@ -92,6 +104,10 @@ export const deleteUser = oc
     method: HttpMethod.DELETE,
     path: '/users/{id}',
     successStatus: HttpStatus.NO_CONTENT,
+    operationId: 'deleteUser',
+    tags: ['Users'],
+    summary: 'ユーザーを削除する',
+    description: '要認証。本人のリソースだけを削除できる。',
   })
   .input(UserIdParamSchema)
   .output(v.void())
@@ -109,6 +125,10 @@ export const changePassword = oc
     method: HttpMethod.PUT,
     path: '/users/{id}/password',
     successStatus: HttpStatus.NO_CONTENT,
+    operationId: 'changePassword',
+    tags: ['Users'],
+    summary: 'パスワードを変更する',
+    description: '要認証。セッション乗っ取り対策として現在のパスワードで本人確認する。',
   })
   .input(v.object({ ...ChangePasswordRequestSchema.entries, ...UserIdParamSchema.entries }))
   .output(v.void())

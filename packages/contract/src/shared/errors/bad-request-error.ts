@@ -5,12 +5,15 @@ import { ErrorItemSchema } from './error-item.js'
 import { ErrorTitleSchema } from './error-title.js'
 
 /** リクエスト内容が不正 (汎用) */
-export const BadRequestErrorSchema = v.object({
+export const BadRequestErrorSchema = v.pipe(
+  v.object({
   status: v.literal(HttpStatus.BAD_REQUEST),
   code: v.literal('4000'),
   title: ErrorTitleSchema,
   errors: v.optional(v.array(ErrorItemSchema)),
-})
+}),
+  v.examples([{ status: 400, code: '4000', title: 'リクエスト内容が不正です', errors: [{ field: 'mailAddress', message: 'メールアドレスの形式が不正です' }] }]),
+)
 
 export type BadRequestErrorData = v.InferOutput<typeof BadRequestErrorSchema>
 

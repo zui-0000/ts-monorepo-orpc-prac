@@ -14,6 +14,7 @@ export const UuidSchema = v.pipe(
     'UUID v7 の形式ではありません',
   ),
   v.description('UUID v7'),
+  v.examples(['018eef15-1234-7123-8123-123456789abc']),
 )
 
 export type Uuid = v.InferOutput<typeof UuidSchema>

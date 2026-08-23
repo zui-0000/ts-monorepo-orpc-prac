@@ -7,19 +7,29 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./openapi": {
+      "types": "./dist/openapi.d.ts",
+      "default": "./dist/openapi.js"
     }
   },
   "scripts": {
     "build": "tsc --build",
-    "typecheck": "tsc --build",
+    "typecheck": "tsc --build && tsc --noEmit -p scripts",
+    "preview": "bun --hot scripts/preview.ts",
     "clean": "tsc --build --clean"
   },
   "dependencies": {
     "@orpc/contract": "catalog:",
+    "@orpc/openapi": "catalog:",
+    "@orpc/valibot": "catalog:",
     "valibot": "catalog:"
   },
   "devDependencies": {
     "@orpc-prac/tsconfig": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/swagger-ui-dist": "catalog:",
+    "swagger-ui-dist": "catalog:",
     "typescript": "catalog:"
   }
 }

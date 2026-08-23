@@ -18,11 +18,14 @@ import { ErrorTitleSchema } from './error-title.js'
  * いまの規則は「本人のリソースだけ」なので、漏れるのは実在の有無だけ。
  * id は uuid v7 で 74 bit のランダム部を持つため、総当たりで実在を洗うのは非現実的。
  */
-export const ForbiddenErrorSchema = v.object({
+export const ForbiddenErrorSchema = v.pipe(
+  v.object({
   status: v.literal(HttpStatus.FORBIDDEN),
   code: v.literal('4030'),
   title: ErrorTitleSchema,
-})
+}),
+  v.examples([{ status: 403, code: '4030', title: 'この操作を行う権限がありません' }]),
+)
 
 export type ForbiddenErrorData = v.InferOutput<typeof ForbiddenErrorSchema>
 

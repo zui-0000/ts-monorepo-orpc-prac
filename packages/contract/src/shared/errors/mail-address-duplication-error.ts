@@ -4,11 +4,14 @@ import { HttpStatus } from '../constants/index.js'
 import { ErrorTitleSchema } from './error-title.js'
 
 /** メールアドレスが既に使用されている */
-export const MailAddressDuplicationErrorSchema = v.object({
+export const MailAddressDuplicationErrorSchema = v.pipe(
+  v.object({
   status: v.literal(HttpStatus.CONFLICT),
   code: v.literal('4091'),
   title: ErrorTitleSchema,
-})
+}),
+  v.examples([{ status: 409, code: '4091', title: 'メールアドレスが既に使用されています' }]),
+)
 
 export type MailAddressDuplicationErrorData = v.InferOutput<typeof MailAddressDuplicationErrorSchema>
 

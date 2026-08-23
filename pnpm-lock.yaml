@@ -24,9 +24,15 @@ catalogs:
     '@orpc/server':
       specifier: ^1.15.0
       version: 1.15.0
+    '@orpc/valibot':
+      specifier: ^1.15.0
+      version: 1.15.0
     '@types/bun':
       specifier: ^1.4.0
       version: 1.4.0
+    '@types/swagger-ui-dist':
+      specifier: ^3.30.6
+      version: 3.30.6
     drizzle-kit:
       specifier: ^0.31.10
       version: 0.31.10
@@ -36,6 +42,9 @@ catalogs:
     hono:
       specifier: ^4.13.3
       version: 4.13.3
+    swagger-ui-dist:
+      specifier: ^5.32.14
+      version: 5.32.14
     typescript:
       specifier: ^7.0.2
       version: 7.0.2
@@ -93,6 +102,12 @@ importers:
       '@orpc/contract':
         specifier: 'catalog:'
         version: 1.15.0
+      '@orpc/openapi':
+        specifier: 'catalog:'
+        version: 1.15.0
+      '@orpc/valibot':
+        specifier: 'catalog:'
+        version: 1.15.0(@orpc/contract@1.15.0)(@orpc/server@1.15.0)(valibot@1.4.2(typescript@7.0.2))
       valibot:
         specifier: 'catalog:'
         version: 1.4.2(typescript@7.0.2)
@@ -100,6 +115,15 @@ importers:
       '@orpc-prac/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/bun':
+        specifier: 'catalog:'
+        version: 1.4.0
+      '@types/swagger-ui-dist':
+        specifier: 'catalog:'
+        version: 3.30.6
+      swagger-ui-dist:
+        specifier: 'catalog:'
+        version: 5.32.14
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -713,6 +737,16 @@ packages:
   '@orpc/standard-server@1.15.0':
     resolution: {integrity: sha512-bje/xn6thDqJY/JQ7xoOjmD1KWE4FsyZOPgnPxwqTZLx/r00stRhLuFvk1hDEGj9UlG7NLZEijDVx0wqvcyDzA==}
 
+  '@orpc/valibot@1.15.0':
+    resolution: {integrity: sha512-xDi8V2D1rN5MsQO1IHFiDh9xet2XIspuBuHMeg3rA8OS93FBZG54n26KLU5Xq6Jft9lcQ7zUNtj2ZDoWEhWkcQ==}
+    peerDependencies:
+      '@orpc/contract': 1.15.0
+      '@orpc/server': 1.15.0
+      valibot: '>=1.0.0'
+
+  '@scarf/scarf@1.4.0':
+    resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
+
   '@simple-libs/child-process-utils@2.0.0':
     resolution: {integrity: sha512-dvNoRKLijXnD0XoJAz94pbNuB5GQgDr55UhpSPhffDkTT0Cmcqh9jSCOtwfT2d4H6MI9E7c4SgtMuJXZ6F3c6A==}
     engines: {node: '>=22'}
@@ -729,6 +763,9 @@ packages:
 
   '@types/node@26.2.0':
     resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
+
+  '@types/swagger-ui-dist@3.30.6':
+    resolution: {integrity: sha512-FVxN7wjLYRtJsZBscOcOcf8oR++m38vbUFjT33Mr9HBuasX9bRDrJsp7iwixcOtKSHEEa2B7o2+4wEiXqC+Ebw==}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
@@ -849,6 +886,11 @@ packages:
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
+
+  '@valibot/to-json-schema@1.7.1':
+    resolution: {integrity: sha512-3qkmU6KXWh8GIThEAW3kuRHPQBMjWkKy+Ppz3WkUucx53DTpOa6siMn4xDGSOhlVyMrDaJTCTMLYPZVAIk1P0A==}
+    peerDependencies:
+      valibot: ^1.4.0
 
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
@@ -1171,6 +1213,9 @@ packages:
   strip-ansi@7.2.0:
     resolution: {integrity: sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w==}
     engines: {node: '>=12'}
+
+  swagger-ui-dist@5.32.14:
+    resolution: {integrity: sha512-nOA2pSQhcmODMUQZpJHYKNuwniDUqcOWGNaSCOoZv12FdOSJ9JxV95HtyRGNMqEBj6h6lCNTy20TgZDYTSuUIg==}
 
   tagged-tag@1.0.0:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
@@ -1697,6 +1742,21 @@ snapshots:
     transitivePeerDependencies:
       - '@opentelemetry/api'
 
+  '@orpc/valibot@1.15.0(@orpc/contract@1.15.0)(@orpc/server@1.15.0)(valibot@1.4.2(typescript@7.0.2))':
+    dependencies:
+      '@orpc/contract': 1.15.0
+      '@orpc/openapi': 1.15.0
+      '@orpc/server': 1.15.0
+      '@valibot/to-json-schema': 1.7.1(valibot@1.4.2(typescript@7.0.2))
+      valibot: 1.4.2(typescript@7.0.2)
+    transitivePeerDependencies:
+      - '@opentelemetry/api'
+      - crossws
+      - fastify
+      - ws
+
+  '@scarf/scarf@1.4.0': {}
+
   '@simple-libs/child-process-utils@2.0.0':
     dependencies:
       '@simple-libs/stream-utils': 2.0.0
@@ -1712,6 +1772,8 @@ snapshots:
   '@types/node@26.2.0':
     dependencies:
       undici-types: 8.3.0
+
+  '@types/swagger-ui-dist@3.30.6': {}
 
   '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
@@ -1772,6 +1834,10 @@ snapshots:
 
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
+
+  '@valibot/to-json-schema@1.7.1(valibot@1.4.2(typescript@7.0.2))':
+    dependencies:
+      valibot: 1.4.2(typescript@7.0.2)
 
   ajv@8.20.0:
     dependencies:
@@ -2037,6 +2103,10 @@ snapshots:
   strip-ansi@7.2.0:
     dependencies:
       ansi-regex: 6.3.0
+
+  swagger-ui-dist@5.32.14:
+    dependencies:
+      '@scarf/scarf': 1.4.0
 
   tagged-tag@1.0.0: {}
 

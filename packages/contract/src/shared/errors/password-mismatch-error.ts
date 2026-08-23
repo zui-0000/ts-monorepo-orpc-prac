@@ -13,11 +13,14 @@ import { ErrorTitleSchema } from './error-title.js'
  * 受け取る時点で相手が本人だと既に証明済みだから (Bearer は通っている)。
  * 自分のパスワードを打ち間違えたと伝えても、その人が知らない情報は漏れない。
  */
-export const PasswordMismatchErrorSchema = v.object({
+export const PasswordMismatchErrorSchema = v.pipe(
+  v.object({
   status: v.literal(HttpStatus.UNAUTHORIZED),
   code: v.literal('4011'),
   title: ErrorTitleSchema,
-})
+}),
+  v.examples([{ status: 401, code: '4011', title: '現在のパスワードが正しくありません' }]),
+)
 
 export type PasswordMismatchErrorData = v.InferOutput<typeof PasswordMismatchErrorSchema>
 
