@@ -1,6 +1,7 @@
 import { Result } from "better-result";
 import * as v from "valibot";
 
+import { parseInvariant } from "~/shared/domain/parse-invariant.ts";
 import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 import { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
@@ -17,14 +18,6 @@ export type GetUserQueryInput = {
   readonly actor: string;
 };
 
-/**
- * 素の文字列を値オブジェクトへ変換する。
- *
- * **ここで parse するのは、境界を越えた値を信用しないため。** 契約 (oRPC) が
- * 形を検証済みでも、それは「HTTP の入力として妥当か」であって
- * 「ドメインの値として妥当か」とは別の問い。actor は認証から来るので
- * 契約の検証を通っていない。
- */
 const GetUserQueryValues = v.object({ id: UserIdSchema, actor: UserIdSchema });
 
 export type GetUserQueryOutput = {
@@ -59,7 +52,7 @@ export const getUserQuery =
     input: GetUserQueryInput,
   ): Promise<Result<GetUserQueryOutput, GetUserQueryError>> =>
     Result.gen(async function* () {
-      const { id, actor } = v.parse(GetUserQueryValues, input);
+      const { id, actor } = parseInvariant(GetUserQueryValues, input);
 
       yield* checkUserIsSelf(id, actor);
 

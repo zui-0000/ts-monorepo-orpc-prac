@@ -1,7 +1,11 @@
 import type { BadRequestErrorData } from "@orpc-prac/contract";
 import { ORPCError } from "@orpc/server";
 
-import { formatViolations } from "./log-failure.ts";
+import {
+  fieldOf,
+  formatViolations,
+  type ValidationIssue,
+} from "~/shared/errors/validation-issue.ts";
 
 /**
  * oRPC の入力検証エラーから、契約の `BadRequestError` に渡す `data` を作る。
@@ -20,20 +24,6 @@ import { formatViolations } from "./log-failure.ts";
  * **検証パターンが漏れる** (`expected`)、**表題が英語**。パスワード変更で
  * 同じことが起きれば平文が応答に載る。
  */
-
-/** 検証ライブラリが返す issue のうち、ここで使う部分だけ。 */
-type ValidationIssue = {
-  readonly type?: string;
-  readonly requirement?: unknown;
-  readonly path?: readonly { readonly key?: unknown }[];
-};
-
-/** issue の path からフィールド名を組み立てる (例: user.mailAddress)。 */
-const fieldOf = (issue: ValidationIssue): string =>
-  (issue.path ?? [])
-    .map((segment) => segment.key)
-    .filter((key): key is string | number => key !== undefined)
-    .join(".");
 
 export type ValidationFailure = {
   /** 応答に載せるもの。**フィールド名だけ。** */
@@ -56,7 +46,9 @@ export const toValidationFailure = (
 
   // **どのフィールドが不正か、だけを返す。** issue には送信値がそのまま入る。
   const issues = (error.data as { issues?: ValidationIssue[] })?.issues ?? [];
-  const fields = [...new Set(issues.map(fieldOf))].filter(Boolean);
+  const fields = [...new Set(issues.map((issue) => fieldOf(issue, "")))].filter(
+    Boolean,
+  );
 
   return {
     data: { errors: fields.map((field) => ({ field })) },
