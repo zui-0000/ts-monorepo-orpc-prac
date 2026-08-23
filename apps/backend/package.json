@@ -11,6 +11,7 @@
     "db:migrate": "bun db/migrate.ts",
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts",
     "check:lint": "oxlint -c .oxlintrc.jsonc",
+    "test": "bun test",
     "format:check": "oxfmt --check src db",
     "format:fix": "oxfmt src db",
     "lint:fix": "pnpm check:lint --fix && pnpm format:fix && pnpm check:type"
