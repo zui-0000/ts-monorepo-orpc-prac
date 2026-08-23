@@ -1,3 +1,5 @@
+import type { Result } from "better-result";
+
 import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
 import type { MailAddressDuplicationError } from "~/shared/errors/mail-address-duplication-error.ts";
 import type { PasswordMismatchError } from "~/shared/errors/password-mismatch-error.ts";
@@ -101,4 +103,18 @@ export const handleErrorResponse = <E extends ApplicationError>(
     // インフラ由来。原因 (cause) は外に出さず、ログにのみ残す。
     RepositoryError: () => factories.INTERNAL_SERVER_ERROR(),
   });
+};
+
+/**
+ * Result を handler の返り値へ解く。失敗は契約のエラーへ訳して投げる。
+ */
+export const okOrThrow = <T, E extends ApplicationError>(
+  result: Result<T, E>,
+  errors: Pick<ErrorFactories, ErrorKeyOf<E>>,
+): T => {
+  if (result.isOk()) {
+    return result.value;
+  }
+
+  throw handleErrorResponse(result.error, errors);
 };

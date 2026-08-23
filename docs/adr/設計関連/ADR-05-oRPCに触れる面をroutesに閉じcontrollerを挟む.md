@@ -167,15 +167,48 @@ handler は `os.user.get.handler(...)` という**式**であって、独立し�
 契約の操作 1 つに対して 1 つ存在し、契約が消えれば消える。
 契約の一覧 (routes) と同じ場所に置くのが素直である。
 
-### 残っている繰り返し
+### 繰り返しは `okOrThrow` で畳んだ (2026-08-24 追記)
 
-各 handler の末尾 4 行が同じ形になる。
+当初は各 handler の末尾 4 行が同じ形になっていた。
 
 ```ts
 if (result.isOk()) return result.value;
 throw handleErrorResponse(result.error, errors);
 ```
 
-共通化する余地はあるが、`errors` の型が操作ごとに違う (`ErrorKeyOf` で
-必要なキーだけを要求している) ため、包むと型の絞り込みが効かなくなる恐れがある。
-操作が 5 つ揃った時点で改めて判断する。
+「包むと型の絞り込みが効かなくなる恐れがある」として保留していたが、
+操作が 5 つ揃った時点で試したところ **絞り込みは生き残った。**
+
+```ts
+export const okOrThrow = <T, E extends ApplicationError>(
+  result: Result<T, E>,
+  errors: Pick<ErrorFactories, ErrorKeyOf<E>>,
+): T => {
+  if (result.isOk()) return result.value;
+  throw handleErrorResponse(result.error, errors);
+};
+```
+
+呼び出し側はこうなる。
+
+```ts
+create: os.user.create.handler(async ({ input, errors }) =>
+  okOrThrow(await createUser({ body: input }), errors),
+),
+```
+
+`user-routes.ts` は 91 行から 59 行になった。守りが残っていることは
+2 方向で実測している。
+
+| 壊し方                                      | 結果                                             |
+| ------------------------------------------- | ------------------------------------------------ |
+| 契約が宣言していないエラーを混ぜる          | `Property 'FORBIDDEN_ERROR' is missing` (routes) |
+| `handleErrorResponse` の match から枝を消す | 網羅性のエラー                                   |
+
+**懸念が外れた理由。** 絞り込みを担っているのは `ErrorKeyOf<E>` の
+条件型で、これは `E` から計算される。`okOrThrow` が `E` をそのまま
+引き継ぐ限り、間に関数が 1 つ挟まっても計算結果は変わらない。
+
+引き換えに `throw` が呼び出し側から見えなくなった。名前で示している
+(`...OrThrow`) が、routes だけを読んで「失敗すると投げる」と気付けるかは
+名前次第になる。
