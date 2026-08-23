@@ -218,15 +218,16 @@ const spec = await generateOpenApiSpec({ servers: [{ url: '/api' }] })
 
 `packages/contract` で実行する。
 
-| コマンド             | 内容                                                     |
-| -------------------- | -------------------------------------------------------- |
-| `pnpm build`         | lint 修正 → 整形 → 型検査 → `dist` 出力 → 仕様の書き出し |
-| `pnpm lint:fix`      | lint の自動修正 → 整形 → 型検査                          |
-| `pnpm check:type`    | 成果物を作らずに `src` の型だけを検査する                |
-| `pnpm check:lint`    | oxlint をかける（設定は `.oxlintrc.jsonc`）              |
-| `pnpm format:check`  | 整形のズレを報告する（書き換えない）                     |
-| `pnpm format:fix`    | 整形する（設定はリポジトリルートの `.oxfmtrc.jsonc`）    |
-| `pnpm build:openapi` | `dist` から `dist-openapi/openapi.json` を書き出す       |
-| `pnpm preview`       | docker で Swagger UI を起動する                          |
+| コマンド               | 内容                                                  |
+| ---------------------- | ----------------------------------------------------- |
+| `pnpm build`           | lint 修正 → 整形 → 型検査 → 成果物の作成              |
+| `pnpm build:artifacts` | `dist` と仕様を作り直す（ソースは書き換えない）       |
+| `pnpm lint:fix`        | lint の自動修正 → 整形 → 型検査                       |
+| `pnpm check:type`      | 成果物を作らずに `src` の型だけを検査する             |
+| `pnpm check:lint`      | oxlint をかける（設定は `.oxlintrc.jsonc`）           |
+| `pnpm format:check`    | 整形のズレを報告する（書き換えない）                  |
+| `pnpm format:fix`      | 整形する（設定はリポジトリルートの `.oxfmtrc.jsonc`） |
+| `pnpm build:openapi`   | `dist` から `dist-openapi/openapi.json` を書き出す    |
+| `pnpm preview`         | docker で Swagger UI を起動する                       |
 
 `exports` が `dist` を指すため、**apps から使う前にビルドが必要**。

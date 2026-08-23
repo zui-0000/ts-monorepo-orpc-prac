@@ -3,6 +3,11 @@
 # clone した人は pnpm install だけで有効になる (package.json の prepare が
 # lefthook install を呼ぶ)。フックの登録先は .git/ 配下なので、
 # 設定ファイルを共有するだけでは有効にならない点に注意。
+#
+# **フックはソースを書き換えない。** --fix や format:fix を走らせると、
+# lefthook が未ステージの変更を隠している間に直すことになり、
+# 直った内容はコミットに入らない。フックは緑、コミットの中身は崩れたまま、
+# という食い違いが起きる。落ちたら手で `pnpm lint:fix` を実行する。
 
 commit-msg:
   commands:
@@ -13,21 +18,29 @@ commit-msg:
 pre-commit:
   parallel: true
   commands:
-    contract-build:
-      # 契約が変わったときだけ走らせる。lint / 整形 / 型検査を通し、
-      # 契約が dist と OpenAPI 仕様まで組み上がることを確かめる。
-      # build は毎回 dist を作り直す (消したファイルの成果物が残るため)。
-      root: packages/contract/
-      glob: "packages/contract/src/**/*.ts"
-      run: pnpm build
+    format:
+      # 整形のズレがあれば止める。パッケージを問わず、docs や package.json も含む。
+      #
+      # glob を書かないのは 2 つの理由から。oxfmt が対象外の拡張子を自分で除くこと
+      # (.sql や .yaml を渡しても exit 0)。そして **/*.md のような形だと
+      # **リポジトリ直下のファイルが漏れる** — lefthook の ** は 1 階層以上を要求する。
+      run: pnpm exec oxfmt --check {staged_files}
 
-    backend-check:
+    contract:
+      # 契約が dist と OpenAPI 仕様まで組み上がることを確かめる。
+      # build ではなく build:artifacts を呼ぶのは、build が lint:fix を含み
+      # ソースを書き換えるため (上の注記を参照)。
+      root: packages/contract/
+      glob: "packages/contract/**/*.ts"
+      run: pnpm check:lint && pnpm check:type && pnpm build:artifacts
+
+    backend:
       # 型情報を使う lint (no-floating-promises 等) はここで走る。
       root: apps/backend/
-      glob: "apps/backend/**/*.ts"
+      glob: "apps/backend/**"
       run: pnpm check:lint && pnpm check:type
 
-    frontend-check:
+    frontend:
       root: apps/frontend/
-      glob: "apps/frontend/**/*.{ts,tsx}"
+      glob: "apps/frontend/**"
       run: pnpm check:lint && pnpm check:type
