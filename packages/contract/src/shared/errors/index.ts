@@ -1,26 +1,34 @@
 /**
- * エラー定義。各ファイルが「valibot スキーマ」「ボディの型」「oRPC の `.errors()` に
- * 渡す仕様」の 3 つを揃えて持つ。契約側は必要なものだけを直接 import する。
+ * エラー定義。各ファイルが oRPC の `.errors()` に渡す仕様を持つ。
+ * 契約側は必要なものだけを直接 import する。
  *
- * ## エラーコードについて
+ * ## 何を持ち、何を持たないか
  *
- * `<HTTP ステータス><連番>` の 4 桁で、**各エラーがリテラルで持つ**。
+ * **持つのは `status` と `message` だけ。** どちらも oRPC の応答（封筒）が
+ * そのまま載せるため、本文で二重に持たない。
  *
- * 共通のスカラーにして値を例示するだけだと、同じステータスの 2 つ (4010 と 4011) を
- * クライアントが型で区別できない — 分けた目的そのものが契約で表現できていない状態になる。
- * リテラルにすると `v.literal('4011')` になり、判別できる直和になる。
+ * ```json
+ * { "defined": true, "code": "FORBIDDEN_ERROR", "status": 403,
+ *   "message": "この操作を行う権限がありません" }
+ * ```
  *
- * ## status がステータス行とボディの 2 箇所に出ることについて
+ * `data` を持つのは**追加情報があるエラーだけ** (いまは BadRequestError の
+ * `errors` のみ)。
  *
- * 承知のうえの重複。エラーボディだけを取り回す読み手 (ログ、通知、画面へ渡した後の値) が
- * HTTP の応答を持たないまま何が起きたかを判別できるようにするため
- * (RFC 9457 の Problem Details も同じ理由で `status` を本文に持つ)。
+ * ## 業務コード (4 桁) を持たない理由
+ *
+ * **`code` に契約のキーがそのまま出るため。** 同じステータスの 2 つ
+ * (401 の Unauthorized と PasswordMismatch、409 の Conflict と
+ * MailAddressDuplication) は `UNAUTHORIZED_ERROR` / `PASSWORD_MISMATCH_ERROR`
+ * のように名前で区別できる。数字の体系を別に維持する理由が無い。
+ *
+ * クライアントは `isDefinedError(error) && error.code === "FORBIDDEN_ERROR"` で
+ * **型付きのまま**分岐できる。数字より読めるうえ、`data` の型も一緒に絞られる。
  */
 
 export * from "./bad-request-error.js";
 export * from "./conflict-error.js";
 export * from "./error-item.js";
-export * from "./error-title.js";
 export * from "./forbidden-error.js";
 export * from "./internal-server-error.js";
 export * from "./mail-address-duplication-error.js";

@@ -11,10 +11,6 @@
     "./openapi": {
       "types": "./dist/openapi.d.ts",
       "default": "./dist/openapi.js"
-    },
-    "./error-encoder": {
-      "types": "./dist/server/error-encoder.d.ts",
-      "default": "./dist/server/error-encoder.js"
     }
   },
   "scripts": {
