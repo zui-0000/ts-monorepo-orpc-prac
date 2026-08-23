@@ -4,7 +4,7 @@ import { os } from "~/shared/presentation/os.ts";
 import {
   type GetUserQueryDeps,
   getUserQuery,
-} from "../application/get-user-query.ts";
+} from "../../application/get-user-query.ts";
 
 /**
  * ID を指定してユーザーを取得する (GET /users/{id})。

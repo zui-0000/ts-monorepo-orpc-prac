@@ -1,4 +1,5 @@
 import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
+import type { MailAddressDuplicationError } from "~/shared/errors/mail-address-duplication-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
 
@@ -13,9 +14,9 @@ import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-e
  *
  * **契約が定義しているのに、ここに無いものがある。** 理由は 2 種類。
  *
- * 1. **まだ移していないだけ** — `ConflictError` / `MailAddressDuplicationError`
- *    (create)、`PasswordMismatchError` (changePassword)、`UnauthorizedError`
- *    (認証)。ユースケースを移すたびにここへ足す
+ * 1. **まだ移していないだけ** — `ConflictError` (汎用)、`PasswordMismatchError`
+ *    (changePassword)、`UnauthorizedError` (認証)。
+ *    ユースケースを移すたびにここへ足す
  *
  * 2. **実装が投げることが無い** — `BadRequestError` と `InternalServerError`。
  *    どちらも oRPC が入力検証・出力検証で直接投げる
@@ -23,6 +24,7 @@ import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-e
 export type ApplicationError =
   | ForbiddenError
   | ResourceNotFoundError
+  | MailAddressDuplicationError
   | RepositoryError;
 
 /**
@@ -35,6 +37,7 @@ export type ApplicationError =
 type ErrorFactories = {
   readonly FORBIDDEN_ERROR: () => Error;
   readonly RESOURCE_NOT_FOUND_ERROR: () => Error;
+  readonly MAIL_ADDRESS_DUPLICATION_ERROR: () => Error;
   readonly INTERNAL_SERVER_ERROR: () => Error;
 };
 
@@ -48,6 +51,9 @@ type ErrorFactories = {
 type ErrorKeyOf<E> =
   | (E extends ForbiddenError ? "FORBIDDEN_ERROR" : never)
   | (E extends ResourceNotFoundError ? "RESOURCE_NOT_FOUND_ERROR" : never)
+  | (E extends MailAddressDuplicationError
+      ? "MAIL_ADDRESS_DUPLICATION_ERROR"
+      : never)
   | (E extends RepositoryError ? "INTERNAL_SERVER_ERROR" : never);
 
 /**
@@ -80,6 +86,9 @@ export const handleErrorResponse = <E extends ApplicationError>(
     ForbiddenError: () => factories.FORBIDDEN_ERROR(),
 
     ResourceNotFoundError: () => factories.RESOURCE_NOT_FOUND_ERROR(),
+
+    MailAddressDuplicationError: () =>
+      factories.MAIL_ADDRESS_DUPLICATION_ERROR(),
 
     // インフラ由来。原因 (cause) は外に出さず、ログにのみ残す。
     RepositoryError: () => factories.INTERNAL_SERVER_ERROR(),
