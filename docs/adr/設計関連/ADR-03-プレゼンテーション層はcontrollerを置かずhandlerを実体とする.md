@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: superseded by 設計関連/ADR-05
 date: 2026-08-24
 decision-makers: zui
 consulted: Claude
@@ -7,6 +7,10 @@ informed:
 ---
 
 # プレゼンテーション層は controller を置かず handler を実体とする
+
+> **この決定は `ADR-05` に置き換わった。** handler が oRPC の語彙に浸かり、
+> 操作を増やすほどフレームワークを知るファイルが増えることが問題になった。
+> 覆った理由の詳細は `ADR-05` の補足情報を参照。
 
 ## 背景と課題 (Context and Problem Statement)
 
