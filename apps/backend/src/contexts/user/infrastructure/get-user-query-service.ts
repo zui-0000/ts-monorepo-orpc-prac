@@ -9,10 +9,6 @@ import { tUser } from "./drizzle-schema.ts";
 
 /**
  * GetUserQueryService の Drizzle 実装 (アダプタ)。
- *
- * SELECT の射影をそのまま DTO の形にしているため、集約への復元も parse も挟まない
- * (**ドメインを一切 import しないのが Query 側の実装の特徴**)。
- * 必要な列だけを取るので、集約の全列を読む Repository より素直かつ軽い。
  */
 export const getUserQueryService = (db: Database): GetUserQueryService => ({
   execute: async ({ id }) =>

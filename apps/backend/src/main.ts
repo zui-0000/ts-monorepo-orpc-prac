@@ -2,8 +2,7 @@ import { appDeps } from "./app-deps.ts";
 import { app } from "./app.ts";
 
 /**
- * エントリ。**組み立てて起動するだけ。**
- *
+ * エントリ。
  * どの実装を使うか、設定をどう読むかは合成ルート (`app-deps.ts`) が持つ。
  */
 export default {

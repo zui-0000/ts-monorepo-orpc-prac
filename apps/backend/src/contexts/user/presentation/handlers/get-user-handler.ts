@@ -7,7 +7,7 @@ import {
 } from "../../application/get-user-query.ts";
 
 /**
- * ID を指定してユーザーを取得する (GET /users/{id})。
+ * ユーザーを取得する (GET /users/{id})。
  */
 export const getUserHandler = (deps: GetUserQueryDeps) => {
   const query = getUserQuery(deps);

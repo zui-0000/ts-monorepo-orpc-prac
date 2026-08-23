@@ -17,13 +17,6 @@ const MAIL_ADDRESS_UNIQUE_CONSTRAINT = "t_user_mail_address_lower_unique";
 
 /**
  * 一意制約違反をドメインのエラーへ翻訳する (`.mapError` に渡す)。
- *
- * アプリ側の事前チェックをすり抜けた同時挿入は**ここが最後の砦**。普段は
- * `checkMailAddressDuplication` が先に弾くので、この経路は通常テストで踏めない。
- * **消しても壊れて見えない**類なので、消さないこと。
- *
- * 制約名まで見るのは、将来ほかの一意索引が増えたときに**別の違反を
- * メールアドレスの重複として報告しない**ため。
  */
 const handleMailAddressDuplicationError = (
   error: RepositoryError,
@@ -37,9 +30,7 @@ const handleMailAddressDuplicationError = (
     : error;
 
 /**
- * 先頭行を集約へ復元する。**parse の失敗は throw** —
- * DB の行がドメインの制約を満たさないのは、書き込み側かマイグレーションのバグで、
- * 呼び出し側が回復できる失敗ではない。
+ * 先頭行を集約へ復元する。
  */
 const restoreUser = (
   rows: readonly (typeof tUser.$inferSelect)[],
