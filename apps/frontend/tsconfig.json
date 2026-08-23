@@ -1,0 +1,10 @@
+{
+  "extends": "@orpc-prac/tsconfig/bundler.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["vite/client"]
+  },
+  "include": ["src", "vite.config.ts"],
+  "references": [{ "path": "../../packages/contract" }]
+}

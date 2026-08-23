@@ -1,0 +1,27 @@
+{
+  "name": "@orpc-prac/frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm check:type && vite build",
+    "preview": "vite preview",
+    "check:type": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@orpc-prac/contract": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@orpc/openapi-client": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "valibot": "catalog:"
+  },
+  "devDependencies": {
+    "@orpc-prac/tsconfig": "workspace:*",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "vite": "catalog:"
+  }
+}
