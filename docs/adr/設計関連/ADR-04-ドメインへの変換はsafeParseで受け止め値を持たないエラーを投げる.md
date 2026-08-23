@@ -180,6 +180,13 @@ body: {"defined":false,"code":"INTERNAL_SERVER_ERROR","status":500,"message":"In
 `UserHashedPasswordSchema` (どちらも regex)。**とはいえ「今の制約の組み合わせなら
 安全」に依存する形は残したくない**ため、変換箇所すべてを揃えた。
 
+### 第 2 引数が `unknown` であることの副作用
+
+`parseInvariant(schema, value: unknown)` は、値がスキーマに合うかを型検査しない。
+外から来た信用できない値を受けるための設計だが、**呼び出し側が手で書いた型と
+スキーマがズレても気付けない**という副作用がある。ユースケースの入力については
+`ADR-06` で型をスキーマから導いて塞いだ。
+
 ### この判断が変わりうる場面
 
 **valibot が例外に値を載せなくなったとき。** その場合 `v.parse` に戻せるが、

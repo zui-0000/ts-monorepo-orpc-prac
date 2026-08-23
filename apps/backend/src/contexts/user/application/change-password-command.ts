@@ -29,7 +29,7 @@ export type ChangePasswordCommandDeps = {
  * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
  * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
  */
-const ChangePasswordCommandValues = v.object({
+const ChangePasswordCommandInputSchema = v.object({
   id: UserIdSchema,
   actor: UserIdSchema,
   currentPassword: PasswordSchema,
@@ -37,7 +37,7 @@ const ChangePasswordCommandValues = v.object({
 });
 
 export type ChangePasswordCommandInput = Readonly<
-  v.InferInput<typeof ChangePasswordCommandValues>
+  v.InferInput<typeof ChangePasswordCommandInputSchema>
 >;
 
 export type ChangePasswordCommandError =
@@ -64,7 +64,7 @@ export const changePasswordCommand =
   ): Promise<Result<void, ChangePasswordCommandError>> =>
     Result.gen(async function* () {
       const { id, actor, currentPassword, newPassword } = parseInvariant(
-        ChangePasswordCommandValues,
+        ChangePasswordCommandInputSchema,
         input,
       );
 

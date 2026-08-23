@@ -17,10 +17,13 @@ export type GetUserQueryDeps = {
  * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
  * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
  */
-const GetUserQueryValues = v.object({ id: UserIdSchema, actor: UserIdSchema });
+const GetUserQueryInputSchema = v.object({
+  id: UserIdSchema,
+  actor: UserIdSchema,
+});
 
 export type GetUserQueryInput = Readonly<
-  v.InferInput<typeof GetUserQueryValues>
+  v.InferInput<typeof GetUserQueryInputSchema>
 >;
 
 export type GetUserQueryOutput = {
@@ -55,7 +58,7 @@ export const getUserQuery =
     input: GetUserQueryInput,
   ): Promise<Result<GetUserQueryOutput, GetUserQueryError>> =>
     Result.gen(async function* () {
-      const { id, actor } = parseInvariant(GetUserQueryValues, input);
+      const { id, actor } = parseInvariant(GetUserQueryInputSchema, input);
 
       yield* checkUserIsSelf(id, actor);
 

@@ -31,6 +31,7 @@
 | [ADR-03](./設計関連/ADR-03-プレゼンテーション層はcontrollerを置かずhandlerを実体とする.md)     | プレゼンテーション層は controller を置かず handler を実体とする     | superseded by ADR-05 | 2026-08-24 |
 | [ADR-04](./設計関連/ADR-04-ドメインへの変換はsafeParseで受け止め値を持たないエラーを投げる.md) | ドメインへの変換は safeParse で受け止め、値を持たないエラーを投げる | accepted             | 2026-08-24 |
 | [ADR-05](./設計関連/ADR-05-oRPCに触れる面をroutesに閉じcontrollerを挟む.md)                    | oRPC に触れる面を routes に閉じ、controller を挟む                  | accepted             | 2026-08-24 |
+| [ADR-06](./設計関連/ADR-06-ユースケースの入力型は検証スキーマから導く.md)                      | ユースケースの入力型は検証スキーマから導く                          | accepted             | 2026-08-24 |
 
 <!--
 カテゴリを追加したら、ここに見出しと表を足す。
