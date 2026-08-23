@@ -105,7 +105,7 @@ export default {
 `type-enum` は既定のまま使う。**既定の 11 種が、旧 `committed.toml` の
 `allowed_types` と完全に一致していた**ため、明示的な指定は不要と判断した。
 
-```
+```txt
 build, chore, ci, docs, feat, fix, perf, refactor, revert, style, test
 ```
 
@@ -211,7 +211,7 @@ hk には conventional commit チェッカーが内蔵されている
 しかし `Merge branch 'feature'` には `:` が無いため、hk 内蔵チェッカーは
 「description が無い」として弾く。使い捨てリポジトリで実証した結果:
 
-```
+```zsh
 $ git merge --no-ff feature
 ✗ conventional-commit
 Not committing merge; use 'git commit' to complete the merge.
@@ -253,7 +253,7 @@ Not committing merge; use 'git commit' to complete the merge.
 
 `subject-case` — 日本語で書いていても**先頭が英大文字の略語だと弾かれる**。
 
-```
+```txt
 feat: NPEを修正        -> subject must not be sentence-case, ... [subject-case]
 feat: UserAPIを追加     -> 同上
 feat: メッセージ一覧を追加  -> 通る

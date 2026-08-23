@@ -71,18 +71,31 @@ export const UserIdSchema = v.pipe(UuidSchema, v.brand("User.Id"));
 
 ### 確認方法 (Confirmation)
 
-**同じ入力に対して契約とドメインが同じ判定をすること**をテストで担保する
-(未実装。テストを導入する際の最初の題材とする)。
+**同じ入力に対して契約とドメインが同じ判定をすること**をテストで担保する。
+コメントで「同一パターン」と書くだけでは、片方を直したときに気付けない。
+
+各値オブジェクトの `__tests__` に、その値が通す/弾く入力を並べたうえで
+最後に置く。**振る舞いだけを比べる** (スキーマの内部構造は読まない)。
 
 ```ts
-const cases = ["018eef15-1234-7123-8123-123456789abc", "018EEF15-...", "not-a-uuid", ""];
-for (const input of cases) {
-  expect(v.safeParse(ContractUuidSchema, input).success)
-    .toBe(v.safeParse(DomainUuidSchema, input).success);
-}
+test("契約と同じ判定をすること", () => {
+  for (const value of [...accepted, ...rejected]) {
+    expect(v.safeParse(MailAddressSchema, value).success).toBe(
+      v.safeParse(ContractMailAddressSchema, value).success,
+    );
+  }
+});
 ```
 
-コメントで「同一パターン」と書くだけでは、片方を直したときに気付けない。
+対象は `Uuid` / `MailAddress` / `UserName` / `Password`。
+`UserHashedPassword` だけは置かない — ハッシュは API に出ないため
+契約側に対応する型が無く、ズレようがない。
+
+ドメイン側・契約側それぞれで規則をズラして落ちることを実測で確認済み。
+
+**契約を直したらビルドしてからテストすること。** backend が import するのは
+`packages/contract` の `dist` であり `src` ではないため、契約の `src` を
+変えただけではこのテストに映らない。
 
 ## 各選択肢の評価 (Pros and Cons of the Options)
 

@@ -124,7 +124,7 @@ TypeScript には統一された慣習が無い。実際に使われている流
 
 frontend の `App.tsx` を kebab-case に揃えようとしたとき、`git mv` が失敗した。
 
-```
+```zsh
 $ git mv apps/frontend/src/app.tsx apps/frontend/src/App.tsx
 fatal: not under version control, source=apps/frontend/src/app.tsx
 ```
@@ -139,7 +139,7 @@ macOS のファイルシステムが大小を区別しないため、`App.tsx` �
 `cases` に 2 つ指定しても、規約が失われるわけではない。`snake_case` を
 置いて確かめた結果、正しく弾かれた。
 
-```
+```txt
 src/bad_name.tsx:1:1: error unicorn(filename-case):
   Filename should be in kebab-case, or PascalCase
   help: Rename the file to 'bad-name.tsx', or 'BadName.tsx'
@@ -147,7 +147,7 @@ src/bad_name.tsx:1:1: error unicorn(filename-case):
 
 現在の `apps/frontend/src` は、コンポーネントだけが PascalCase になっている。
 
-```
+```txt
 App.tsx          ← コンポーネント
 api-client.ts
 main.tsx

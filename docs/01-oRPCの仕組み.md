@@ -23,7 +23,7 @@
 
 ## リクエストが処理される流れ
 
-```
+```txt
 リクエスト
   ↓
 ① ミドルウェア      os.use(...)        検証エラーを捕まえる
@@ -90,7 +90,7 @@ async function validateInput(procedure, input) {
 
 素の `Error` を投げると `toORPCError` を通って 500 になる。実測:
 
-```
+```zsh
 $ # update ハンドラを throw new Error("意図的な失敗（実験）") に差し替えて
 $ curl -X PUT .../users/{id} -d '{"name":"...","mailAddress":"..."}'
 HTTP 500
@@ -234,7 +234,7 @@ GitHub issue を検索しても同種の報告は見つからず、むしろ
 漏洩経路は応答だけではない。APM やログ基盤へ送られる**ログも同じ**なので、
 値を書かない形にしてある。
 
-```
+```txt
 level=WARN message=リクエストを受け付けられませんでした
   status=400 code=BAD_REQUEST_ERROR violations=password:min_length(12)
 ```
@@ -260,7 +260,7 @@ level=WARN message=リクエストを受け付けられませんでした
 内訳つきで記録済みのものが流れてくるため、両方書くと同じ失敗が 2 行になり、
 しかも後から来るほうは内訳を持たない。
 
-```
+```txt
 level=WARN status=403 code=FORBIDDEN_ERROR defined=true
 level=WARN status=400 code=BAD_REQUEST_ERROR violations=mailAddress:regex,password:min_length(12)
 ```
