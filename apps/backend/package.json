@@ -28,6 +28,7 @@
     "@orpc-prac/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "drizzle-kit": "catalog:",
+    "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:"
   }

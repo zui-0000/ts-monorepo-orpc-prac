@@ -144,6 +144,9 @@ importers:
       drizzle-kit:
         specifier: 'catalog:'
         version: 0.31.10
+      oxfmt:
+        specifier: 'catalog:'
+        version: 0.64.0
       oxlint:
         specifier: 'catalog:'
         version: 1.79.0(oxlint-tsgolint@7.0.2001)
@@ -184,6 +187,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.1.0(vite@8.2.2(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.6.1)(tsx@4.23.12))
+      oxfmt:
+        specifier: 'catalog:'
+        version: 0.64.0
       oxlint:
         specifier: 'catalog:'
         version: 1.79.0(oxlint-tsgolint@7.0.2001)
@@ -215,6 +221,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.3
+      oxfmt:
+        specifier: 'catalog:'
+        version: 0.64.0
       oxlint:
         specifier: 'catalog:'
         version: 1.79.0(oxlint-tsgolint@7.0.2001)
