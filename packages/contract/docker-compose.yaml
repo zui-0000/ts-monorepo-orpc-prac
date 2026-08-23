@@ -1,0 +1,23 @@
+# 契約のプレビュー用。実装 (apps/backend) を起動せず、契約だけで OpenAPI の姿を確認する。
+#
+# **swagger-ui はパッケージとして入れない。** 配布物 (swagger-ui-dist) は数 MB あり、
+# 画面を見るためだけに node_modules を重くする。公式イメージに dist を渡せば済む。
+#
+name: ts-monorepo-orpc-prac-contract
+
+services:
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.32.14
+    container_name: ts-monorepo-orpc-prac-contract-swagger-ui
+    ports:
+      # localhost だけに開く。0.0.0.0 だと同じ LAN の誰でも見られる。
+      # 左が host、右がコンテナ内の nginx。
+      - "127.0.0.1:4000:8080"
+    volumes:
+      # **仕様だけを渡す。** dist を丸ごと渡すと、エントリポイントが中の .js を
+      # すべて gzip しようとして起動に失敗する (実測)。
+      - ./dist-openapi:/usr/share/nginx/html/dist-openapi
+    environment:
+      URLS: "[{url: '/dist-openapi/openapi.json', name: 'ts-monorepo-orpc-prac API'}]"
+      # -1 を指定するとスキーマ (components) セクションを畳んだ状態で開く
+      DEFAULT_MODELS_EXPAND_DEPTH: -1

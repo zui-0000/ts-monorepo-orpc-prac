@@ -182,8 +182,7 @@ import { UuidSchema } from './uuid.ts'              // 🚫 TS5097
 ### なぜ契約だけ Node なのか
 
 契約は backend（Bun）と frontend（Vite）の**両方から読まれる共有物**なので、
-どちらのランタイムにも寄らない。`scripts/` の開発用ツールも Node で動かしており、
-このパッケージは Bun に依存しない。
+どちらのランタイムにも寄らない。このパッケージは Bun に依存しない。
 
 Bun 前提（`src` を直接参照）にすると `.js` 拡張子は不要になるが、
 **消費側の tsconfig にまで `allowImportingTsExtensions` が要求され**、
@@ -218,36 +217,41 @@ export type UserName = v.InferOutput<typeof UserNameSchema>
 
 よく使う対応は以下のとおり。
 
-| したいこと | 書き方 |
-| --- | --- |
-| 文字数制限 | `v.pipe(v.string(), v.minLength(1), v.maxLength(100))` |
-| 正規表現 | `v.pipe(v.string(), v.regex(re, 'メッセージ'))` |
-| 説明の付与 | `v.description('...')`（pipe の一部として） |
-| 例の付与 | `v.examples(['user@example.com'])` |
-| ISO 日時 | `v.pipe(v.string(), v.isoTimestamp())` |
-| 任意項目 | `v.optional(X)` |
-| オブジェクトの合成 | `v.object({ ...A.entries, ...B.entries })` |
-| 型の取り出し | `v.InferOutput<typeof X>` |
+| したいこと         | 書き方                                                 |
+| ------------------ | ------------------------------------------------------ |
+| 文字数制限         | `v.pipe(v.string(), v.minLength(1), v.maxLength(100))` |
+| 正規表現           | `v.pipe(v.string(), v.regex(re, 'メッセージ'))`        |
+| 説明の付与         | `v.description('...')`（pipe の一部として）            |
+| 例の付与           | `v.examples(['user@example.com'])`                     |
+| ISO 日時           | `v.pipe(v.string(), v.isoTimestamp())`                 |
+| 任意項目           | `v.optional(X)`                                        |
+| オブジェクトの合成 | `v.object({ ...A.entries, ...B.entries })`             |
+| 型の取り出し       | `v.InferOutput<typeof X>`                              |
 
 ## 契約を目で確かめる
 
 契約を書き換えたら、**実装を起動せずにこのパッケージだけで** OpenAPI の姿を確認できる。
 
 ```zsh
+pnpm build     # 契約から dist-openapi/openapi.json を書き出す
 pnpm preview   # http://localhost:4000
 ```
 
-Swagger UI が立ち上がり、契約から生成した仕様を表示する。**要求のたびに契約を
-焼き直してから読む**ため、編集してブラウザを再読み込みすれば即座に反映される。
+Swagger UI が立ち上がり、`dist-openapi/openapi.json` を表示する。契約を書き換えたら
+`pnpm build` で仕様を焼き直し、ブラウザを再読み込みする。
+
+画面は **swagger-ui の公式イメージ**を docker で動かしている（`docker-compose.yaml`）。
+パッケージとして入れると配布物が数 MB あり、画面を見るためだけに `node_modules` が
+重くなるため、仕様のファイルだけを渡す形にしている。
 
 型が通ることと、意図した API になっていることは別。**`summary` や `example` の
 指定漏れは型検査では見つからない**ので、契約を変えたらここで目視する。
 
 ## エントリポイント
 
-| import 元 | 用途 |
-| --- | --- |
-| `@orpc-prac/contract` | 契約本体。backend / frontend の両方が使う |
+| import 元                     | 用途                                          |
+| ----------------------------- | --------------------------------------------- |
+| `@orpc-prac/contract`         | 契約本体。backend / frontend の両方が使う     |
 | `@orpc-prac/contract/openapi` | 契約から OpenAPI 仕様を生成する。サーバ側専用 |
 
 **分けているのは frontend のバンドルを守るため。** 仕様の生成には
@@ -266,11 +270,15 @@ const spec = await generateOpenApiSpec({ servers: [{ url: '/api' }] })
 
 `packages/contract` で実行する。
 
-| コマンド | 内容 |
-| --- | --- |
-| `pnpm build` | `src` を型検査 → `dist` 出力 → 成果物を仕様検査 |
-| `pnpm check:type` | 成果物を作らずに `src` の型だけを検査する |
-| `pnpm lint:openapi` | 生成した仕様を Spectral で検査する（`dist` が要る） |
-| `pnpm preview` | Swagger UI で契約を表示する |
+| コマンド             | 内容                                                     |
+| -------------------- | -------------------------------------------------------- |
+| `pnpm build`         | lint 修正 → 整形 → 型検査 → `dist` 出力 → 仕様の書き出し |
+| `pnpm lint:fix`      | lint の自動修正 → 整形 → 型検査                          |
+| `pnpm check:type`    | 成果物を作らずに `src` の型だけを検査する                |
+| `pnpm check:lint`    | oxlint をかける（設定は `.oxlintrc.jsonc`）              |
+| `pnpm format:check`  | 整形のズレを報告する（書き換えない）                     |
+| `pnpm format:fix`    | 整形する（設定はリポジトリルートの `.oxfmtrc.jsonc`）    |
+| `pnpm build:openapi` | `dist` から `dist-openapi/openapi.json` を書き出す       |
+| `pnpm preview`       | docker で Swagger UI を起動する                          |
 
 `exports` が `dist` を指すため、**apps から使う前にビルドが必要**。

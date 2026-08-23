@@ -14,10 +14,14 @@
     }
   },
   "scripts": {
-    "build": "pnpm check:type && tsc --build && pnpm lint:openapi",
+    "build": "pnpm lint:fix && tsc --build && pnpm build:openapi",
+    "build:openapi": "node scripts/build-openapi.ts",
     "check:type": "tsc --noEmit -p .",
-    "lint:openapi": "node scripts/lint-openapi.ts",
-    "preview": "node scripts/preview.ts"
+    "check:lint": "oxlint -c .oxlintrc.jsonc",
+    "format:check": "oxfmt --check src scripts",
+    "format:fix": "oxfmt src scripts",
+    "lint:fix": "pnpm check:lint --fix && pnpm format:fix && pnpm check:type",
+    "preview": "echo 'Swagger UI: http://localhost:4000' && docker compose up"
   },
   "dependencies": {
     "@orpc/contract": "catalog:",
@@ -27,10 +31,8 @@
   },
   "devDependencies": {
     "@orpc-prac/tsconfig": "workspace:*",
-    "@stoplight/spectral-core": "catalog:",
-    "@stoplight/spectral-rulesets": "catalog:",
-    "@types/swagger-ui-dist": "catalog:",
-    "swagger-ui-dist": "catalog:",
+    "@types/node": "catalog:",
+    "oxlint": "catalog:",
     "typescript": "catalog:"
   }
 }

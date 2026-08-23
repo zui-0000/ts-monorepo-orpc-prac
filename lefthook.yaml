@@ -13,9 +13,9 @@ commit-msg:
 pre-commit:
   parallel: true
   commands:
-    openapi-lint:
-      # 契約が変わったときだけ走らせる。生成される OpenAPI 仕様に
-      # 説明やタグの欠落が無いかを見る (型検査では見つからない類)。
+    contract-build:
+      # 契約が変わったときだけ走らせる。lint / 整形 / 型検査を通し、
+      # 契約が dist と OpenAPI 仕様まで組み上がることを確かめる。
       root: packages/contract/
       glob: "packages/contract/src/**/*.ts"
       run: pnpm build
