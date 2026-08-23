@@ -1,5 +1,5 @@
 {
-  "name": "@orpc-prac/tsconfig",
+  "name": "@orpc-prac/typescript-config",
   "version": "0.0.0",
   "private": true,
   "files": [

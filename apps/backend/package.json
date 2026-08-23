@@ -23,7 +23,7 @@
     "hono": "catalog:"
   },
   "devDependencies": {
-    "@orpc-prac/tsconfig": "workspace:*",
+    "@orpc-prac/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "drizzle-kit": "catalog:",
     "oxlint": "catalog:",

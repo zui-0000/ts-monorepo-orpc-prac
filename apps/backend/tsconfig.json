@@ -1,5 +1,5 @@
 {
-  "extends": "@orpc-prac/tsconfig/bun.json",
+  "extends": "@orpc-prac/typescript-config/bun.json",
   "include": ["src"],
   "references": [{ "path": "../../packages/contract" }]
 }

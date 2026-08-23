@@ -1,5 +1,5 @@
 {
-  "extends": "@orpc-prac/tsconfig/bundler.json",
+  "extends": "@orpc-prac/typescript-config/bundler.json",
   "compilerOptions": {
     "jsx": "react-jsx",
     "lib": ["esnext", "dom", "dom.iterable"],

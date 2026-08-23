@@ -22,7 +22,7 @@
     "valibot": "catalog:"
   },
   "devDependencies": {
-    "@orpc-prac/tsconfig": "workspace:*",
+    "@orpc-prac/typescript-config": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",

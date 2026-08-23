@@ -156,7 +156,7 @@ customErrorResponseBodySchema: (definedErrors) => {
 
 ## 相対 import に `.js` が必要な理由
 
-このパッケージは `module: "nodenext"` でビルドする（`@orpc-prac/tsconfig/node.json`）。
+このパッケージは `module: "nodenext"` でビルドする（`@orpc-prac/typescript-config/node.json`）。
 そのため**相対 import には拡張子が必須**で、しかも `.ts` ではなく `.js` と書く。
 
 ```ts

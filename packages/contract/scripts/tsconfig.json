@@ -1,5 +1,5 @@
 {
-  "extends": "@orpc-prac/tsconfig/node.json",
+  "extends": "@orpc-prac/typescript-config/node.json",
   "compilerOptions": {
     "noEmit": true,
     "declaration": false,

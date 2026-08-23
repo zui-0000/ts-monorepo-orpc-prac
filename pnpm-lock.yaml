@@ -126,9 +126,9 @@ importers:
         specifier: 'catalog:'
         version: 4.13.3
     devDependencies:
-      '@orpc-prac/tsconfig':
+      '@orpc-prac/typescript-config':
         specifier: workspace:*
-        version: link:../../packages/tsconfig
+        version: link:../../packages/typescript-config
       '@types/bun':
         specifier: 'catalog:'
         version: 1.4.0
@@ -163,9 +163,9 @@ importers:
         specifier: 'catalog:'
         version: 1.4.2(typescript@7.0.2)
     devDependencies:
-      '@orpc-prac/tsconfig':
+      '@orpc-prac/typescript-config':
         specifier: workspace:*
-        version: link:../../packages/tsconfig
+        version: link:../../packages/typescript-config
       '@types/react':
         specifier: 'catalog:'
         version: 19.2.18
@@ -200,9 +200,9 @@ importers:
         specifier: 'catalog:'
         version: 1.4.2(typescript@7.0.2)
     devDependencies:
-      '@orpc-prac/tsconfig':
+      '@orpc-prac/typescript-config':
         specifier: workspace:*
-        version: link:../tsconfig
+        version: link:../typescript-config
       '@types/node':
         specifier: 'catalog:'
         version: 24.13.3
@@ -213,7 +213,7 @@ importers:
         specifier: 'catalog:'
         version: 7.0.2
 
-  packages/tsconfig: {}
+  packages/typescript-config: {}
 
 packages:
 
