@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  //
+  // デフォルトで有効なプラグイン。
+  //  typescript = TS 特有ルール / unicorn = モダン JS の慣習 / oxc = Oxc 独自ルール
+  "plugins": ["typescript", "unicorn", "oxc"],
+  // カテゴリ単位で一括設定。correctness = "明確に間違い/無意味なコード" のみ error。
+  "categories": {
+    "correctness": "error",
+  },
+  "rules": {
+    // ファイル名は kebab-case (ハイフン繋ぎ) を強制。
+    // OS 間の大小事故 (macOS/Windows は大小無視) と命名ブレを防ぐ。
+    "unicorn/filename-case": ["error", { "case": "kebabCase" }],
+    // 型としてしか使わない import は `import type` で書く。
+    // verbatimModuleSyntax と組み合わせると、型だけのモジュールが出力から丸ごと消える。
+    "typescript/consistent-type-imports": "error",
+    // オブジェクトの形は type で統一する (このルールの既定は逆に interface を推す)。
+    // interface は宣言のマージで第三者が黙って項目を生やせるが、契約は
+    // 「この形で約束する」という宣言なので、開いているのは危ない。
+    "typescript/consistent-type-definitions": "off",
+    // 正規表現に u フラグを必須にする。
+    // 不正なエスケープがエラーになり、\w や \d の意味がロケールで揺れなくなる。
+    "require-unicode-regexp": "error",
+    // **契約に print 文を残さない。** src/ は frontend にもバンドルされるため、
+    // 消し忘れた console がそのまま利用者のブラウザに乗る。
+    "no-console": "error",
+  },
+  // builtin グローバル (console, URL 等) を認識させる。
+  "env": {
+    "builtin": true,
+  },
+  "overrides": [
+    {
+      "files": ["src/**"],
+      "rules": {
+        "no-console": "error",
+      },
+    },
+  ],
+}

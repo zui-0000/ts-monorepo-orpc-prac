@@ -1,0 +1,30 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  // 整形設定は既定のまま (2スペース / 80幅 / セミコロン / ダブルクォート)。
+  // 好みで散らかるのを避けるため、揃える先はツールの既定に委ねる。
+  //
+  // **このファイルはリポジトリに 1 つだけ置く。** oxfmt に extends が無いことに加え、
+  // 整形はパッケージごとに変える理由がない (跨いで書くたびにスタイルが変わると邪魔)。
+  // ファイル単位の例外が要るときは overrides を使う。
+  //
+  // .gitignore は自動で尊重されるので (dist/ など)、追加の除外だけをここに書く。
+  "ignorePatterns": [
+    "apps/backend/db/migrations/", // drizzle-kit の生成物 (SQL / meta JSON)。人が書くものではない
+  ],
+
+  // **Markdown 内のコードブロックは整形しない。**
+  // ドキュメントのコード例は説明のために意図した形をしていることがある
+  // (ADR-02 の catalog 例は、コメントを揃えて「並び順でグループが崩れる」ことを
+  // 示している)。整形すると YAML のインデントが変わり、説明が成立しなくなる。
+  // Markdown 自体の整形 (リスト記号・表の桁揃え) は有効なままにする。
+  "embeddedLanguageFormatting": "off",
+
+  // import を並べ替える。グループ順は既定のまま (遠い順)。各グループ内は名前順。
+  //
+  //   import * as v from "valibot"          // 外部パッケージ
+  //
+  //   import { UserIdSchema } from "./model/user-id.js"   // 相対
+  //
+  // 副作用 import は動かさない。順序自体に意味があるため。
+  "sortImports": true,
+}

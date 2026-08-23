@@ -1,4 +1,4 @@
-import * as v from 'valibot'
+import * as v from "valibot";
 
 /**
  * メールアドレス (RFC 5322 準拠)。
@@ -26,11 +26,11 @@ export const MailAddressSchema = v.pipe(
   v.string(),
   v.maxLength(255),
   v.regex(
-    /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/,
-    'メールアドレスの形式が不正です',
+    /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/u,
+    "メールアドレスの形式が不正です",
   ),
-  v.description('メールアドレス (RFC 5322準拠)'),
-  v.examples(['user@example.com']),
-)
+  v.description("メールアドレス (RFC 5322準拠)"),
+  v.examples(["user@example.com"]),
+);
 
-export type MailAddress = v.InferOutput<typeof MailAddressSchema>
+export type MailAddress = v.InferOutput<typeof MailAddressSchema>;
