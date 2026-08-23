@@ -1,0 +1,20 @@
+import * as v from 'valibot'
+
+import { HttpStatus } from '../constants/index.js'
+import { ErrorTitleSchema } from './error-title.js'
+
+/** リソースの現在の状態と衝突する (汎用) */
+export const ConflictErrorSchema = v.object({
+  status: v.literal(HttpStatus.CONFLICT),
+  code: v.literal('4090'),
+  title: ErrorTitleSchema,
+})
+
+export type ConflictErrorData = v.InferOutput<typeof ConflictErrorSchema>
+
+/** oRPC の .errors() に渡すエラー仕様 */
+export const ConflictError = {
+  status: HttpStatus.CONFLICT,
+  message: 'リソースの現在の状態と衝突します',
+  data: ConflictErrorSchema,
+} as const

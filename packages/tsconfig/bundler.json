@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment": "Vite / webpack などのバンドラを通すパッケージ向け。相対 import に拡張子は不要。型検査のみ行い出力はバンドラに任せる。",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true
+  }
+}

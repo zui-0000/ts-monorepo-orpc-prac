@@ -1,0 +1,25 @@
+{
+  "name": "@orpc-prac/contract",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --build",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@orpc/contract": "catalog:",
+    "valibot": "catalog:"
+  },
+  "devDependencies": {
+    "@orpc-prac/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

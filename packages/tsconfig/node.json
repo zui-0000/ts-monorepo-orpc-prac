@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment": "Node.js で実行する / ビルドして dist を配布するパッケージ向け。相対 import に .js 拡張子が必要。",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}
