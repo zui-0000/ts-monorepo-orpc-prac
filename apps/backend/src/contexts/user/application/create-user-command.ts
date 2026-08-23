@@ -24,17 +24,19 @@ export type CreateUserCommandDeps = {
   readonly clock: Clock;
 };
 
-export type CreateUserCommandInput = {
-  readonly name: string;
-  readonly mailAddress: string;
-  readonly password: string;
-};
-
+/**
+ * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
+ * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ */
 const CreateUserCommandValues = v.object({
   name: UserNameSchema,
   mailAddress: MailAddressSchema,
   password: PasswordSchema,
 });
+
+export type CreateUserCommandInput = Readonly<
+  v.InferInput<typeof CreateUserCommandValues>
+>;
 
 export type CreateUserCommandOutput = { readonly id: UserId };
 

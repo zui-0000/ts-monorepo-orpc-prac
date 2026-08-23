@@ -25,19 +25,20 @@ export type ChangePasswordCommandDeps = {
   readonly clock: Clock;
 };
 
-export type ChangePasswordCommandInput = {
-  readonly id: string;
-  readonly actor: string;
-  readonly currentPassword: string;
-  readonly newPassword: string;
-};
-
+/**
+ * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
+ * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ */
 const ChangePasswordCommandValues = v.object({
   id: UserIdSchema,
   actor: UserIdSchema,
   currentPassword: PasswordSchema,
   newPassword: PasswordSchema,
 });
+
+export type ChangePasswordCommandInput = Readonly<
+  v.InferInput<typeof ChangePasswordCommandValues>
+>;
 
 export type ChangePasswordCommandError =
   | ForbiddenError

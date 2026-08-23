@@ -14,15 +14,18 @@ export type DeleteUserCommandDeps = {
   readonly userRepository: UserRepository;
 };
 
-export type DeleteUserCommandInput = {
-  readonly id: string;
-  readonly actor: string;
-};
-
+/**
+ * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
+ * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ */
 const DeleteUserCommandValues = v.object({
   id: UserIdSchema,
   actor: UserIdSchema,
 });
+
+export type DeleteUserCommandInput = Readonly<
+  v.InferInput<typeof DeleteUserCommandValues>
+>;
 
 export type DeleteUserCommandError =
   | ForbiddenError

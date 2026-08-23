@@ -21,19 +21,20 @@ export type UpdateUserCommandDeps = {
   readonly clock: Clock;
 };
 
-export type UpdateUserCommandInput = {
-  readonly id: string;
-  readonly actor: string;
-  readonly name: string;
-  readonly mailAddress: string;
-};
-
+/**
+ * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
+ * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ */
 const UpdateUserCommandValues = v.object({
   id: UserIdSchema,
   actor: UserIdSchema,
   name: UserNameSchema,
   mailAddress: MailAddressSchema,
 });
+
+export type UpdateUserCommandInput = Readonly<
+  v.InferInput<typeof UpdateUserCommandValues>
+>;
 
 export type UpdateUserCommandError =
   | ForbiddenError

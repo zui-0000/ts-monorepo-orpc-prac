@@ -13,12 +13,15 @@ export type GetUserQueryDeps = {
   readonly getUserQueryService: GetUserQueryService;
 };
 
-export type GetUserQueryInput = {
-  readonly id: string;
-  readonly actor: string;
-};
-
+/**
+ * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
+ * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ */
 const GetUserQueryValues = v.object({ id: UserIdSchema, actor: UserIdSchema });
+
+export type GetUserQueryInput = Readonly<
+  v.InferInput<typeof GetUserQueryValues>
+>;
 
 export type GetUserQueryOutput = {
   readonly name: string;
