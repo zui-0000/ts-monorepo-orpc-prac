@@ -1,0 +1,39 @@
+# 開発用 PostgreSQL。DB を使うのは backend だけなので、このパッケージが持つ。
+#
+# name を明示するのは、compose が既定で実行ディレクトリ名をプロジェクト名に
+# するため。省くと別プロジェクト (backend_*) となりボリュームが分かれる。
+name: ts-monorepo-orpc-prac
+
+services:
+  db:
+    # マイナーまで固定する。18 だと更新のたびに実体が変わり、
+    # 「昨日まで動いていた」の原因になりうる。
+    image: postgres:18.4
+    container_name: ts-monorepo-orpc-prac-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orpc_prac
+      # データ本体はサブディレクトリに置く (マウント直下の lost+found 等との衝突回避)。
+      PGDATA: /var/lib/postgresql/data/pgdata
+      # ロケールを固定する。省くとホスト環境の値 (en_US.utf8 等) が拾われ、
+      # 別マシンで ORDER BY の並びが変わる。C.utf8 は UTF-8 を認識しつつ
+      # 照合をコードポイント順にするため、環境に依らず同じ結果になる。
+      # ※ initdb は初回のみ走るため、変更にはボリュームの作り直しが要る。
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.utf8"
+    ports:
+      # localhost だけに開く。0.0.0.0 だと同じ LAN の誰でも
+      # 既定の認証情報 (postgres/postgres) で開発 DB に繋げてしまう。
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orpc_prac"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      # 初回起動は initdb が走る。その間の失敗を retries から除く。
+      start_period: 10s
+
+volumes:
+  db-data:
