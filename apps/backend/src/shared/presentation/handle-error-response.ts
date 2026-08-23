@@ -1,13 +1,6 @@
-import type {
-  ForbiddenErrorData,
-  InternalServerErrorData,
-  ResourceNotFoundErrorData,
-} from "@orpc-prac/contract";
-
 import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
-import { ErrorPayload } from "~/shared/presentation/constants/error-payload.ts";
 
 /**
  * presentation 層が契約のエラーへ翻訳できるエラーの集合。ステータスの昇順に並べる。
@@ -24,14 +17,8 @@ import { ErrorPayload } from "~/shared/presentation/constants/error-payload.ts";
  *    (create)、`PasswordMismatchError` (changePassword)、`UnauthorizedError`
  *    (認証)。ユースケースを移すたびにここへ足す
  *
- * 2. **実装が投げることが無い** — `BadRequestError` と `InternalServerError`
- *
- *    前者は**入力検証の失敗で、oRPC が契約のスキーマを見て直接投げる**。
- *    移行元では decodeInput が担っていた仕事を oRPC が引き取ったため、
- *    実装が組み立てる場面が無い。
- *    後者も oRPC が直接投げるか、`RepositoryError` からの翻訳で出る。
- *
- *    どちらも本文の組み立ては契約側 (`@orpc-prac/contract/error-encoder`) が持つ。
+ * 2. **実装が投げることが無い** — `BadRequestError` と `InternalServerError`。
+ *    どちらも oRPC が入力検証・出力検証で直接投げる
  */
 export type ApplicationError =
   | ForbiddenError
@@ -39,17 +26,16 @@ export type ApplicationError =
   | RepositoryError;
 
 /**
- * 契約が生成するエラー構築子の形。**キーと data の対応が契約と 1 対 1。**
- * 誤った payload を渡すとここで型エラーになる。
+ * 契約が生成するエラー構築子の形。
+ *
+ * **どれも引数を取らない。** 契約のエラーが `status` と `message` しか持たず、
+ * どちらも oRPC の応答が載せるため、実装が組み立てる本文が無い
+ * (追加情報を持つのは BadRequestError だけで、あれは oRPC が直接投げる)。
  */
 type ErrorFactories = {
-  readonly FORBIDDEN_ERROR: (o: { data: ForbiddenErrorData }) => Error;
-  readonly RESOURCE_NOT_FOUND_ERROR: (o: {
-    data: ResourceNotFoundErrorData;
-  }) => Error;
-  readonly INTERNAL_SERVER_ERROR: (o: {
-    data: InternalServerErrorData;
-  }) => Error;
+  readonly FORBIDDEN_ERROR: () => Error;
+  readonly RESOURCE_NOT_FOUND_ERROR: () => Error;
+  readonly INTERNAL_SERVER_ERROR: () => Error;
 };
 
 /**
@@ -91,16 +77,11 @@ export const handleErrorResponse = <E extends ApplicationError>(
   const factories = errors as ErrorFactories;
 
   return error.match<ApplicationError, Error>({
-    ForbiddenError: () =>
-      factories.FORBIDDEN_ERROR({ data: ErrorPayload.Forbidden }),
+    ForbiddenError: () => factories.FORBIDDEN_ERROR(),
 
-    ResourceNotFoundError: () =>
-      factories.RESOURCE_NOT_FOUND_ERROR({
-        data: ErrorPayload.ResourceNotFound,
-      }),
+    ResourceNotFoundError: () => factories.RESOURCE_NOT_FOUND_ERROR(),
 
     // インフラ由来。原因 (cause) は外に出さず、ログにのみ残す。
-    RepositoryError: () =>
-      factories.INTERNAL_SERVER_ERROR({ data: ErrorPayload.InternalServer }),
+    RepositoryError: () => factories.INTERNAL_SERVER_ERROR(),
   });
 };

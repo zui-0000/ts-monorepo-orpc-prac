@@ -1,13 +1,7 @@
-import { contract } from "@orpc-prac/contract";
-import { implement } from "@orpc/server";
-
-import type { AppContext } from "~/shared/presentation/app-context.ts";
+import { os } from "~/shared/presentation/os.ts";
 
 import { appDeps } from "./app-deps.ts";
 import { getUserHandler } from "./contexts/user/presentation/get-user-handler.ts";
-
-/** 契約の実装。 */
-const os = implement(contract).$context<AppContext>();
 
 export const router = os.router({
   user: {

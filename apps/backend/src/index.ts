@@ -1,4 +1,3 @@
-import { encodeErrorResponseBody } from "@orpc-prac/contract/error-encoder";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { onError } from "@orpc/server";
 import { Hono } from "hono";
@@ -15,7 +14,6 @@ const app = new Hono();
  * REST 形式で書かれているため。
  */
 const handler = new OpenAPIHandler(router, {
-  customErrorResponseBodyEncoder: encodeErrorResponseBody,
   interceptors: [
     onError((error) => {
       console.error("[orpc]", error);
