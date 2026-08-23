@@ -167,7 +167,7 @@ handler は `os.user.get.handler(...)` という**式**であって、独立し�
 契約の操作 1 つに対して 1 つ存在し、契約が消えれば消える。
 契約の一覧 (routes) と同じ場所に置くのが素直である。
 
-### 繰り返しは `okOrThrow` で畳んだ (2026-08-24 追記)
+### 繰り返しは `okOrThrow` へ寄せた (2026-08-24 追記)
 
 当初は各 handler の末尾 4 行が同じ形になっていた。
 
@@ -189,26 +189,34 @@ export const okOrThrow = <T, E extends ApplicationError>(
 };
 ```
 
-呼び出し側はこうなる。
+**懸念が外れた理由。** 絞り込みを担っているのは `ErrorKeyOf<E>` の条件型で、
+これは `E` から計算される。`okOrThrow` が `E` をそのまま引き継ぐ限り、
+間に関数が 1 つ挟まっても計算結果は変わらない。以前 `handleErrorResponse` で
+当たった「`Pick` で絞った型が match の内側から見えない」問題は**分配**の話で、
+こちらは**引き継ぎ**の話だった。
 
-```ts
-create: os.user.create.handler(async ({ input, errors }) =>
-  okOrThrow(await createUser({ body: input }), errors),
-),
-```
-
-`user-routes.ts` は 91 行から 59 行になった。守りが残っていることは
-2 方向で実測している。
+守りが残っていることは 2 方向で実測している。
 
 | 壊し方                                      | 結果                                             |
 | ------------------------------------------- | ------------------------------------------------ |
 | 契約が宣言していないエラーを混ぜる          | `Property 'FORBIDDEN_ERROR' is missing` (routes) |
 | `handleErrorResponse` の match から枝を消す | 網羅性のエラー                                   |
 
-**懸念が外れた理由。** 絞り込みを担っているのは `ErrorKeyOf<E>` の
-条件型で、これは `E` から計算される。`okOrThrow` が `E` をそのまま
-引き継ぐ限り、間に関数が 1 つ挟まっても計算結果は変わらない。
+### 呼び出しは式に畳まず、Result を主語に置く
 
-引き換えに `throw` が呼び出し側から見えなくなった。名前で示している
-(`...OrThrow`) が、routes だけを読んで「失敗すると投げる」と気付けるかは
-名前次第になる。
+1 式にすると 3 行短くなるが、**この形は採らない。**
+
+```ts
+// 採らない — 判断が先に来て、本題が引数の中に埋まる
+okOrThrow(await createUser({ body: input }), errors);
+
+// 採る — 呼ぶ、受ける、判断する の順に読み下せる
+const result = await createUser({ body: input });
+return okOrThrow(result, errors);
+```
+
+理由は 2 つ。**Result が主語でなくなる**こと。そして式に畳むと
+「失敗すると投げる」という事実が引数の位置に隠れ、この ADR が利点として
+挙げた「操作一覧と失敗の翻訳が同じ画面にある」が薄れること。
+
+行数だけで見れば式のほうが短いが、**routes は短さより読み下せることを優先する。**

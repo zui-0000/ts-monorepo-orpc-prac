@@ -20,39 +20,51 @@ export const userRoutes = (deps: UserDeps) => {
   const changePassword = changePasswordController(deps);
 
   return {
-    create: os.user.create.handler(async ({ input, errors }) =>
-      okOrThrow(await createUser({ body: input }), errors),
-    ),
+    create: os.user.create.handler(async ({ input, errors }) => {
+      const result = await createUser({ body: input });
 
-    get: os.user.get.handler(async ({ input, errors, context }) =>
-      okOrThrow(
-        await getUser({ auth: context.caller, params: { id: input.id } }),
-        errors,
-      ),
-    ),
+      return okOrThrow(result, errors);
+    }),
+
+    get: os.user.get.handler(async ({ input, errors, context }) => {
+      const result = await getUser({
+        auth: context.caller,
+        params: { id: input.id },
+      });
+
+      return okOrThrow(result, errors);
+    }),
 
     update: os.user.update.handler(async ({ input, errors, context }) => {
       const { id, ...body } = input;
-      return okOrThrow(
-        await updateUser({ auth: context.caller, params: { id }, body }),
-        errors,
-      );
+      const result = await updateUser({
+        auth: context.caller,
+        params: { id },
+        body,
+      });
+
+      return okOrThrow(result, errors);
     }),
 
-    delete: os.user.delete.handler(async ({ input, errors, context }) =>
-      okOrThrow(
-        await deleteUser({ auth: context.caller, params: { id: input.id } }),
-        errors,
-      ),
-    ),
+    delete: os.user.delete.handler(async ({ input, errors, context }) => {
+      const result = await deleteUser({
+        auth: context.caller,
+        params: { id: input.id },
+      });
+
+      return okOrThrow(result, errors);
+    }),
 
     changePassword: os.user.changePassword.handler(
       async ({ input, errors, context }) => {
         const { id, ...body } = input;
-        return okOrThrow(
-          await changePassword({ auth: context.caller, params: { id }, body }),
-          errors,
-        );
+        const result = await changePassword({
+          auth: context.caller,
+          params: { id },
+          body,
+        });
+
+        return okOrThrow(result, errors);
       },
     ),
   };
