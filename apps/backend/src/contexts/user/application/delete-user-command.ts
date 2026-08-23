@@ -15,16 +15,16 @@ export type DeleteUserCommandDeps = {
 };
 
 /**
- * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
- * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ * 素の入力をドメインの値へ変換する。**変換前が入力、変換後がコマンドの値。**
+ * 入力型を手で書くとズレたまま型検査が通るため、ここから導く (設計関連/ADR-06)。
  */
-const DeleteUserCommandInputSchema = v.object({
+const DeleteUserCommandValues = v.object({
   id: UserIdSchema,
   actor: UserIdSchema,
 });
 
 export type DeleteUserCommandInput = Readonly<
-  v.InferInput<typeof DeleteUserCommandInputSchema>
+  v.InferInput<typeof DeleteUserCommandValues>
 >;
 
 export type DeleteUserCommandError =
@@ -48,7 +48,7 @@ export const deleteUserCommand =
     input: DeleteUserCommandInput,
   ): Promise<Result<void, DeleteUserCommandError>> =>
     Result.gen(async function* () {
-      const { id, actor } = parseInvariant(DeleteUserCommandInputSchema, input);
+      const { id, actor } = parseInvariant(DeleteUserCommandValues, input);
 
       yield* checkUserIsSelf(id, actor);
 

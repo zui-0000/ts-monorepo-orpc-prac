@@ -25,17 +25,17 @@ export type CreateUserCommandDeps = {
 };
 
 /**
- * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
- * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ * 素の入力をドメインの値へ変換する。**変換前が入力、変換後がコマンドの値。**
+ * 入力型を手で書くとズレたまま型検査が通るため、ここから導く (設計関連/ADR-06)。
  */
-const CreateUserCommandInputSchema = v.object({
+const CreateUserCommandValues = v.object({
   name: UserNameSchema,
   mailAddress: MailAddressSchema,
   password: PasswordSchema,
 });
 
 export type CreateUserCommandInput = Readonly<
-  v.InferInput<typeof CreateUserCommandInputSchema>
+  v.InferInput<typeof CreateUserCommandValues>
 >;
 
 export type CreateUserCommandOutput = { readonly id: UserId };
@@ -54,7 +54,7 @@ export const createUserCommand =
   ): Promise<Result<CreateUserCommandOutput, CreateUserCommandError>> =>
     Result.gen(async function* () {
       const { name, mailAddress, password } = parseInvariant(
-        CreateUserCommandInputSchema,
+        CreateUserCommandValues,
         input,
       );
 

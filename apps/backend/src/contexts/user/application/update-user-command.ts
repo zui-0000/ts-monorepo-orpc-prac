@@ -22,10 +22,10 @@ export type UpdateUserCommandDeps = {
 };
 
 /**
- * 境界を越えてきた値。**スキーマから導く** — 手で書くと、規則を足したときに
- * ズレたまま型検査が通る (`parseInvariant` の引数が `unknown` のため)。
+ * 素の入力をドメインの値へ変換する。**変換前が入力、変換後がコマンドの値。**
+ * 入力型を手で書くとズレたまま型検査が通るため、ここから導く (設計関連/ADR-06)。
  */
-const UpdateUserCommandInputSchema = v.object({
+const UpdateUserCommandValues = v.object({
   id: UserIdSchema,
   actor: UserIdSchema,
   name: UserNameSchema,
@@ -33,7 +33,7 @@ const UpdateUserCommandInputSchema = v.object({
 });
 
 export type UpdateUserCommandInput = Readonly<
-  v.InferInput<typeof UpdateUserCommandInputSchema>
+  v.InferInput<typeof UpdateUserCommandValues>
 >;
 
 export type UpdateUserCommandError =
@@ -54,7 +54,7 @@ export const updateUserCommand =
   ): Promise<Result<void, UpdateUserCommandError>> =>
     Result.gen(async function* () {
       const { id, actor, name, mailAddress } = parseInvariant(
-        UpdateUserCommandInputSchema,
+        UpdateUserCommandValues,
         input,
       );
 

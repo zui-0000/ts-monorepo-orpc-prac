@@ -57,14 +57,14 @@ const CreateUserCommandValues = v.object({
 **「入力型を検証スキーマから導く」を採用する。**
 
 ```ts
-const CreateUserCommandInputSchema = v.object({
+const CreateUserCommandValues = v.object({
   name: UserNameSchema,
   mailAddress: MailAddressSchema,
   password: PasswordSchema,
 });
 
 export type CreateUserCommandInput = Readonly<
-  v.InferInput<typeof CreateUserCommandInputSchema>
+  v.InferInput<typeof CreateUserCommandValues>
 >;
 ```
 
@@ -142,19 +142,43 @@ create-user-controller.ts(19,50): error TS2741:
 - Bad, because **アプリケーション層が契約 (HTTP) を知ることになる。**
   ユースケースは配信手段から独立しているべきで、`ADR-05` で controller を
   挟んだ理由とも逆行する
-- Bad, because 形が一致しない。`GetUserQueryInput` の `actor` は認証から来る値で、
-  契約には現れない
+- Bad, because **形が一致しない。** 一致するのは `create` だけで、
+  他は `id` (path パラメータ) と `actor` (認証から来る値) が契約の
+  リクエスト型に無い。実測:
+
+  ```txt
+  UpdateUserCommandInput に UpdateUserRequest を代入
+    → Type '{ name; mailAddress; }' is missing the following properties: id, actor
+  ```
+
+  path パラメータのスキーマは契約の中でローカル定義されており export もされていない
 
 ## 補足情報 (More Information)
 
-### 命名
+### 命名 — スキーマを `InputSchema` と呼ばない
 
-検証スキーマは `<ユースケース名>InputSchema`、そこから導く型は
-`<ユースケース名>Input` とする。契約側の `CreateUserRequestSchema` /
-`CreateUserRequest` と同じ関係になる。
+スキーマは `<ユースケース名>Values`、そこから導く型は `<ユースケース名>Input`。
 
-以前は `<ユースケース名>Values` だったが、派生元になった以上、
-名前で対応が読めるほうがよい。
+一度 `<ユースケース名>InputSchema` に改名したが、**誤解を招くので戻した。**
+このスキーマは入力の形を述べたものではなく、**変換の定義**である。
+
+```ts
+const CreateUserCommandValues = v.object({
+  name: UserNameSchema,        // ← 入力ではなく、変換先のドメインの値
+  ...
+});
+```
+
+`InputSchema` と名乗ると「入力がドメインの値オブジェクトである」と読める。
+実際には入力は素の `string` で (`InferInput` が brand を剥がす)、
+ドメインの値になるのは**変換後**。名前が半分しか言っていなかった。
+
+`Values` は変換後 — つまりコマンドが扱う値 — を指す。
+`InferInput<typeof CreateUserCommandValues>` は「コマンドの値を作る変換の、
+入力側」と読め、両方向が名前で辿れる。
+
+契約側の `CreateUserRequestSchema` / `CreateUserRequest` とは揃わないが、
+あちらは**入力そのもののスキーマ**で性質が違う。
 
 ### この判断が変わりうる場面
 
