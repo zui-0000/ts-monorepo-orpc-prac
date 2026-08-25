@@ -9,6 +9,7 @@
     "dev": "pnpm -r --parallel run dev",
     "check:type": "pnpm -r run check:type",
     "check:lint": "pnpm -r run check:lint",
+    "check:updates": "pnpm --recursive outdated --long",
     "format:check": "oxfmt --check .",
     "format:fix": "oxfmt .",
     "lint:fix": "pnpm -r run lint:fix",

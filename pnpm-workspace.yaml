@@ -24,6 +24,8 @@ catalog:
   "@orpc/valibot": ^1.15.0
   "@swc/core": ^1.16.1
   "@types/bun": ^1.4.0
+  # Node のランタイムに合わせる (mise.toml と engines が 24 系)。
+  # LTS の系列を跨ぐときだけ上げる。check:updates は 26 系を報告するが追わない。
   "@types/node": ^24.13.3
   "@types/react": ^19.2.18
   "@types/react-dom": ^19.2.4
