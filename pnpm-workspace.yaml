@@ -28,18 +28,18 @@ catalog:
   # LTS の系列を跨ぐときだけ上げる。check:updates は 26 系を報告するが追わない。
   "@types/node": ^24.13.3
   "@types/react": ^19.2.18
-  "@types/react-dom": ^19.2.4
+  "@types/react-dom": ^19.2.5
   "@vitejs/plugin-react": ^6.1.0
   better-result: ^3.0.1
   dependency-cruiser: ^18.2.0
   drizzle-kit: ^0.31.10
   drizzle-orm: ^0.45.2
-  hono: ^4.13.3
+  hono: ^4.13.4
   lefthook: ^2.1.10
   react: ^19.2.8
   react-dom: ^19.2.8
-  oxfmt: ^0.64.0
-  oxlint: ^1.79.0
+  oxfmt: ^0.65.0
+  oxlint: ^1.80.0
   oxlint-tsgolint: ^7.0.2001
   typescript: ^7.0.2
   valibot: ^1.4.2
