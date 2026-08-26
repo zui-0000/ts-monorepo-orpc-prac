@@ -8,7 +8,7 @@ export const BadRequestErrorSchema = v.pipe(
   v.object({
     errors: v.array(ErrorItemSchema),
   }),
-  v.examples([{ errors: [{ field: "mailAddress" }] }]),
+  v.examples([{ errors: [{ field: "email" }] }]),
 );
 
 export type BadRequestErrorData = v.InferOutput<typeof BadRequestErrorSchema>;

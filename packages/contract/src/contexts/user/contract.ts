@@ -6,7 +6,7 @@ import {
   BadRequestError,
   ForbiddenError,
   InternalServerError,
-  MailAddressDuplicationError,
+  EmailDuplicationError,
   PasswordMismatchError,
   ResourceNotFoundError,
   UnauthorizedError,
@@ -35,7 +35,7 @@ export const createUser = oc
   .output(CreateUserResponseSchema)
   .errors({
     BAD_REQUEST_ERROR: BadRequestError,
-    MAIL_ADDRESS_DUPLICATION_ERROR: MailAddressDuplicationError,
+    EMAIL_DUPLICATION_ERROR: EmailDuplicationError,
     INTERNAL_SERVER_ERROR: InternalServerError,
   });
 
@@ -81,7 +81,7 @@ export const updateUser = oc
     UNAUTHORIZED_ERROR: UnauthorizedError,
     FORBIDDEN_ERROR: ForbiddenError,
     RESOURCE_NOT_FOUND_ERROR: ResourceNotFoundError,
-    MAIL_ADDRESS_DUPLICATION_ERROR: MailAddressDuplicationError,
+    EMAIL_DUPLICATION_ERROR: EmailDuplicationError,
     INTERNAL_SERVER_ERROR: InternalServerError,
   });
 

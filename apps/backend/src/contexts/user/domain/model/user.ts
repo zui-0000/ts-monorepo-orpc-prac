@@ -3,9 +3,9 @@ import * as v from "valibot";
 
 import type { Clock } from "~/shared/domain/clock.ts";
 import {
-  type MailAddress,
-  MailAddressSchema,
-} from "~/shared/domain/model/value-objects/mail-address.ts";
+  type Email,
+  EmailSchema,
+} from "~/shared/domain/model/value-objects/email.ts";
 import { parseInvariant } from "~/shared/domain/parse-invariant.ts";
 import type { PasswordHasher } from "~/shared/domain/password-hasher.ts";
 import type { UuidGenerator } from "~/shared/domain/uuid-generator.ts";
@@ -25,7 +25,7 @@ import { type UserName, UserNameSchema } from "./value-objects/user-name.ts";
 export const UserSchema = v.object({
   id: UserIdSchema,
   name: UserNameSchema,
-  mailAddress: MailAddressSchema,
+  email: EmailSchema,
   hashedPassword: UserHashedPasswordSchema,
   createdAt: v.date(),
   updatedAt: v.date(),
@@ -40,7 +40,7 @@ export const createUser = (
   deps: { readonly uuidGenerator: UuidGenerator; readonly clock: Clock },
   params: {
     readonly name: UserName;
-    readonly mailAddress: MailAddress;
+    readonly email: Email;
     readonly hashedPassword: UserHashedPassword;
   },
 ): User => {
@@ -49,7 +49,7 @@ export const createUser = (
   return {
     id: parseInvariant(UserIdSchema, deps.uuidGenerator.generate()),
     name: params.name,
-    mailAddress: params.mailAddress,
+    email: params.email,
     hashedPassword: params.hashedPassword,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -63,11 +63,11 @@ export const createUser = (
 export const changeUserProfile = (
   deps: { readonly clock: Clock },
   user: User,
-  params: { readonly name: UserName; readonly mailAddress: MailAddress },
+  params: { readonly name: UserName; readonly email: Email },
 ): User => ({
   ...user,
   name: params.name,
-  mailAddress: params.mailAddress,
+  email: params.email,
   updatedAt: deps.clock.now(),
 });
 

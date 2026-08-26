@@ -18,7 +18,7 @@ import { client } from "./api-client";
 export const UserForm = () => {
   const [form, setForm] = useState<CreateUserRequest>({
     name: "",
-    mailAddress: "",
+    email: "",
     password: "",
   });
   const [created, setCreated] = useState<CreateUserResponse | null>(null);
@@ -57,7 +57,7 @@ export const UserForm = () => {
   return (
     <form onSubmit={submit}>
       {field("name", "名前")}
-      {field("mailAddress", "メールアドレス")}
+      {field("email", "メールアドレス")}
       {field("password", "パスワード", "password")}
       <button type="submit">作成</button>
 

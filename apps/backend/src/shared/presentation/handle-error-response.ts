@@ -1,7 +1,7 @@
 import type { Result } from "better-result";
 
+import type { EmailDuplicationError } from "~/shared/errors/email-duplication-error.ts";
 import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
-import type { MailAddressDuplicationError } from "~/shared/errors/mail-address-duplication-error.ts";
 import type { PasswordMismatchError } from "~/shared/errors/password-mismatch-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
@@ -30,7 +30,7 @@ export type ApplicationError =
   | PasswordMismatchError
   | ForbiddenError
   | ResourceNotFoundError
-  | MailAddressDuplicationError
+  | EmailDuplicationError
   | RepositoryError;
 
 /**
@@ -44,7 +44,7 @@ type ErrorFactories = {
   readonly PASSWORD_MISMATCH_ERROR: () => Error;
   readonly FORBIDDEN_ERROR: () => Error;
   readonly RESOURCE_NOT_FOUND_ERROR: () => Error;
-  readonly MAIL_ADDRESS_DUPLICATION_ERROR: () => Error;
+  readonly EMAIL_DUPLICATION_ERROR: () => Error;
   readonly INTERNAL_SERVER_ERROR: () => Error;
 };
 
@@ -59,9 +59,7 @@ type ErrorKeyOf<E> =
   | (E extends PasswordMismatchError ? "PASSWORD_MISMATCH_ERROR" : never)
   | (E extends ForbiddenError ? "FORBIDDEN_ERROR" : never)
   | (E extends ResourceNotFoundError ? "RESOURCE_NOT_FOUND_ERROR" : never)
-  | (E extends MailAddressDuplicationError
-      ? "MAIL_ADDRESS_DUPLICATION_ERROR"
-      : never)
+  | (E extends EmailDuplicationError ? "EMAIL_DUPLICATION_ERROR" : never)
   | (E extends RepositoryError ? "INTERNAL_SERVER_ERROR" : never);
 
 /**
@@ -97,8 +95,7 @@ export const handleErrorResponse = <E extends ApplicationError>(
 
     ResourceNotFoundError: () => factories.RESOURCE_NOT_FOUND_ERROR(),
 
-    MailAddressDuplicationError: () =>
-      factories.MAIL_ADDRESS_DUPLICATION_ERROR(),
+    EmailDuplicationError: () => factories.EMAIL_DUPLICATION_ERROR(),
 
     // インフラ由来。原因 (cause) は外に出さず、ログにのみ残す。
     RepositoryError: () => factories.INTERNAL_SERVER_ERROR(),

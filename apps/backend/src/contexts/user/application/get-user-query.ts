@@ -28,7 +28,7 @@ export type GetUserQueryInput = Readonly<
 
 export type GetUserQueryOutput = {
   readonly name: string;
-  readonly mailAddress: string;
+  readonly email: string;
 };
 
 export type GetUserQueryParams = { readonly id: UserId };

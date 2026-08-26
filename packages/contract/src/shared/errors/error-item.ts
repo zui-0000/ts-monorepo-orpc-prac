@@ -12,7 +12,7 @@ export const ErrorItemSchema = v.pipe(
   v.object({
     field: v.pipe(v.string(), v.description("不正だったフィールド名")),
   }),
-  v.examples([{ field: "mailAddress" }]),
+  v.examples([{ field: "email" }]),
 );
 
 export type ErrorItem = v.InferOutput<typeof ErrorItemSchema>;

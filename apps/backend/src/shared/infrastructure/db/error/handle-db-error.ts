@@ -10,7 +10,7 @@ import { classifyDbFailure } from "./classify-db-failure.ts";
  * ```ts
  * (await Result.tryPromise(() => db.insert(...)))
  *   .mapError(handleDbError)                            // ← ここ
- *   .mapError(handleMailAddressDuplicationError(user))  // 続けて重ねられる
+ *   .mapError(handleEmailDuplicationError(user))  // 続けて重ねられる
  *   .map(toVoid)
  * ```
  *

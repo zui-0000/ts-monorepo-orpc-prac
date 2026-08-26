@@ -19,7 +19,7 @@
  *
  * **`code` に契約のキーがそのまま出るため。** 同じステータスの 2 つ
  * (401 の Unauthorized と PasswordMismatch、409 の Conflict と
- * MailAddressDuplication) は `UNAUTHORIZED_ERROR` / `PASSWORD_MISMATCH_ERROR`
+ * EmailDuplication) は `UNAUTHORIZED_ERROR` / `PASSWORD_MISMATCH_ERROR`
  * のように名前で区別できる。数字の体系を別に維持する理由が無い。
  *
  * クライアントは `isDefinedError(error) && error.code === "FORBIDDEN_ERROR"` で
@@ -31,7 +31,7 @@ export * from "./conflict-error.js";
 export * from "./error-item.js";
 export * from "./forbidden-error.js";
 export * from "./internal-server-error.js";
-export * from "./mail-address-duplication-error.js";
+export * from "./email-duplication-error.js";
 export * from "./password-mismatch-error.js";
 export * from "./resource-not-found-error.js";
 export * from "./unauthorized-error.js";

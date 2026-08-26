@@ -15,7 +15,7 @@ export const getUserQueryService = (db: Database): GetUserQueryService => ({
     (
       await Result.tryPromise(() =>
         db
-          .select({ name: tUser.name, mailAddress: tUser.mailAddress })
+          .select({ name: tUser.name, email: tUser.email })
           .from(tUser)
           .where(eq(tUser.id, id))
           .limit(1),

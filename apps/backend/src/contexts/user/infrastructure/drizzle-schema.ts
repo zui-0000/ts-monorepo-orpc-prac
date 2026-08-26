@@ -15,7 +15,7 @@ export const tUser = pgTable(
     name: varchar("name", { length: 100 }).notNull(),
     // 利用者が入力した表記のまま保存する (大小を潰さない)。一意性は下の関数インデックスが担う。
     // 文字数上限は RFC 5321 の実質上限 254 に収まる 255。
-    mailAddress: varchar("mail_address", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
     hashedPassword: text("hashed_password").notNull(),
     // DB 側で上書きするとドメインが決めた値が失われるため、$onUpdate は付けない。
     // DEFAULT は直接 INSERT する場合の保険として残す。
@@ -35,12 +35,10 @@ export const tUser = pgTable(
     //
     // かといってアプリ側で小文字へ潰すと、利用者が名乗った表記が復元できなくなる。
     // RFC 5321 §2.4 は「ローカル部の大小を保存せよ」と言っており、将来メールを送る際に
-    // 宛先の表記を相手のサーバ設定に賭けることになる (経緯は契約の MailAddress)。
+    // 宛先の表記を相手のサーバ設定に賭けることになる (経緯は契約の Email)。
     //
     // 保存は入力どおり、一意判定だけ lower() で — が両立させる唯一の形。
-    // 検索側 (findByMailAddress) も lower() で引くこと。揃っていないとこの索引が効かない。
-    uniqueIndex("t_user_mail_address_lower_unique").on(
-      sql`lower(${table.mailAddress})`,
-    ),
+    // 検索側 (findByEmail) も lower() で引くこと。揃っていないとこの索引が効かない。
+    uniqueIndex("t_user_email_lower_uidx").on(sql`lower(${table.email})`),
   ],
 );

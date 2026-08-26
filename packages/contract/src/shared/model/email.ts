@@ -20,9 +20,9 @@ import * as v from "valibot";
  * "MUST take care to preserve the case of mailbox local-parts" と要求している
  * とおり、大小を保存するのが本来の姿。**避けられる賭けをする理由が無い。**
  *
- * 一意性は DB 側の lower(mail_address) 一意索引が担保する。
+ * 一意性は DB 側の lower(email) 一意索引が担保する。
  */
-export const MailAddressSchema = v.pipe(
+export const EmailSchema = v.pipe(
   v.string(),
   v.maxLength(255),
   v.regex(
@@ -33,4 +33,4 @@ export const MailAddressSchema = v.pipe(
   v.examples(["user@example.com"]),
 );
 
-export type MailAddress = v.InferOutput<typeof MailAddressSchema>;
+export type Email = v.InferOutput<typeof EmailSchema>;
