@@ -210,7 +210,7 @@ const generatedName = `${tableName}_${index.fields.join("_")}_${indexKind}`;
 ```
 
 better-auth を配線すると `session` や `account` の索引が同じ DB に並ぶため、
-先に揃えておく判断をした。
+先に揃えておく判断をした。規約そのものは ADR-03 に切り出している。
 
 なお索引の**中身**は `lower(email)` のまま残している。better-auth はメールを小文字化して
 保存し素の `=` で引くため、関数索引は最終的に素の UNIQUE へ張り替えることになるが、
