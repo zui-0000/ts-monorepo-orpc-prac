@@ -21,6 +21,7 @@
     "@orpc-prac/contract": "workspace:*",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
+    "better-auth": "catalog:",
     "better-result": "catalog:",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",
