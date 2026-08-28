@@ -9,15 +9,19 @@ import type { AppDeps } from "./app-deps.ts";
 import { router } from "./router.ts";
 
 /**
- * 認証を通った相手を決める。
+ * 認証を通った相手を決める。**Cookie のセッションから引く。**
  *
- * **これは認証ではない。** ヘッダの値をそのまま信じているので、
- * 誰でも他人を名乗れる。better-auth を入れる段でセッションから引く形に
- * 差し替える。それまで動作確認ができるよう受け口だけ用意している。
+ * 署名の検証も期限の判定も better-auth が行うため、ここは結果を
+ * アプリの語彙へ写すだけ。未認証なら `undefined` を返し、401 への翻訳は
+ * `os` のミドルウェアが担う (presentation が HTTP の応答を組み立てない)。
  */
-const resolveCaller = (request: Request): AuthenticatedCaller => ({
-  userId: request.headers.get("x-actor-id") ?? "",
-});
+const resolveCaller = async (
+  deps: AppDeps,
+  request: Request,
+): Promise<AuthenticatedCaller | undefined> => {
+  const session = await deps.auth.api.getSession({ headers: request.headers });
+  return session === null ? undefined : { userId: session.user.id };
+};
 
 /**
  * アプリ全体を組み立てる。知っているのは「契約をどのパスにマウントするか」だけ。
@@ -37,10 +41,20 @@ export const app = (deps: AppDeps) => {
 
   const routes = new Hono();
 
+  /**
+   * better-auth の HTTP 経路 (サインアップ / サインイン / OAuth のコールバック)。
+   *
+   * **oRPC より先に登録する。** 下の `/api/*` は「契約に無ければ次へ流す」形なので
+   * 順序を逆にしても最終的には届くが、認証の経路が毎回 oRPC の照合を通ることになる。
+   */
+  routes.on(["GET", "POST"], "/api/auth/*", (c) =>
+    deps.auth.handler(c.req.raw),
+  );
+
   routes.use("/api/*", async (c, next) => {
     const { matched, response } = await handler.handle(c.req.raw, {
       prefix: "/api",
-      context: { caller: resolveCaller(c.req.raw) },
+      context: { caller: await resolveCaller(deps, c.req.raw) },
     });
     if (matched) {
       return c.newResponse(response.body, response);

@@ -8,5 +8,12 @@ import type { AuthenticatedCaller } from "~/shared/domain/model/authenticated-ca
  * 項目を足したときの追随漏れが起きる。
  */
 export type AppContext = {
-  readonly caller: AuthenticatedCaller;
+  /**
+   * セッションから引いた相手。**未認証なら `undefined`。**
+   *
+   * 認証の判定は `os` のミドルウェアが行い、そこで 401 に翻訳する。
+   * ハンドラへ届く時点では `undefined` が除かれているため、
+   * controller は素の `AuthenticatedCaller` を受け取れる。
+   */
+  readonly caller: AuthenticatedCaller | undefined;
 };
