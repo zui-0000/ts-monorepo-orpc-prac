@@ -81,9 +81,9 @@ advanced: {
 
 | テーブル         | 自然キーの候補         | 主キーにしない理由                                                      | 自然な一意性の宣言先                           |
 | ---------------- | ---------------------- | ----------------------------------------------------------------------- | ---------------------------------------------- |
-| `t_user`         | `email`                | **安定しない。** 変更機能があり、値の所有者も better-auth である        | `t_user_email_uidx` UNIQUE                     |
-| `t_session`      | `token`                | **秘密そのもの。** 主キーにすると外部キーとして他テーブルへ複製される   | `t_session_token_uidx` UNIQUE                  |
-| `t_account`      | `(issuer, account_id)` | **こちらで検証できない。** Google 側が決める値であり、複合 2 列でもある | `t_account_issuer_account_id_uidx` UNIQUE      |
+| `t_user`         | `email`                | **安定しない。** 変更機能があり、値の所有者も better-auth である        | `t_user_email_key` UNIQUE 制約                 |
+| `t_session`      | `token`                | **秘密そのもの。** 主キーにすると外部キーとして他テーブルへ複製される   | `t_session_token_key` UNIQUE 制約              |
+| `t_account`      | `(issuer, account_id)` | **こちらで検証できない。** Google 側が決める値であり、複合 2 列でもある | `t_account_issuer_account_id_key` UNIQUE 制約  |
 | `t_verification` | なし                   | 同じ `identifier` の行が時系列で複数できる (再送・再発行)               | 一意制約なし (`t_verification_identifier_idx`) |
 
 **「一意であること」と「安定して検証可能であること」は別**である。`email` は一意だが
