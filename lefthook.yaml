@@ -15,10 +15,18 @@ commit-msg:
       # {1} は git が渡す第 1 引数 = コミットメッセージファイルのパス。
       run: ./node_modules/.bin/commitlint --edit {1}
 
+# **並列にしない (piped) 理由。** contract の build:artifacts が `rm -rf dist` するため、
+# 並列だと backend / frontend の tsc がその「dist が消えている窓」を踏み、
+# TS2307 (Cannot find module '@orpc-prac/contract') で落ちる。実測で再現した。
+#
+# 順序は priority で決める。**省略するとコマンド名のアルファベット順**になり
+# (backend → contract → …)、backend が古い dist を見てしまう。
+# dist を作る contract を、それを読む backend / frontend より先に置くこと。
 pre-commit:
-  parallel: true
+  piped: true
   commands:
     format:
+      priority: 1
       # 整形のズレがあれば止める。パッケージを問わず、docs や package.json も含む。
       #
       # glob を書かないのは 2 つの理由から。oxfmt が対象外の拡張子を自分で除くこと
@@ -27,6 +35,8 @@ pre-commit:
       run: pnpm exec oxfmt --check {staged_files}
 
     contract:
+      # backend / frontend より先に走らせる (dist を作る側)。
+      priority: 2
       # 契約が dist と OpenAPI 仕様まで組み上がることを確かめる。
       # build ではなく build:artifacts を呼ぶのは、build が lint:fix を含み
       # ソースを書き換えるため (上の注記を参照)。
@@ -35,6 +45,7 @@ pre-commit:
       run: pnpm check:lint && pnpm check:type && pnpm build:artifacts
 
     backend:
+      priority: 3
       # 型情報を使う lint (no-floating-promises 等) と、
       # 依存の向き (dependency-cruiser) をここで見る。
       root: apps/backend/
@@ -42,6 +53,7 @@ pre-commit:
       run: pnpm check:lint && pnpm check:type && pnpm check:deps
 
     frontend:
+      priority: 4
       root: apps/frontend/
       glob: "apps/frontend/**"
       run: pnpm check:lint && pnpm check:type
