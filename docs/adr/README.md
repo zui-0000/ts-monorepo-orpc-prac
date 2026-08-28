@@ -36,6 +36,7 @@
 | [ADR-05](./設計関連/ADR-05-oRPCに触れる面をroutesに閉じcontrollerを挟む.md)                    | oRPC に触れる面を routes に閉じ、controller を挟む                  | accepted             | 2026-08-24 |
 | [ADR-06](./設計関連/ADR-06-ユースケースの入力型は検証スキーマから導く.md)                      | ユースケースの入力型は検証スキーマから導く                          | accepted             | 2026-08-24 |
 | [ADR-07](./設計関連/ADR-07-識別子はUUIDv7とし公開IDも兼ねる.md)                                | 識別子は UUIDv7 とし、公開 ID も兼ねる                              | accepted             | 2026-08-29 |
+| [ADR-08](./設計関連/ADR-08-パスワードハッシュはargon2idを使う.md)                              | パスワードハッシュは argon2id を使う                                | accepted             | 2026-08-29 |
 
 <!--
 カテゴリを追加したら、ここに見出しと表を足す。

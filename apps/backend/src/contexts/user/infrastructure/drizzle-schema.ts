@@ -125,7 +125,7 @@ export const tAccount = pgTable(
     }),
     // 許諾済みの OAuth スコープ。カンマ区切りで、直近のトークンではなく累積の許諾を持つ。
     scope: text("scope"),
-    // argon2id のハッシュ。providerId が "credential" のときだけ入る。
+    // argon2id のハッシュ (設計関連/ADR-08)。providerId が "credential" のときだけ入る。
     password: text("password_hash"),
     // 作成日時 (= この認証方式を紐づけた時刻)。
     createdAt: timestamp("created_at", { withTimezone: true })
