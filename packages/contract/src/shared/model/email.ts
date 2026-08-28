@@ -2,7 +2,7 @@ import * as v from "valibot";
 
 /**
  * メールアドレス (RFC 5322 準拠)。
- * 大文字小文字は区別せず同一のアドレスとして扱うが、送った表記はそのまま保存され、そのまま返る。
+ * 大文字小文字は区別せず同一のアドレスとして扱う。保存時に小文字へ正規化される。
  *
  * ## なぜ同一人物とみなすか
  *
@@ -13,14 +13,14 @@ import * as v from "valibot";
  * Taro.Yamada@ と taro.yamada@ で 2 アカウント作れ、前に使った大小を忘れると
  * ログインできない。**日常的に起きる事故**のほうを避けた。
  *
- * ## なぜ小文字へ潰さないか
+ * ## 保存されるのは小文字
  *
- * 潰すと元の表記を復元できず、将来このアドレスへメールを送るとき、
- * 届くかどうかを受信サーバの設定に賭けることになる。同じ §2.4 が SMTP 実装に
- * "MUST take care to preserve the case of mailbox local-parts" と要求している
- * とおり、大小を保存するのが本来の姿。**避けられる賭けをする理由が無い。**
+ * RFC 5321 §2.4 は SMTP 実装に "MUST take care to preserve the case of mailbox
+ * local-parts" と要求しており、表記を保存するのが本来の姿ではある。
+ * ただし**認証を better-auth に委ねたため、保存時に小文字化される**
+ * (設計関連/ADR-07)。契約はここで正規化せず、受け取った値をそのまま通す。
  *
- * 一意性は DB 側の lower(email) 一意索引が担保する。
+ * 一意性は DB 側の UNIQUE 制約 `t_user_email_key` が担保する。
  */
 export const EmailSchema = v.pipe(
   v.string(),

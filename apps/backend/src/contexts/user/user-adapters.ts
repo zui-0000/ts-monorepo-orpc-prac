@@ -1,7 +1,5 @@
 import { clock } from "~/shared/infrastructure/clock.ts";
 import type { Database } from "~/shared/infrastructure/db/database-client.ts";
-import { passwordHasher } from "~/shared/infrastructure/password-hasher.ts";
-import { uuidGenerator } from "~/shared/infrastructure/uuid-generator.ts";
 
 import { getUserQueryService } from "./infrastructure/get-user-query-service.ts";
 import { userRepository } from "./infrastructure/user-repository.ts";
@@ -15,6 +13,4 @@ export const userAdapters = (db: Database): UserDeps => ({
   getUserQueryService: getUserQueryService(db),
   userRepository: userRepository(db),
   clock,
-  uuidGenerator,
-  passwordHasher,
 });

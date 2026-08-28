@@ -12,7 +12,6 @@ import { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.
 import { changeUserProfile } from "../domain/model/user.ts";
 import { UserIdSchema } from "../domain/model/value-objects/user-id.ts";
 import { UserNameSchema } from "../domain/model/value-objects/user-name.ts";
-import { checkEmailDuplication } from "../domain/services/check-email-duplication.ts";
 import { checkUserIsSelf } from "../domain/services/check-user-is-self.ts";
 import type { UserRepository } from "../domain/user-repository.ts";
 
@@ -43,9 +42,11 @@ export type UpdateUserCommandError =
   | RepositoryError;
 
 /**
- * プロフィールを更新する。認可 → 引き当て → 重複検証 → 状態遷移 → 永続化。
- * 重複検証で `excluding` に自分を渡すのは、メールアドレスを変えない更新が
- * 常に 409 になるのを防ぐため。
+ * プロフィールを更新する。認可 → 引き当て → 状態遷移 → 永続化。
+ *
+ * **メールアドレスの重複は事前に検査しない。** SELECT と UPDATE の間に競合が
+ * 入るため事前検査では一意性を守れない。DB の一意制約 (`t_user_email_key`) に
+ * 任せ、違反をリポジトリが `EmailDuplicationError` へ翻訳する (設計関連/ADR-07)。
  */
 export const updateUserCommand =
   (deps: UpdateUserCommandDeps) =>
@@ -64,10 +65,6 @@ export const updateUserCommand =
       if (user === undefined) {
         return Result.err(new ResourceNotFoundError());
       }
-
-      yield* Result.await(
-        checkEmailDuplication(deps, email, { excluding: user.id }),
-      );
 
       const updated = changeUserProfile(deps, user, { name, email });
 
