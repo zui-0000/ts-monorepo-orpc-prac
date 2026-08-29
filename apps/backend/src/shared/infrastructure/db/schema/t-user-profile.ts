@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   foreignKey,
   pgTable,
@@ -6,7 +7,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { tUser } from "./auth.ts";
+import { tUser } from "./auth/t-user.ts";
 
 /**
  * 利用者のプロフィール。**ドメインが唯一書いてよいテーブル** (設計関連/ADR-09)。
@@ -57,3 +58,26 @@ export const tUserProfile = pgTable(
     }).onDelete("cascade"),
   ],
 );
+
+/**
+ * 利用者とプロフィールの関連。**外部キーを持つ側がまとめて宣言する。**
+ *
+ * `tUserRelations` を `t-user.ts` へ置くと循環参照になる。外部キーは子 (profile) が
+ * 親 (user) を参照し、関連は親が子を参照するため、両方を各テーブルに置くと必ず輪になる
+ * (依存の検査が `no-circular` で止める)。**このファイルは既に `t-user.ts` を
+ * 参照しているので、ここへ置けば新しい辺が増えない。**
+ *
+ * 外部キーそのものは上のテーブル定義が持っており、これは drizzle へ
+ * 「どう辿れるか」を教えるための別の宣言である (`db.query` で使う)。
+ */
+export const tUserRelations = relations(tUser, ({ one }) => ({
+  // 1 利用者に 0..1 件。プロフィールは遅延作成される (設計関連/ADR-09)。
+  profile: one(tUserProfile, {
+    fields: [tUser.id],
+    references: [tUserProfile.userId],
+  }),
+}));
+
+export const tUserProfileRelations = relations(tUserProfile, ({ one }) => ({
+  user: one(tUser, { fields: [tUserProfile.userId], references: [tUser.id] }),
+}));

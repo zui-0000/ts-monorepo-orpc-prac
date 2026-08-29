@@ -12,6 +12,5 @@
  * ここに集めるのは**物理的なテーブル定義だけ**である。
  */
 
-export * from "./auth.ts";
-export * from "./relations.ts";
-export * from "./user-profile.ts";
+export * from "./auth/index.ts";
+export * from "./t-user-profile.ts";
