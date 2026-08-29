@@ -3,7 +3,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { worker } from "~/mocks/browser";
+import { startMocking } from "~/utils/msw";
 
 import { createAppRouter } from "./router";
 
@@ -13,17 +13,8 @@ const router = createAppRouter(queryClient);
 const root = document.getElementById("root");
 if (!root) throw new Error("#root が見つかりません");
 
-/**
- * この画面は MSW だけで完結する。backend には繋がない。
- *
- * モックの起動を待ってから描画する。先に描くと最初の取得が素通りしてしまう。
- */
-await worker.start({
-  onUnhandledRequest: (request, print) => {
-    // 画面やモジュールの取得は素通しし、API の取りこぼしだけ知らせる。
-    if (new URL(request.url).pathname.startsWith("/api")) print.warning();
-  },
-});
+// この画面は MSW だけで完結する。backend には繋がない。
+await startMocking();
 
 createRoot(root).render(
   <StrictMode>
