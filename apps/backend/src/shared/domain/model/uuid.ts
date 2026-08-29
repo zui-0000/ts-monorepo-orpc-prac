@@ -7,8 +7,12 @@ const UUID_V7_PATTERN =
 /**
  * UUID v7 形式の文字列スキーマ (未 brand・共有ドメイン)。
  *
- * 各集約の id 値オブジェクトは、これに固有の brand を重ねて定義する:
+ * 各コンテキストの id 値オブジェクトは、これに固有の brand を重ねて定義する:
  *   export const UserIdSchema = v.pipe(UuidSchema, v.brand("User.Id"));
+ *
+ * **brand の接頭辞は集約名ではなくコンテキスト名。** 語彙の名前空間を切るのが仕事で、
+ * その粒度は境界づけられた文脈だから。`User.FamilyName` は `UserProfile` 集約の属性
+ * だが、`user` コンテキストの語彙なので `User.` が付く。
  *
  * **大文字を通さない。** 緩いほうへズレると id の表記が 2 通り生まれる。
  * `checkUserIsSelf` は id を素の `===` で比べるので、大小が混ざると
