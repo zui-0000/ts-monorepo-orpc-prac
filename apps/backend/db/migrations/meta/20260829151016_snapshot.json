@@ -1,5 +1,5 @@
 {
-  "id": "8981d5b9-3365-403e-917c-6630bead0eaf",
+  "id": "2d44d2ba-83a1-4460-b2c9-7ba3d70ef17b",
   "prevId": "eb8b9e33-b59a-4a7c-966a-35cfaf30ddc4",
   "version": "7",
   "dialect": "postgresql",
@@ -396,6 +396,24 @@
         },
         "given_name": {
           "name": "given_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "family_name_kana": {
+          "name": "family_name_kana",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "given_name_kana": {
+          "name": "given_name_kana",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "introduction": {
+          "name": "introduction",
           "type": "text",
           "primaryKey": false,
           "notNull": false

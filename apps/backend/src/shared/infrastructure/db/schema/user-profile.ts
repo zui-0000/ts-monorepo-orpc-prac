@@ -18,16 +18,28 @@ import { tUser } from "./auth.ts";
  * 初めて INSERT する。better-auth の `create.after` フックはコミット後に走るため、
  * 即時作成では「利用者は作られたがプロフィールが無い」窓を塞げない。
  * 遅延作成ならその窓が構造的に存在しない。
+ *
+ * **列はすべて NULL 許容。** 遅延作成なので「姓だけ先に入れる」が成り立つ。
+ *
+ * **長さの上限は DB に置かず契約側で持つ。** 「自己紹介は N 文字まで」はこちらが決めた
+ * 方針であってデータ固有の制約ではなく、変えるのに migration を走らせたくないため。
+ * (`auth.t_user.email` の 255 は RFC 由来の上限なので DB 側にある。)
  */
 export const tUserProfile = pgTable(
   "t_user_profile",
   {
     // 主キー兼外部キー。1 利用者に 1 行 (0 行のこともある)。
     userId: uuid("user_id").primaryKey(),
-    // 姓。遅延作成なので「姓だけ入れて名は後で」を許す。
+    // 姓。OpenID Connect / schema.org の family_name に合わせた語 (lastName としない)。
     familyName: text("family_name"),
-    // 名。
+    // 名。姓が先に来る言語があるため firstName とは呼ばない。
     givenName: text("given_name"),
+    // 姓カナ。全角カタカナのみ許す (検証は契約側)。
+    familyNameKana: text("family_name_kana"),
+    // 名カナ。
+    givenNameKana: text("given_name_kana"),
+    // 自己紹介。bio は略語で読めないため語をそのまま使う。
+    introduction: text("introduction"),
     // 作成日時 (= 初めてプロフィールを入力した時刻)。
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

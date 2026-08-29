@@ -2,6 +2,9 @@ CREATE TABLE "t_user_profile" (
 	"user_id" uuid PRIMARY KEY NOT NULL,
 	"family_name" text,
 	"given_name" text,
+	"family_name_kana" text,
+	"given_name_kana" text,
+	"introduction" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
