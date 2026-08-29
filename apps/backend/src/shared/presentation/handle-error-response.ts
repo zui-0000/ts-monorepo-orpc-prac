@@ -1,6 +1,5 @@
 import type { Result } from "better-result";
 
-import type { EmailDuplicationError } from "~/shared/errors/email-duplication-error.ts";
 import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-error.ts";
@@ -29,7 +28,6 @@ import type { ResourceNotFoundError } from "~/shared/errors/resource-not-found-e
 export type ApplicationError =
   | ForbiddenError
   | ResourceNotFoundError
-  | EmailDuplicationError
   | RepositoryError;
 
 /**
@@ -42,7 +40,6 @@ export type ApplicationError =
 type ErrorFactories = {
   readonly FORBIDDEN_ERROR: () => Error;
   readonly RESOURCE_NOT_FOUND_ERROR: () => Error;
-  readonly EMAIL_DUPLICATION_ERROR: () => Error;
   readonly INTERNAL_SERVER_ERROR: () => Error;
 };
 
@@ -56,7 +53,6 @@ type ErrorFactories = {
 type ErrorKeyOf<E> =
   | (E extends ForbiddenError ? "FORBIDDEN_ERROR" : never)
   | (E extends ResourceNotFoundError ? "RESOURCE_NOT_FOUND_ERROR" : never)
-  | (E extends EmailDuplicationError ? "EMAIL_DUPLICATION_ERROR" : never)
   | (E extends RepositoryError ? "INTERNAL_SERVER_ERROR" : never);
 
 /**
@@ -89,8 +85,6 @@ export const handleErrorResponse = <E extends ApplicationError>(
     ForbiddenError: () => factories.FORBIDDEN_ERROR(),
 
     ResourceNotFoundError: () => factories.RESOURCE_NOT_FOUND_ERROR(),
-
-    EmailDuplicationError: () => factories.EMAIL_DUPLICATION_ERROR(),
 
     // インフラ由来。原因 (cause) は外に出さず、ログにのみ残す。
     RepositoryError: () => factories.INTERNAL_SERVER_ERROR(),

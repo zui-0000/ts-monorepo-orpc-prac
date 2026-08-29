@@ -8,7 +8,7 @@ import { TaggedError } from "better-result";
  * ("DB が落ちている" と "マイグレーション漏れ" を同じ行として扱いたくない)。
  *
  * 制約違反 (23xxx) はここに含めない。あれは業務ルールの違反が DB で顕在化したもので、
- * `EmailDuplicationError` のようにドメインのエラーへ翻訳する。
+ * `ResourceNotFoundError` のようにドメインのエラーへ翻訳する。
  */
 export const RepositoryFailure = {
   /** 接続できない・切れた (フェイルオーバー、ネットワーク断) */

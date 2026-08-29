@@ -1,4 +1,4 @@
-import { EnvName } from "./env-name.ts";
+import { EnvName } from "~/shared/infrastructure/env-name.ts";
 
 const required = (name: EnvName, why: string): string => {
   const value = process.env[name];

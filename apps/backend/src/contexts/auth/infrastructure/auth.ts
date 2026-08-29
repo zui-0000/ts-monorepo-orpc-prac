@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
-import { authBaseUrl, authSecret } from "~/shared/infrastructure/auth-env.ts";
 import type { Database } from "~/shared/infrastructure/db/database-client.ts";
 import {
   tAccount,
@@ -11,9 +10,13 @@ import {
 } from "~/shared/infrastructure/db/schema/index.ts";
 
 import { assertPasswordNotCompromised } from "./assert-password-not-compromised.ts";
+import { authBaseUrl, authSecret } from "./auth-env.ts";
 
 /**
  * better-auth のインスタンス。**利用者の生成と認証はここが持つ** (設計関連/ADR-07)。
+ *
+ * auth コンテキストは**認証という支援サブドメインを第三者の実装で満たす**もので、
+ * 自前のドメインモデルを持たない。そのため infrastructure 層しか無い。
  *
  * `@better-auth/drizzle-adapter` は better-auth の推移的依存なので直接は引けない。
  * 本体が再エクスポートする `better-auth/adapters/drizzle` から取る。
