@@ -1,16 +1,16 @@
 import { describe, expect, test } from "bun:test";
 
-import { PersonNameKanaSchema as ContractPersonNameKanaSchema } from "@orpc-prac/contract";
+import { FamilyNameKanaSchema as ContractFamilyNameKanaSchema } from "@orpc-prac/contract";
 import * as v from "valibot";
 
-import { PersonNameKanaSchema } from "../person-name-kana.ts";
+import { FamilyNameKanaSchema } from "../family-name-kana.ts";
 
 /**
  * 固定したいのは**全角カタカナだけを通す**という判断。保存される表記を 1 通りに
  * 定めるためで、ひらがな・半角カナ・漢字はすべて弾く (経緯は契約側)。
  */
-describe("PersonNameKanaSchema", () => {
-  const accepted = ["ヤマダ", "タロウ", "ヴァン", "オーツカ", "ア".repeat(50)];
+describe("FamilyNameKanaSchema (姓のカナ)", () => {
+  const accepted = ["ヤマダ", "ヴァン", "オーツカ", "ア".repeat(50)];
   const rejected = [
     "",
     "ア".repeat(51),
@@ -26,17 +26,17 @@ describe("PersonNameKanaSchema", () => {
   ];
 
   test.each(accepted)("通すこと: %p", (value) => {
-    expect(v.safeParse(PersonNameKanaSchema, value).success).toBe(true);
+    expect(v.safeParse(FamilyNameKanaSchema, value).success).toBe(true);
   });
 
   test.each(rejected)("弾くこと: %p", (value) => {
-    expect(v.safeParse(PersonNameKanaSchema, value).success).toBe(false);
+    expect(v.safeParse(FamilyNameKanaSchema, value).success).toBe(false);
   });
 
   test("契約と同じ判定をすること", () => {
     for (const value of [...accepted, ...rejected]) {
-      expect(v.safeParse(PersonNameKanaSchema, value).success).toBe(
-        v.safeParse(ContractPersonNameKanaSchema, value).success,
+      expect(v.safeParse(FamilyNameKanaSchema, value).success).toBe(
+        v.safeParse(ContractFamilyNameKanaSchema, value).success,
       );
     }
   });

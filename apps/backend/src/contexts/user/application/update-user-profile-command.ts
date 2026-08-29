@@ -7,9 +7,11 @@ import type { ForbiddenError } from "~/shared/errors/forbidden-error.ts";
 import type { RepositoryError } from "~/shared/errors/repository-error.ts";
 
 import { replaceUserProfile } from "../domain/model/user-profile.ts";
+import { FamilyNameKanaSchema } from "../domain/model/value-objects/family-name-kana.ts";
+import { FamilyNameSchema } from "../domain/model/value-objects/family-name.ts";
+import { GivenNameKanaSchema } from "../domain/model/value-objects/given-name-kana.ts";
+import { GivenNameSchema } from "../domain/model/value-objects/given-name.ts";
 import { IntroductionSchema } from "../domain/model/value-objects/introduction.ts";
-import { PersonNameKanaSchema } from "../domain/model/value-objects/person-name-kana.ts";
-import { PersonNameSchema } from "../domain/model/value-objects/person-name.ts";
 import { UserIdSchema } from "../domain/model/value-objects/user-id.ts";
 import { checkUserIsSelf } from "../domain/services/check-user-is-self.ts";
 import type { UserProfileRepository } from "../domain/user-profile-repository.ts";
@@ -26,10 +28,10 @@ export type UpdateUserProfileCommandDeps = {
 const UpdateUserProfileCommandValues = v.object({
   id: UserIdSchema,
   actor: UserIdSchema,
-  familyName: v.nullable(PersonNameSchema),
-  givenName: v.nullable(PersonNameSchema),
-  familyNameKana: v.nullable(PersonNameKanaSchema),
-  givenNameKana: v.nullable(PersonNameKanaSchema),
+  familyName: v.nullable(FamilyNameSchema),
+  givenName: v.nullable(GivenNameSchema),
+  familyNameKana: v.nullable(FamilyNameKanaSchema),
+  givenNameKana: v.nullable(GivenNameKanaSchema),
   introduction: v.nullable(IntroductionSchema),
 });
 

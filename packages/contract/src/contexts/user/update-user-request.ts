@@ -1,9 +1,11 @@
 import * as v from "valibot";
 
 import {
+  FamilyNameKanaSchema,
+  FamilyNameSchema,
+  GivenNameKanaSchema,
+  GivenNameSchema,
   IntroductionSchema,
-  PersonNameKanaSchema,
-  PersonNameSchema,
 } from "./model/index.js";
 
 /**
@@ -17,10 +19,10 @@ import {
  * 意味する。プロフィールは遅延作成のため「姓だけ入れて名は後で」も成り立つ。
  */
 export const UpdateUserRequestSchema = v.object({
-  familyName: v.nullable(PersonNameSchema),
-  givenName: v.nullable(PersonNameSchema),
-  familyNameKana: v.nullable(PersonNameKanaSchema),
-  givenNameKana: v.nullable(PersonNameKanaSchema),
+  familyName: v.nullable(FamilyNameSchema),
+  givenName: v.nullable(GivenNameSchema),
+  familyNameKana: v.nullable(FamilyNameKanaSchema),
+  givenNameKana: v.nullable(GivenNameKanaSchema),
   introduction: v.nullable(IntroductionSchema),
 });
 

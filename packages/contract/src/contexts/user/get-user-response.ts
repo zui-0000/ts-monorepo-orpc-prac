@@ -2,9 +2,11 @@ import * as v from "valibot";
 
 import { EmailSchema } from "../../shared/model/index.js";
 import {
+  FamilyNameKanaSchema,
+  FamilyNameSchema,
+  GivenNameKanaSchema,
+  GivenNameSchema,
   IntroductionSchema,
-  PersonNameKanaSchema,
-  PersonNameSchema,
   UserNameSchema,
 } from "./model/index.js";
 
@@ -15,10 +17,10 @@ import {
  * 「行が無い」と「空で入っている」が区別できないため、入れ子にしている。
  */
 const ProfileSchema = v.object({
-  familyName: v.nullable(PersonNameSchema),
-  givenName: v.nullable(PersonNameSchema),
-  familyNameKana: v.nullable(PersonNameKanaSchema),
-  givenNameKana: v.nullable(PersonNameKanaSchema),
+  familyName: v.nullable(FamilyNameSchema),
+  givenName: v.nullable(GivenNameSchema),
+  familyNameKana: v.nullable(FamilyNameKanaSchema),
+  givenNameKana: v.nullable(GivenNameKanaSchema),
   introduction: v.nullable(IntroductionSchema),
 });
 

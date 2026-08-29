@@ -2,9 +2,11 @@ import * as v from "valibot";
 
 import type { Clock } from "~/shared/domain/clock.ts";
 
+import { FamilyNameKanaSchema } from "./value-objects/family-name-kana.ts";
+import { FamilyNameSchema } from "./value-objects/family-name.ts";
+import { GivenNameKanaSchema } from "./value-objects/given-name-kana.ts";
+import { GivenNameSchema } from "./value-objects/given-name.ts";
 import { IntroductionSchema } from "./value-objects/introduction.ts";
-import { PersonNameKanaSchema } from "./value-objects/person-name-kana.ts";
-import { PersonNameSchema } from "./value-objects/person-name.ts";
 import { UserIdSchema } from "./value-objects/user-id.ts";
 
 /**
@@ -20,10 +22,10 @@ import { UserIdSchema } from "./value-objects/user-id.ts";
  */
 export const UserProfileSchema = v.object({
   userId: UserIdSchema,
-  familyName: v.nullable(PersonNameSchema),
-  givenName: v.nullable(PersonNameSchema),
-  familyNameKana: v.nullable(PersonNameKanaSchema),
-  givenNameKana: v.nullable(PersonNameKanaSchema),
+  familyName: v.nullable(FamilyNameSchema),
+  givenName: v.nullable(GivenNameSchema),
+  familyNameKana: v.nullable(FamilyNameKanaSchema),
+  givenNameKana: v.nullable(GivenNameKanaSchema),
   introduction: v.nullable(IntroductionSchema),
   updatedAt: v.date(),
 });
