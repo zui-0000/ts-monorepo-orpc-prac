@@ -4,7 +4,7 @@ import type { FC } from "react";
 import { useState } from "react";
 
 import { authClient } from "~/api/auth-client";
-import { SESSION_QUERY_KEY } from "~/api/session";
+import { SESSION_QUERY_KEY } from "~/api/queries/auth/get-session";
 
 /** backend の `emailAndPassword.minPasswordLength` に合わせる。 */
 const MIN_PASSWORD_LENGTH = 15;

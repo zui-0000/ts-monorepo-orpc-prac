@@ -4,7 +4,7 @@ import type { FC } from "react";
 import { useState } from "react";
 
 import { authClient } from "~/api/auth-client";
-import { SESSION_QUERY_KEY } from "~/api/session";
+import { SESSION_QUERY_KEY } from "~/api/queries/auth/get-session";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/sign-in");

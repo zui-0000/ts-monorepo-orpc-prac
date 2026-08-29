@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { orpc } from "~/api/orpc";
-import { sessionQueryOptions } from "~/api/session";
+import { sessionQueryOptions } from "~/api/queries/auth/get-session";
+import { getUserQueryOptions } from "~/api/queries/users/get-user";
 import { ProfilePage } from "~/components/pages/ProfilePage";
 
 export const Route = createFileRoute("/")({
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
   },
   loader: ({ context }) =>
     context.queryClient.query({
-      ...orpc.user.get.queryOptions({ input: { id: context.userId } }),
+      ...getUserQueryOptions(context.userId),
       staleTime: "static",
     }),
   component: ProfilePage,

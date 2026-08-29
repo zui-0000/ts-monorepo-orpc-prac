@@ -10,7 +10,11 @@ import { useState } from "react";
 
 import { authClient } from "~/api/auth-client";
 import { orpc } from "~/api/orpc";
-import { SESSION_QUERY_KEY } from "~/api/session";
+import { SESSION_QUERY_KEY } from "~/api/queries/auth/get-session";
+import {
+  getUserQueryKey,
+  getUserQueryOptions,
+} from "~/api/queries/users/get-user";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/");
@@ -51,9 +55,7 @@ export const ProfilePage: FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: user } = useSuspenseQuery(
-    orpc.user.get.queryOptions({ input: { id: userId } }),
-  );
+  const { data: user } = useSuspenseQuery(getUserQueryOptions(userId));
 
   const [values, setValues] = useState<FormValues>(
     () =>
@@ -66,7 +68,7 @@ export const ProfilePage: FC = () => {
     orpc.user.updateProfile.mutationOptions({
       onSuccess: () =>
         queryClient.invalidateQueries({
-          queryKey: orpc.user.get.queryKey({ input: { id: userId } }),
+          queryKey: getUserQueryKey(userId),
         }),
     }),
   );
