@@ -13,4 +13,5 @@
  */
 
 export * from "./auth.ts";
+export * from "./relations.ts";
 export * from "./user-profile.ts";
