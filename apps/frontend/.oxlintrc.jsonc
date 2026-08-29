@@ -22,6 +22,8 @@
     "typescript/consistent-type-definitions": "off",
     "require-unicode-regexp": "error",
   },
+  // 生成物。TanStack Router と MSW がそれぞれ作り直すため検査しない。
+  "ignorePatterns": ["src/routeTree.gen.ts", "public/mockServiceWorker.js"],
   "env": {
     "builtin": true,
   },

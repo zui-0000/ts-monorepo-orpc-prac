@@ -1,0 +1,103 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from "@tanstack/react-router";
+import { useState } from "react";
+import * as v from "valibot";
+
+import { authClient } from "../api/auth-client";
+import { SESSION_QUERY_KEY, sessionQueryOptions } from "../api/session";
+
+/** サインアップ直後だけ案内を出すための印。 */
+const SearchSchema = v.object({
+  registered: v.optional(v.boolean(), false),
+});
+
+export const Route = createFileRoute("/sign-in")({
+  validateSearch: SearchSchema,
+  beforeLoad: async ({ context }) => {
+    const session =
+      await context.queryClient.ensureQueryData(sessionQueryOptions);
+    if (session) throw redirect({ to: "/" });
+  },
+  component: SignInPage,
+});
+
+function SignInPage() {
+  const { registered } = Route.useSearch();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState({ email: "", password: "" });
+
+  const signIn = useMutation({
+    mutationFn: async () => {
+      const { error } = await authClient.signIn.email(form);
+      if (error) {
+        // backend が requireEmailVerification を有効にしているため、
+        // 未検証のまま入ろうとするとここに来る。
+        throw new Error(
+          error.status === 403
+            ? "メールアドレスの検証が済んでいません。届いたリンクを開いてください"
+            : (error.message ?? "サインインできませんでした"),
+        );
+      }
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: SESSION_QUERY_KEY });
+      await router.navigate({ to: "/" });
+    },
+  });
+
+  return (
+    <section>
+      <h2>サインイン</h2>
+      {registered && (
+        <output>
+          登録しました。検証メールのリンクを開いてからサインインしてください。
+        </output>
+      )}
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          signIn.mutate();
+        }}
+      >
+        <p>
+          <label htmlFor="email">メールアドレス</label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            value={form.email}
+            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+          />
+        </p>
+        <p>
+          <label htmlFor="password">パスワード</label>
+          <input
+            id="password"
+            type="password"
+            required
+            autoComplete="current-password"
+            value={form.password}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, password: e.target.value }))
+            }
+          />
+        </p>
+
+        <button type="submit" disabled={signIn.isPending}>
+          サインイン
+        </button>
+        {signIn.isError && <p role="alert">{signIn.error.message}</p>}
+      </form>
+      <p>
+        未登録なら <Link to="/sign-up">サインアップ</Link>
+      </p>
+    </section>
+  );
+}

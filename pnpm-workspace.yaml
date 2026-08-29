@@ -10,6 +10,8 @@ allowBuilds:
   "@swc/core": true
   # プラットフォーム別バイナリを postinstall で配置する。
   lefthook: true
+  # postinstall は案内を出すだけ。worker は `msw init` で置く。
+  msw: false
 
 # 依存バージョンの一元管理（各 package.json は "catalog:" で参照する）
 catalog:
@@ -21,8 +23,14 @@ catalog:
   "@orpc/openapi": ^1.15.0
   "@orpc/openapi-client": ^1.15.0
   "@orpc/server": ^1.15.0
+  "@orpc/tanstack-query": ^1.15.0
   "@orpc/valibot": ^1.15.0
   "@swc/core": ^1.16.1
+  "@tanstack/react-query": ^5.102.8
+  "@tanstack/react-query-devtools": ^5.102.8
+  "@tanstack/react-router": ^1.170.32
+  "@tanstack/react-router-devtools": ^1.167.1
+  "@tanstack/router-plugin": ^1.168.35
   "@types/bun": ^1.4.0
   # Node のランタイムに合わせる (mise.toml と engines が 24 系)。
   # LTS の系列を跨ぐときだけ上げる。check:updates は 26 系を報告するが追わない。
@@ -37,11 +45,12 @@ catalog:
   drizzle-orm: ^0.45.2
   hono: ^4.13.5
   lefthook: ^2.1.10
-  react: ^19.2.8
-  react-dom: ^19.2.8
+  msw: ^2.15.0
   oxfmt: ^0.65.0
   oxlint: ^1.80.0
   oxlint-tsgolint: ^7.0.2001
+  react: ^19.2.8
+  react-dom: ^19.2.8
   typescript: ^7.0.2
   valibot: ^1.4.2
   vite: ^8.2.2

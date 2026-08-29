@@ -1,0 +1,4 @@
+# oxfmt が読む除外指定 (.gitignore と .prettierignore を見る)。
+# どちらも生成物で、整形しても次の生成で書き戻される。
+**/routeTree.gen.ts
+**/mockServiceWorker.js

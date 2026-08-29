@@ -1,0 +1,4 @@
+# oxfmt はカレントディレクトリの .gitignore と .prettierignore しか読まない
+# (親を辿らない)。そのためルートと同じ内容をここにも置く。
+**/routeTree.gen.ts
+**/mockServiceWorker.js
