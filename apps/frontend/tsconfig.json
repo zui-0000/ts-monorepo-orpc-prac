@@ -3,7 +3,13 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "lib": ["esnext", "dom", "dom.iterable"],
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    // TS 7 で baseUrl は廃止。paths は tsconfig の場所を基準に解決される。
+    // `~` を採用するのは、@scope 付きパッケージと混同しないため (backend と同じ)。
+    // バンドラ側の解決は vite.config.ts の resolve.alias が受け持つ。
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   },
   "include": ["src", "vite.config.ts"],
   "references": [{ "path": "../../packages/contract" }]

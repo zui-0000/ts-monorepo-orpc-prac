@@ -8,8 +8,8 @@ import {
 import { useState } from "react";
 import * as v from "valibot";
 
-import { authClient } from "../api/auth-client";
-import { SESSION_QUERY_KEY, sessionQueryOptions } from "../api/session";
+import { authClient } from "~/api/auth-client";
+import { SESSION_QUERY_KEY, sessionQueryOptions } from "~/api/session";
 
 /** サインアップ直後だけ案内を出すための印。 */
 const SearchSchema = v.object({

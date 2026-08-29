@@ -7,9 +7,9 @@ import {
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { authClient } from "../api/auth-client";
-import { orpc } from "../api/orpc";
-import { SESSION_QUERY_KEY, sessionQueryOptions } from "../api/session";
+import { authClient } from "~/api/auth-client";
+import { orpc } from "~/api/orpc";
+import { SESSION_QUERY_KEY, sessionQueryOptions } from "~/api/session";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {

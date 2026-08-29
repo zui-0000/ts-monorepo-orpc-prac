@@ -7,8 +7,8 @@ import {
 } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { authClient } from "../api/auth-client";
-import { SESSION_QUERY_KEY, sessionQueryOptions } from "../api/session";
+import { authClient } from "~/api/auth-client";
+import { SESSION_QUERY_KEY, sessionQueryOptions } from "~/api/session";
 
 export const Route = createFileRoute("/sign-up")({
   beforeLoad: async ({ context }) => {

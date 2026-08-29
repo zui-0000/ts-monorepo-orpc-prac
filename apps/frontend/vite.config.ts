@@ -8,4 +8,8 @@ export default defineConfig({
     tanstackRouter({ target: "react", autoCodeSplitting: true }),
     react(),
   ],
+  resolve: {
+    // tsconfig の paths と対で必要。tsc は型を、こちらは実際の解決を受け持つ。
+    alias: { "~": `${import.meta.dirname}/src` },
+  },
 });
