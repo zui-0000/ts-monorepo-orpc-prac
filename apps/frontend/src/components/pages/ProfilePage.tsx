@@ -10,11 +10,8 @@ import { useState } from "react";
 
 import { authClient } from "~/api/auth-client";
 import { orpc } from "~/api/orpc";
-import { SESSION_QUERY_KEY } from "~/api/queries/auth/get-session";
-import {
-  getUserQueryKey,
-  getUserQueryOptions,
-} from "~/api/queries/users/get-user";
+import { QUERY_KEYS } from "~/api/queries/keys";
+import { getUserQueryOptions } from "~/api/queries/users/get-user";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/");
@@ -68,7 +65,7 @@ export const ProfilePage: FC = () => {
     orpc.user.updateProfile.mutationOptions({
       onSuccess: () =>
         queryClient.invalidateQueries({
-          queryKey: getUserQueryKey(userId),
+          queryKey: QUERY_KEYS.USER_QUERY_KEY.get(userId),
         }),
     }),
   );
@@ -76,7 +73,9 @@ export const ProfilePage: FC = () => {
   const signOut = useMutation({
     mutationFn: () => authClient.signOut(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SESSION_QUERY_KEY });
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
+      });
       await router.navigate({ to: "/sign-in" });
     },
   });

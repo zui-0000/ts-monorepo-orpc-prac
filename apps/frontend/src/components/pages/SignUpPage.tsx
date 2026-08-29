@@ -4,7 +4,7 @@ import type { FC } from "react";
 import { useState } from "react";
 
 import { authClient } from "~/api/auth-client";
-import { SESSION_QUERY_KEY } from "~/api/queries/auth/get-session";
+import { QUERY_KEYS } from "~/api/queries/keys";
 
 /** backend の `emailAndPassword.minPasswordLength` に合わせる。 */
 const MIN_PASSWORD_LENGTH = 15;
@@ -20,7 +20,9 @@ export const SignUpPage: FC = () => {
       if (error) throw new Error(error.message ?? "登録できませんでした");
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SESSION_QUERY_KEY });
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
+      });
       await router.navigate({ to: "/sign-in", search: { registered: true } });
     },
   });

@@ -4,7 +4,7 @@ import type { FC } from "react";
 import { useState } from "react";
 
 import { authClient } from "~/api/auth-client";
-import { SESSION_QUERY_KEY } from "~/api/queries/auth/get-session";
+import { QUERY_KEYS } from "~/api/queries/keys";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/sign-in");
@@ -29,7 +29,9 @@ export const SignInPage: FC = () => {
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SESSION_QUERY_KEY });
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
+      });
       await router.navigate({ to: "/" });
     },
   });

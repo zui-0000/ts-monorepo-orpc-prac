@@ -1,9 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 
 import { authClient } from "~/api/auth-client";
-
-/** セッションのキャッシュキー。サインイン・サインアウト後の無効化に使う。 */
-export const SESSION_QUERY_KEY = ["session"] as const;
+import { QUERY_KEYS } from "~/api/queries/keys";
 
 /**
  * 現在のセッション (`GET /api/auth/get-session`)。未サインインなら `null`。
@@ -13,7 +11,7 @@ export const SESSION_QUERY_KEY = ["session"] as const;
  * `queryClient.query()` で待てる形が要るため。
  */
 export const sessionQueryOptions = queryOptions({
-  queryKey: SESSION_QUERY_KEY,
+  queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
   queryFn: async () => {
     const { data, error } = await authClient.getSession();
     if (error) throw new Error(error.message ?? "セッションを取得できません");
