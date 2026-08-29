@@ -1,6 +1,9 @@
 /**
  * DB スキーマの目次。**この DB に何があるかはここを見れば分かる** (設計関連/ADR-10)。
  *
+ * `auth/` は better-auth の所有物で、規約は `auth/namespace.ts` にまとめてある。
+ * 直下にあるのがドメインのテーブル。
+ *
  * 置き場所を共有基盤にまとめているが、**それは「誰でも書いてよい」を意味しない。**
  * 書き込みの境界は次の 3 つが守る。
  *
@@ -12,5 +15,8 @@
  * ここに集めるのは**物理的なテーブル定義だけ**である。
  */
 
-export * from "./auth/index.ts";
+export * from "./auth/t-account.ts";
+export * from "./auth/t-session.ts";
+export * from "./auth/t-user.ts";
+export * from "./auth/t-verification.ts";
 export * from "./t-user-profile.ts";
