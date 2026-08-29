@@ -27,7 +27,9 @@ catalog:
   "@orpc/valibot": ^1.15.0
   "@swc/core": ^1.16.1
   "@tanstack/react-query": ^5.102.8
+  "@tanstack/react-query-devtools": ^5.102.8
   "@tanstack/react-router": ^1.170.32
+  "@tanstack/react-router-devtools": ^1.167.1
   "@tanstack/router-plugin": ^1.168.35
   "@types/bun": ^1.4.0
   # Node のランタイムに合わせる (mise.toml と engines が 24 系)。
