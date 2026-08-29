@@ -219,6 +219,34 @@ Password Storage Cheat Sheet の要点。
 15 文字以上を求めている。**ハッシュを強くしても短いパスワードは守れない**ため、
 両方を揃える。
 
+### 漏洩済みパスワードの検査は自前で持つ
+
+better-auth には `haveIBeenPwned()` プラグインがあるが、**使っていない。**
+`transaction: true` と両立しないためである。
+
+```txt
+transaction=true  + プラグイン → HTTP 経由で 500 (No auth context found)
+transaction=true  + 自前       → 200
+transaction=false + プラグイン → 200
+```
+
+プラグインの `hash` は `getCurrentAuthEndpointContext()` を呼び、**パスを見て検査の
+要否を決める**。トランザクションの `als.run` がストアを差し替えるため endpoint context を
+辿れず落ちる (Bun 上で HTTP 経由のときのみ再現。直接 API を呼ぶ経路では起きない)。
+
+**自前の実装は無条件に検査するので endpoint context が要らない。** 無条件でよいのは、
+`password.hash` が動くのがサインアップ / パスワードリセット / パスワード変更 /
+管理者によるパスワード設定 に限られ、**どれも「新しいパスワードを決める場面」**で
+検査したくない経路が存在しないためである。
+
+送るのは SHA-1 の先頭 5 文字だけで、パスワード自体はネットワークに出ない
+(k-anonymity)。**HIBP に到達できないときは通さない (fail closed)。** 検査を素通り
+させると、障害中に登録された漏洩済みパスワードが気付かれずに残り続けるため、
+可用性より弱いパスワードの恒久的な居座りを重く見た。
+
+`transaction` を切れる状況になればプラグインへ戻してよい。その場合は
+`assert-password-not-compromised.ts` を削り、`plugins: [haveIBeenPwned()]` に戻す。
+
 ### 将来コストを上げるときの手順
 
 PHC 文字列にパラメータが残るため、次の形で段階移行できる。

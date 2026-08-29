@@ -1,10 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { haveIBeenPwned } from "better-auth/plugins";
 
 import { authBaseUrl, authSecret } from "~/shared/infrastructure/auth-env.ts";
 import type { Database } from "~/shared/infrastructure/db/database-client.ts";
 
+import { assertPasswordNotCompromised } from "./assert-password-not-compromised.ts";
 import { tAccount, tSession, tUser, tVerification } from "./drizzle-schema.ts";
 
 /**
@@ -20,6 +20,11 @@ export const auth = (db: Database) =>
 
     database: drizzleAdapter(db, {
       provider: "pg",
+      // **既定は false。** アダプタが「トランザクションは無い」と答えると、
+      // sign-up が runWithTransaction で包んでいても実際には包まれず、
+      // t_user だけ入って t_account が失敗した行が残る (実測)。
+      // そうなるとサインインもできず、メールが埋まっているので再登録もできない。
+      transaction: true,
       // キーは better-auth のモデル名 (固定)。値は drizzle のテーブル。
       // SQL 名 (t_user 等) は drizzle 側が持つため、ここには現れない。
       schema: {
@@ -42,15 +47,16 @@ export const auth = (db: Database) =>
       // 既定の 8 は MFA を前提とした値。MFA が無いため NIST SP 800-63B-4 の 15 にする。
       minPasswordLength: 15,
       password: {
-        // 既定の scrypt は OWASP の最低ラインを下回る (設計関連/ADR-08)。
-        hash: (password) => Bun.password.hash(password),
+        // ここが動くのは「新しいパスワードを決める場面」だけなので、
+        // 漏洩の検査も無条件でここに置く。
+        hash: async (password) => {
+          await assertPasswordNotCompromised(password);
+          // 既定の scrypt は OWASP の最低ラインを下回る (設計関連/ADR-08)。
+          return Bun.password.hash(password);
+        },
         verify: ({ hash, password }) => Bun.password.verify(password, hash),
       },
     },
-
-    // 漏洩済みパスワードを HIBP の k-anonymity API で弾く。
-    // ctx.password.hash を包む作りなので、上の argon2id と共存する。
-    plugins: [haveIBeenPwned()],
   });
 
 /** 合成ルートが配る better-auth インスタンスの型。 */
