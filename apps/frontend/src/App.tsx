@@ -4,7 +4,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { FC } from "react";
 
 import { TanStackQueryProvider } from "~/components/providers/TanStackQueryProvider";
-import { router } from "~/router/create-router";
+import { router } from "~/routes/create-router";
 
 export const App: FC = () => (
   <TanStackQueryProvider>
