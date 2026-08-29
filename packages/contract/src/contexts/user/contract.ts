@@ -11,7 +11,7 @@ import {
 } from "../../shared/errors/index.js";
 import { GetUserResponseSchema } from "./get-user-response.js";
 import { UserIdSchema } from "./model/index.js";
-import { UpdateUserRequestSchema } from "./update-user-request.js";
+import { UpdateUserProfileRequestSchema } from "./update-user-profile-request.js";
 
 /** 対象ユーザーを指す path パラメータ */
 const UserIdParamSchema = v.object({ id: UserIdSchema });
@@ -40,20 +40,23 @@ export const getUser = oc
     INTERNAL_SERVER_ERROR: InternalServerError,
   });
 
-export const updateUser = oc
+export const updateProfile = oc
   .route({
     method: HttpMethod.PUT,
-    path: "/users/{id}",
+    // **プロフィールを部分リソースとして URL に出す。** PUT は全置換を意味するため、
+    // /users/{id} に投げると表示名とメールアドレスも置き換わると読める。実際には
+    // それらは認証基盤の所有物で触れない (設計関連/ADR-09)。
+    path: "/users/{id}/profile",
     successStatus: HttpStatus.NO_CONTENT,
-    operationId: "updateUser",
+    operationId: "updateProfile",
     tags: ["Users"],
-    summary: "プロフィールを更新する",
+    summary: "プロフィールを全置換する",
     description:
       "要認証。本人のリソースだけを更新できる。表示名とメールアドレスは認証基盤が持つため含まない。",
   })
   .input(
     v.object({
-      ...UpdateUserRequestSchema.entries,
+      ...UpdateUserProfileRequestSchema.entries,
       ...UserIdParamSchema.entries,
     }),
   )
@@ -68,5 +71,5 @@ export const updateUser = oc
 
 export const userContract = {
   get: getUser,
-  update: updateUser,
+  updateProfile,
 } as const;

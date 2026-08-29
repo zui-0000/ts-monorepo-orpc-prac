@@ -30,15 +30,17 @@ export const userHandlers = (deps: UserDeps) => {
       return okOrThrow(result, errors);
     }),
 
-    update: os.user.update.handler(async ({ input, errors, context }) => {
-      const { id, ...body } = input;
-      const result = await updateUserProfile({
-        auth: context.caller,
-        params: { id },
-        body,
-      });
+    updateProfile: os.user.updateProfile.handler(
+      async ({ input, errors, context }) => {
+        const { id, ...body } = input;
+        const result = await updateUserProfile({
+          auth: context.caller,
+          params: { id },
+          body,
+        });
 
-      return okOrThrow(result, errors);
-    }),
+        return okOrThrow(result, errors);
+      },
+    ),
   };
 };

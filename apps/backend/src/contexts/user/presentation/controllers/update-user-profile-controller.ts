@@ -1,4 +1,4 @@
-import type { UpdateUserRequest, UserId } from "@orpc-prac/contract";
+import type { UpdateUserProfileRequest, UserId } from "@orpc-prac/contract";
 import { Result } from "better-result";
 
 import type { AuthenticatedCaller } from "~/shared/domain/model/authenticated-caller.ts";
@@ -12,10 +12,10 @@ import {
 type UpdateUserProfileControllerInput = {
   readonly auth: AuthenticatedCaller;
   readonly params: { readonly id: UserId };
-  readonly body: UpdateUserRequest;
+  readonly body: UpdateUserProfileRequest;
 };
 
-/** プロフィールを更新する (PUT /users/{id})。 */
+/** プロフィールを全置換する (PUT /users/{id}/profile)。 */
 export const updateUserProfileController = (
   deps: UpdateUserProfileCommandDeps,
 ) => {
