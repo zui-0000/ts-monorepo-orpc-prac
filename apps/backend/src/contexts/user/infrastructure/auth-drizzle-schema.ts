@@ -2,7 +2,7 @@ import {
   boolean,
   foreignKey,
   index,
-  pgTable,
+  pgSchema,
   text,
   timestamp,
   unique,
@@ -11,7 +11,11 @@ import {
 } from "drizzle-orm/pg-core";
 
 // ======================================================================================
-// better-auth が所有するテーブル群 (設計関連/ADR-07)。
+// better-auth が所有するテーブル群 (設計関連/ADR-07, ADR-09)。
+//
+// **auth スキーマに置くことで所有者を構造で表す。** ドメインの属性は
+// public.t_user_profile 側に置き、こちらは better-auth が要求する列で固定する。
+// 自前のコマンドはこの名前空間のテーブルを書かない (設計関連/ADR-09)。
 //
 // TS のプロパティ名は better-auth の既定 (camelCase) に揃える。
 // アダプタが schema[model][field] で引くため、ここがズレると実行時に落ちる。
@@ -25,10 +29,13 @@ import {
 // DEFAULT は直接 INSERT する場合の保険として残す。
 // ======================================================================================
 
+/** better-auth の所有物であることを名前空間で表す (設計関連/ADR-09)。 */
+const authSchema = pgSchema("auth");
+
 /**
  * 利用者。**行を作るのは better-auth** で、こちらはプロフィールの更新と読み取りだけを行う。
  */
-export const tUser = pgTable(
+export const tUser = authSchema.table(
   "t_user",
   {
     // 主キー。better-auth が UUIDv7 で採番する (設計関連/ADR-07)。
@@ -57,7 +64,7 @@ export const tUser = pgTable(
 /**
  * サインイン中のセッション。Cookie に載る `token` から引く (`id` からではない)。
  */
-export const tSession = pgTable(
+export const tSession = authSchema.table(
   "t_session",
   {
     // 主キー。better-auth が UUIDv7 で採番する。**秘密ではない**。
@@ -96,7 +103,7 @@ export const tSession = pgTable(
  * 認証方式ごとの紐づけ。1 人が複数持てる (メール+パスワード / Google のアカウント連携)。
  * `providerId` が方式を、`(issuer, accountId)` が発行者側での同一性を表す。
  */
-export const tAccount = pgTable(
+export const tAccount = authSchema.table(
   "t_account",
   {
     // 主キー。better-auth が UUIDv7 で採番する。
@@ -165,7 +172,7 @@ export const tAccount = pgTable(
  *
  * メールのリンクに載るのは `identifier` に埋め込まれたトークンであって、`id` ではない。
  */
-export const tVerification = pgTable(
+export const tVerification = authSchema.table(
   "t_verification",
   {
     // 主キー。better-auth が UUIDv7 で採番する。**秘密ではない**。

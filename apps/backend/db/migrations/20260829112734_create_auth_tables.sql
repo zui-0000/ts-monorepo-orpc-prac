@@ -1,4 +1,4 @@
-CREATE TABLE "t_account" (
+CREATE TABLE "auth"."t_account" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"issuer" text NOT NULL,
 	"provider_account_id" text NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE "t_account" (
 	CONSTRAINT "t_account_issuer_provider_account_id_key" UNIQUE("issuer","provider_account_id")
 );
 --> statement-breakpoint
-CREATE TABLE "t_session" (
+CREATE TABLE "auth"."t_session" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"token" text NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE "t_session" (
 	CONSTRAINT "t_session_token_key" UNIQUE("token")
 );
 --> statement-breakpoint
-CREATE TABLE "t_user" (
+CREATE TABLE "auth"."t_user" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"email" varchar(255) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE "t_user" (
 	CONSTRAINT "t_user_email_key" UNIQUE("email")
 );
 --> statement-breakpoint
-CREATE TABLE "t_verification" (
+CREATE TABLE "auth"."t_verification" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"identifier" text NOT NULL,
 	"value" text NOT NULL,
@@ -48,8 +48,8 @@ CREATE TABLE "t_verification" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "t_account" ADD CONSTRAINT "t_account_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."t_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "t_session" ADD CONSTRAINT "t_session_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."t_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "t_account_user_id_idx" ON "t_account" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "t_session_user_id_idx" ON "t_session" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "t_verification_identifier_idx" ON "t_verification" USING btree ("identifier");
+ALTER TABLE "auth"."t_account" ADD CONSTRAINT "t_account_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."t_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "auth"."t_session" ADD CONSTRAINT "t_session_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."t_user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "t_account_user_id_idx" ON "auth"."t_account" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "t_session_user_id_idx" ON "auth"."t_session" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "t_verification_identifier_idx" ON "auth"."t_verification" USING btree ("identifier");

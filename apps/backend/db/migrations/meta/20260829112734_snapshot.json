@@ -1,12 +1,12 @@
 {
-  "id": "fff3f2af-058e-4de1-b6ce-69717f7b3726",
+  "id": "eb8b9e33-b59a-4a7c-966a-35cfaf30ddc4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.t_account": {
+    "auth.t_account": {
       "name": "t_account",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -117,6 +117,7 @@
           "name": "t_account_user_id_fkey",
           "tableFrom": "t_account",
           "tableTo": "t_user",
+          "schemaTo": "auth",
           "columnsFrom": [
             "user_id"
           ],
@@ -142,9 +143,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.t_session": {
+    "auth.t_session": {
       "name": "t_session",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -219,6 +220,7 @@
           "name": "t_session_user_id_fkey",
           "tableFrom": "t_session",
           "tableTo": "t_user",
+          "schemaTo": "auth",
           "columnsFrom": [
             "user_id"
           ],
@@ -243,9 +245,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.t_user": {
+    "auth.t_user": {
       "name": "t_user",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
@@ -309,9 +311,9 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.t_verification": {
+    "auth.t_verification": {
       "name": "t_verification",
-      "schema": "",
+      "schema": "auth",
       "columns": {
         "id": {
           "name": "id",
