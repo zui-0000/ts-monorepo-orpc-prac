@@ -1,27 +1,11 @@
-import {
-  Link,
-  Outlet,
-  createRootRouteWithContext,
-} from "@tanstack/react-router";
+import { createRootRouteWithContext } from "@tanstack/react-router";
+
+import { RootLayout } from "~/components/layouts/RootLayout";
+import { NotFoundPage } from "~/components/pages/NotFoundPage";
 
 import type { RouterContext } from "./create-router";
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
-  notFoundComponent: () => (
-    <p>
-      ページが見つかりません。<Link to="/">トップへ</Link>
-    </p>
-  ),
+  notFoundComponent: NotFoundPage,
 });
-
-function RootLayout() {
-  return (
-    <main>
-      <h1>
-        <Link to="/">ts-monorepo-orpc-prac</Link>
-      </h1>
-      <Outlet />
-    </main>
-  );
-}
