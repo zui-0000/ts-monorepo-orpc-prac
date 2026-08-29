@@ -11,6 +11,7 @@ import {
 
 import { assertPasswordNotCompromised } from "./assert-password-not-compromised.ts";
 import { authBaseUrl, authSecret } from "./auth-env.ts";
+import { sendVerificationEmail } from "./send-verification-email.ts";
 
 /**
  * better-auth のインスタンス。**利用者の生成と認証はここが持つ** (設計関連/ADR-07)。
@@ -57,8 +58,22 @@ export const auth = (db: Database) =>
       deleteUser: { enabled: true },
     },
 
+    emailVerification: {
+      // 届け先は docs/02 のとおりコンソール。送信手段は未定 (差し替え口)。
+      sendVerificationEmail,
+      // サインアップ直後にリンクを出す。
+      sendOnSignUp: true,
+      // **未検証のままサインインを試みたら再発行する。** リンクを見失っても詰まない。
+      sendOnSignIn: true,
+      // 検証を終えたらそのままサインイン状態にする。
+      autoSignInAfterVerification: true,
+    },
+
     emailAndPassword: {
       enabled: true,
+      // **未検証のアカウントでサインインさせない。** 他人のメールで先に登録して
+      // おき、本人が来たときに乗っ取る手口を塞ぐ。
+      requireEmailVerification: true,
       // 既定の 8 は MFA を前提とした値。MFA が無いため NIST SP 800-63B-4 の 15 にする。
       minPasswordLength: 15,
       password: {
