@@ -10,7 +10,7 @@ export const SESSION_QUERY_KEY = ["session"] as const;
  *
  * better-auth の `useSession` (独自ストア) ではなく TanStack Query に載せている。
  * ルータの `beforeLoad` は React の外で動くためフックを呼べず、
- * `ensureQueryData` で待てる形が要るため。
+ * `queryClient.query()` で待てる形が要るため。
  */
 export const sessionQueryOptions = queryOptions({
   queryKey: SESSION_QUERY_KEY,

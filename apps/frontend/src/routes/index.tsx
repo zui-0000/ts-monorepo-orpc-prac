@@ -6,14 +6,18 @@ import { ProfilePage } from "~/components/pages/ProfilePage";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {
-    const session =
-      await context.queryClient.ensureQueryData(sessionQueryOptions);
+    // staleTime: "static" は「あれば使い、無ければ取る」。ensureQueryData の後継。
+    const session = await context.queryClient.query({
+      ...sessionQueryOptions,
+      staleTime: "static",
+    });
     if (!session) throw redirect({ to: "/sign-in" });
     return { userId: session.user.id };
   },
   loader: ({ context }) =>
-    context.queryClient.ensureQueryData(
-      orpc.user.get.queryOptions({ input: { id: context.userId } }),
-    ),
+    context.queryClient.query({
+      ...orpc.user.get.queryOptions({ input: { id: context.userId } }),
+      staleTime: "static",
+    }),
   component: ProfilePage,
 });
