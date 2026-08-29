@@ -1,7 +1,11 @@
+import type { FC } from "react";
 import type { FallbackProps } from "react-error-boundary";
 import { getErrorMessage } from "react-error-boundary";
 
-export const ErrorFallback = ({ error, resetErrorBoundary }: FallbackProps) => (
+export const ErrorFallback: FC<FallbackProps> = ({
+  error,
+  resetErrorBoundary,
+}) => (
   <section role="alert">
     <h2>表示できませんでした</h2>
     <p>{getErrorMessage(error) ?? "原因の分からない失敗が起きました"}</p>
