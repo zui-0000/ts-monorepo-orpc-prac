@@ -9,10 +9,14 @@ import { updateUserProfileController } from "./controllers/update-user-profile-c
  * user コンテキストの契約実装。**oRPC に触れるのはこのファイルだけ。**
  * controller には後続で使う値の箱だけを渡し、失敗の翻訳はここで行う。
  *
+ * **`routes` ではなく `handlers`。** メソッド・パス・成功時のステータスは契約側が
+ * 持っており、ここにあるのは `os.*.handler()` の集まりだけである
+ * (設計関連/ADR-05 の補足)。
+ *
  * サインアップ・サインイン・パスワード変更・削除はここに無い。better-auth が
  * 自前の HTTP 経路で持つため (設計関連/ADR-07, ADR-09)。
  */
-export const userRoutes = (deps: UserDeps) => {
+export const userHandlers = (deps: UserDeps) => {
   const getUser = getUserController(deps);
   const updateUserProfile = updateUserProfileController(deps);
 

@@ -202,6 +202,31 @@ export const okOrThrow = <T, E extends ApplicationError>(
 | 契約が宣言していないエラーを混ぜる          | `Property 'FORBIDDEN_ERROR' is missing` (routes) |
 | `handleErrorResponse` の match から枝を消す | 網羅性のエラー                                   |
 
+### ファイル名を `<ctx>-handlers.ts` へ改めた (2026-08-30 追記)
+
+**決定は変えない。** 変えたのはファイル名だけである。
+
+`user-routes.ts` としていたが、**このファイルは route を定義していない。**
+メソッド・パス・成功時のステータスはすべて契約側 (`packages/contract/.../contract.ts`)
+にあり、こちらにあるのは `os.*.handler()` の集まりだけである。`routes` を名乗ると
+「ここにパスが書いてある」と読まれる。
+
+```ts
+// 契約側 — ここが route
+method: HttpMethod.PUT,
+path: "/users/{id}",
+
+// contexts/user/presentation/user-handlers.ts — ここは handler だけ
+update: os.user.update.handler(async ({ input, errors, context }) => { ... }),
+```
+
+本 ADR が却下したのは **「`get-user-handler.ts` のように操作ごとにファイルを分ける」**
+形であって、handler という語そのものではない。複数形で 1 ファイルに束ねる形は、
+本 ADR が利点として挙げた「どの操作にどの実装が結ばれ、失敗がどう訳されるかを
+1 画面で読める」をそのまま満たす。
+
+**本文中の `user-routes.ts` は当時の名前として残している。**
+
 ### 呼び出しは式に畳まず、Result を主語に置く
 
 1 式にすると 3 行短くなるが、**この形は採らない。**
