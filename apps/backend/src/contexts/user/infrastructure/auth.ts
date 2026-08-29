@@ -3,14 +3,14 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 import { authBaseUrl, authSecret } from "~/shared/infrastructure/auth-env.ts";
 import type { Database } from "~/shared/infrastructure/db/database-client.ts";
-
-import { assertPasswordNotCompromised } from "./assert-password-not-compromised.ts";
 import {
   tAccount,
   tSession,
   tUser,
   tVerification,
-} from "./auth-drizzle-schema.ts";
+} from "~/shared/infrastructure/db/schema/index.ts";
+
+import { assertPasswordNotCompromised } from "./assert-password-not-compromised.ts";
 
 /**
  * better-auth のインスタンス。**利用者の生成と認証はここが持つ** (設計関連/ADR-07)。

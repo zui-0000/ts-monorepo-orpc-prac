@@ -8,10 +8,10 @@ import type { Database } from "~/shared/infrastructure/db/database-client.ts";
 import { SqlState } from "~/shared/infrastructure/db/error/constants/sql-state.ts";
 import { handleDbError } from "~/shared/infrastructure/db/error/handle-db-error.ts";
 import { isSqlStateViolation } from "~/shared/infrastructure/db/error/postgres-error-reader.ts";
+import { tUser } from "~/shared/infrastructure/db/schema/index.ts";
 
 import { type User, UserSchema } from "../domain/model/user.ts";
 import type { UserRepository } from "../domain/user-repository.ts";
-import { tUser } from "./auth-drizzle-schema.ts";
 
 // DB が一意違反で返す制約名。drizzle スキーマの unique() と揃えること
 // (命名関連/ADR-03)。ズレると 409 が 500 に化ける。

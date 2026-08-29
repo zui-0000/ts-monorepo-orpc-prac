@@ -6,7 +6,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { tUser } from "./auth-drizzle-schema.ts";
+import { tUser } from "./auth.ts";
 
 /**
  * 利用者のプロフィール。**ドメインが唯一書いてよいテーブル** (設計関連/ADR-09)。

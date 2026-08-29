@@ -3,9 +3,9 @@ import { eq } from "drizzle-orm";
 
 import type { Database } from "~/shared/infrastructure/db/database-client.ts";
 import { handleDbError } from "~/shared/infrastructure/db/error/handle-db-error.ts";
+import { tUser } from "~/shared/infrastructure/db/schema/index.ts";
 
 import type { GetUserQueryService } from "../application/get-user-query.ts";
-import { tUser } from "./auth-drizzle-schema.ts";
 
 /**
  * GetUserQueryService の Drizzle 実装 (アダプタ)。
