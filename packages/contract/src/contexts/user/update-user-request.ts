@@ -1,11 +1,27 @@
 import * as v from "valibot";
 
-import { EmailSchema } from "../../shared/model/index.js";
-import { UserNameSchema } from "./model/index.js";
+import {
+  IntroductionSchema,
+  PersonNameKanaSchema,
+  PersonNameSchema,
+} from "./model/index.js";
 
+/**
+ * プロフィールの更新リクエスト。
+ *
+ * **`name` と `email` は含めない。** どちらも認証基盤 (better-auth) の所有物で、
+ * 直接書くと不変条件を壊す (設計関連/ADR-09)。表示名は `/api/auth/update-user`、
+ * メールアドレスは `/api/auth/change-email` が受け持つ。
+ *
+ * **すべて `null` を許す。** PUT は全置換なので、`null` は「その項目を空にする」を
+ * 意味する。プロフィールは遅延作成のため「姓だけ入れて名は後で」も成り立つ。
+ */
 export const UpdateUserRequestSchema = v.object({
-  name: UserNameSchema,
-  email: EmailSchema,
+  familyName: v.nullable(PersonNameSchema),
+  givenName: v.nullable(PersonNameSchema),
+  familyNameKana: v.nullable(PersonNameKanaSchema),
+  givenNameKana: v.nullable(PersonNameKanaSchema),
+  introduction: v.nullable(IntroductionSchema),
 });
 
 export type UpdateUserRequest = v.InferOutput<typeof UpdateUserRequestSchema>;

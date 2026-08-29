@@ -1,7 +1,7 @@
 import type { Clock } from "~/shared/domain/clock.ts";
 
 import type { GetUserQueryService } from "./application/get-user-query.ts";
-import type { UserRepository } from "./domain/user-repository.ts";
+import type { UserProfileRepository } from "./domain/user-profile-repository.ts";
 
 /**
  * user コンテキストを動かすのに必要なもの (要求側の宣言)。
@@ -10,6 +10,6 @@ import type { UserRepository } from "./domain/user-repository.ts";
  */
 export type UserDeps = {
   readonly getUserQueryService: GetUserQueryService;
-  readonly userRepository: UserRepository;
+  readonly userProfileRepository: UserProfileRepository;
   readonly clock: Clock;
 };

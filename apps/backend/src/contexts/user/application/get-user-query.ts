@@ -26,9 +26,25 @@ export type GetUserQueryInput = Readonly<
   v.InferInput<typeof GetUserQueryValues>
 >;
 
+/**
+ * プロフィールの射影。**未入力なら行そのものが無い**ため、外側で `null` になる。
+ */
+export type UserProfileProjection = {
+  readonly familyName: string | null;
+  readonly givenName: string | null;
+  readonly familyNameKana: string | null;
+  readonly givenNameKana: string | null;
+  readonly introduction: string | null;
+};
+
+/**
+ * 取得の射影。`name` / `email` は認証基盤の値、`profile` はドメインの値。
+ * **書き込みの経路は別だが、読み取りは 1 回で返す** (CQRS の射影)。
+ */
 export type GetUserQueryOutput = {
   readonly name: string;
   readonly email: string;
+  readonly profile: UserProfileProjection | null;
 };
 
 export type GetUserQueryParams = { readonly id: UserId };

@@ -2,7 +2,7 @@ import { clock } from "~/shared/infrastructure/clock.ts";
 import type { Database } from "~/shared/infrastructure/db/database-client.ts";
 
 import { getUserQueryService } from "./infrastructure/get-user-query-service.ts";
-import { userRepository } from "./infrastructure/user-repository.ts";
+import { userProfileRepository } from "./infrastructure/user-profile-repository.ts";
 import type { UserDeps } from "./user-deps.ts";
 
 /**
@@ -11,6 +11,6 @@ import type { UserDeps } from "./user-deps.ts";
  */
 export const userAdapters = (db: Database): UserDeps => ({
   getUserQueryService: getUserQueryService(db),
-  userRepository: userRepository(db),
+  userProfileRepository: userProfileRepository(db),
   clock,
 });

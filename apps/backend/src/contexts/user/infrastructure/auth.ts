@@ -47,6 +47,13 @@ export const auth = (db: Database) =>
       },
     },
 
+    user: {
+      // **既定は無効。** 有効にしないと /api/auth/delete-user は 404 を返す。
+      // 自前の DELETE /users/{id} は置かない。あちらはセッションの持ち主自身を
+      // 消す形で、id 指定の API とは噛み合わないため (設計関連/ADR-09)。
+      deleteUser: { enabled: true },
+    },
+
     emailAndPassword: {
       enabled: true,
       // 既定の 8 は MFA を前提とした値。MFA が無いため NIST SP 800-63B-4 の 15 にする。
