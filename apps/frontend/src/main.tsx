@@ -3,22 +3,8 @@ import { RouterProvider } from "@tanstack/react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import { worker } from "./mocks/browser";
 import { createAppRouter } from "./router";
-
-/**
- * 既定はモック。実の backend へ向けるときだけ `VITE_API_MODE=live` を渡す。
- *
- * live のときは vite の proxy が `/api` を backend へ流す。
- */
-const startMocking = async () => {
-  // 本番のバンドルへ MSW を持ち込まないための静的な分岐 (約 420 kB)。
-  if (!import.meta.env.DEV) return;
-  if (import.meta.env.VITE_API_MODE === "live") return;
-
-  const { worker } = await import("./mocks/browser");
-  // 画面やモジュールの取得まで横取りしないよう素通しさせる。
-  await worker.start({ onUnhandledRequest: "bypass" });
-};
 
 const queryClient = new QueryClient();
 const router = createAppRouter(queryClient);
@@ -26,7 +12,17 @@ const router = createAppRouter(queryClient);
 const root = document.getElementById("root");
 if (!root) throw new Error("#root が見つかりません");
 
-await startMocking();
+/**
+ * この画面は MSW だけで完結する。backend には繋がない。
+ *
+ * モックの起動を待ってから描画する。先に描くと最初の取得が素通りしてしまう。
+ */
+await worker.start({
+  onUnhandledRequest: (request, print) => {
+    // 画面やモジュールの取得は素通しし、API の取りこぼしだけ知らせる。
+    if (new URL(request.url).pathname.startsWith("/api")) print.warning();
+  },
+});
 
 createRoot(root).render(
   <StrictMode>

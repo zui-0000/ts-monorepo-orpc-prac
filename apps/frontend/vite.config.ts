@@ -8,10 +8,4 @@ export default defineConfig({
     tanstackRouter({ target: "react", autoCodeSplitting: true }),
     react(),
   ],
-  server: {
-    proxy: {
-      // backend は別ポートで動く。VITE_API_MODE=live のとき /api をそちらへ流す。
-      "/api": { target: "http://localhost:3000", changeOrigin: true },
-    },
-  },
 });
