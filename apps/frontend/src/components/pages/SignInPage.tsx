@@ -3,7 +3,9 @@ import { Link, getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { authClient } from "~/api/auth-client";
+import type { AuthError } from "~/api/errors/auth-error";
+import { authErrorMessage } from "~/api/errors/auth-error";
+import { signIn } from "~/api/mutations/auth/sign-in";
 import { QUERY_KEYS } from "~/api/queries/keys";
 
 // ルートから Route を import すると循環するため、ID で引く。
@@ -15,18 +17,11 @@ export const SignInPage: FC = () => {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const signIn = useMutation({
+  const signInMutation = useMutation<void, AuthError>({
     mutationFn: async () => {
-      const { error } = await authClient.signIn.email(form);
-      if (error) {
-        // backend が requireEmailVerification を有効にしているため、
-        // 未検証のまま入ろうとするとここに来る。
-        throw new Error(
-          error.status === 403
-            ? "メールアドレスの検証が済んでいません。届いたリンクを開いてください"
-            : (error.message ?? "サインインできませんでした"),
-        );
-      }
+      // **TanStack は throw でしか失敗を認識しない。** Result を返すと成功扱いになる。
+      const result = await signIn(form);
+      if (result.isErr()) throw result.error;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -47,7 +42,7 @@ export const SignInPage: FC = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          signIn.mutate();
+          signInMutation.mutate();
         }}
       >
         <p>
@@ -75,10 +70,12 @@ export const SignInPage: FC = () => {
           />
         </p>
 
-        <button type="submit" disabled={signIn.isPending}>
+        <button type="submit" disabled={signInMutation.isPending}>
           サインイン
         </button>
-        {signIn.isError && <p role="alert">{signIn.error.message}</p>}
+        {signInMutation.isError && (
+          <p role="alert">{authErrorMessage(signInMutation.error)}</p>
+        )}
       </form>
       <p>
         未登録なら <Link to="/sign-up">サインアップ</Link>

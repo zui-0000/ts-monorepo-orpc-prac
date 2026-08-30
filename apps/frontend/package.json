@@ -21,6 +21,7 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
     "better-auth": "catalog:",
+    "better-result": "catalog:",
     "msw": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",

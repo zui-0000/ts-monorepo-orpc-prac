@@ -8,7 +8,7 @@ import { getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { authClient } from "~/api/auth-client";
+import { signOut } from "~/api/mutations/auth/sign-out";
 import { orpc } from "~/api/orpc";
 import { QUERY_KEYS } from "~/api/queries/keys";
 import { getUserQueryOptions } from "~/api/queries/users/get-user";
@@ -70,8 +70,12 @@ export const ProfilePage: FC = () => {
     }),
   );
 
-  const signOut = useMutation({
-    mutationFn: () => authClient.signOut(),
+  const signOutMutation = useMutation({
+    mutationFn: async () => {
+      // **TanStack は throw でしか失敗を認識しない。** Result を返すと成功扱いになる。
+      const result = await signOut();
+      if (result.isErr()) throw result.error;
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
@@ -99,8 +103,8 @@ export const ProfilePage: FC = () => {
         </dl>
         <button
           type="button"
-          disabled={signOut.isPending}
-          onClick={() => signOut.mutate()}
+          disabled={signOutMutation.isPending}
+          onClick={() => signOutMutation.mutate()}
         >
           サインアウト
         </button>

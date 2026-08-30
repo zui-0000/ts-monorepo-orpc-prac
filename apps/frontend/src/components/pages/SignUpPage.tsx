@@ -3,21 +3,21 @@ import { Link, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { authClient } from "~/api/auth-client";
+import type { AuthError } from "~/api/errors/auth-error";
+import { authErrorMessage } from "~/api/errors/auth-error";
+import { MIN_PASSWORD_LENGTH, signUp } from "~/api/mutations/auth/sign-up";
 import { QUERY_KEYS } from "~/api/queries/keys";
-
-/** backend の `emailAndPassword.minPasswordLength` に合わせる。 */
-const MIN_PASSWORD_LENGTH = 15;
 
 export const SignUpPage: FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
 
-  const signUp = useMutation({
+  const signUpMutation = useMutation<void, AuthError>({
     mutationFn: async () => {
-      const { error } = await authClient.signUp.email(form);
-      if (error) throw new Error(error.message ?? "登録できませんでした");
+      // **TanStack は throw でしか失敗を認識しない。** Result を返すと成功扱いになる。
+      const result = await signUp(form);
+      if (result.isErr()) throw result.error;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -33,7 +33,7 @@ export const SignUpPage: FC = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          signUp.mutate();
+          signUpMutation.mutate();
         }}
       >
         <p>
@@ -74,10 +74,12 @@ export const SignUpPage: FC = () => {
           </small>
         </p>
 
-        <button type="submit" disabled={signUp.isPending}>
+        <button type="submit" disabled={signUpMutation.isPending}>
           登録する
         </button>
-        {signUp.isError && <p role="alert">{signUp.error.message}</p>}
+        {signUpMutation.isError && (
+          <p role="alert">{authErrorMessage(signUpMutation.error)}</p>
+        )}
       </form>
       <p>
         登録済みなら <Link to="/sign-in">サインイン</Link>
