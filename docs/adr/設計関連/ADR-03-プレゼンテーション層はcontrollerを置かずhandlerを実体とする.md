@@ -1,6 +1,7 @@
 ---
 status: superseded by 設計関連/ADR-05
 date: 2026-08-24
+scope: backend
 decision-makers: zui
 consulted: Claude
 informed:

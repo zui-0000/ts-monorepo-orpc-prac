@@ -1,6 +1,7 @@
 ---
 status: accepted
 date: 2026-08-30
+scope: backend
 decision-makers: zui
 consulted: Claude
 informed:

@@ -1,6 +1,7 @@
 ---
 status: accepted
 date: 2026-08-23
+scope: contract
 decision-makers: zui
 consulted: Claude
 informed:
