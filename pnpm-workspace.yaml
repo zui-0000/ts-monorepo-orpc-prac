@@ -46,6 +46,9 @@ catalog:
   hono: ^4.13.5
   lefthook: ^2.1.12
   msw: ^2.15.0
+  # React Compiler の実体。@vitejs/plugin-react の peer が ^0.145.0 で、
+  # 0.x では ^ がマイナー固定のため 0.147 は使えない。plugin 側が上げたら追う。
+  oxc-transform-react: ^0.145.0
   oxfmt: ^0.65.0
   oxlint: ^1.80.0
   oxlint-tsgolint: ^7.0.2001

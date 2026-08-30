@@ -109,11 +109,20 @@ docs           ADR-10 / ADR-11 の見直し
 - **Google OAuth** — `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` が未取得。
   Google Cloud Console での作業が要る。10 経路がこれ待ち
   (`/sign-in/social` `/callback/:id` `/link-social` ほか)
-- **フロントエンド** — MSW を入れて契約のスキーマを取り込み、ローカルで擬似的に動かす。
-  現在 `App.tsx` は見出しだけ
+- **見た目** — CSS を 1 行も書いていない。素の HTML のまま。
+  `PageLoadingSpinner` は回らないので、スタイルを入れるか改名するかを決める
 - **`sendResetPassword` / `sendChangeEmailVerification`** — 未設定のため
   パスワードリセットとメール変更が完結しない。`send-verification-email.ts` と同じ形で
   埋められる (docs/02)
+- **ビルドが警告を 2 つ出す** — `routes/create-router.ts` と `routes/types/router.ts`
+  が「Route を export していない」と TanStack Router に指摘される。**動作には
+  影響しない**（ルートツリーに入らない、という通知）が、毎ビルド出る。
+  `routeFileIgnorePattern` で黙らせるか、`routes/` の外へ出すか
+- **React Compiler の規則違反を誰も検査しない** — oxlint に rules-of-hooks が無く、
+  コンパイラは違反を見つけると黙って最適化を諦める（`logDiagnostics` でも出ない）。
+  現状 12/12 最適化されているが、将来違反を書いても気づけない。
+  `eslint-plugin-react-hooks@7` が持っているが ESLint を持ち込むことになる
+  （docs/03）
 - **OpenAPI 仕様が API の全体を表さない** — 上の検討と同じ話。
   外部へ公開するまで実害は無い
 

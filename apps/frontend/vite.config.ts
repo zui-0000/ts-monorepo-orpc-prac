@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [
     // routes/ の構成から routeTree.gen.ts を作る。react より前に置く必要がある。
     tanstackRouter({ target: "react", autoCodeSplitting: true }),
-    react(),
+    // compiler は oxc-transform-react が実体。診断はビルド時に出す。
+    react({ compiler: { logDiagnostics: true } }),
   ],
   resolve: {
     // tsconfig の paths と対で必要。tsc は型を、こちらは実際の解決を受け持つ。
