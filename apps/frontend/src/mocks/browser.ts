@@ -9,7 +9,7 @@ const worker = setupWorker(...handlers);
  *
  * **描画の前に待つ必要がある。** 先に描くと最初の取得がモックを素通りする。
  */
-export const startMocking = () =>
+export const startMocking = async () =>
   worker.start({
     onUnhandledRequest: (request, print) => {
       // 画面やモジュールの取得は素通しし、API の取りこぼしだけ知らせる。
