@@ -1,4 +1,4 @@
-import type { router } from "../create-router";
+import type { createAppRouter } from "../create-router";
 
 /**
  * tanstack-router のモジュール拡張。
@@ -12,6 +12,6 @@ import type { router } from "../create-router";
  */
 declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router;
+    router: ReturnType<typeof createAppRouter>;
   }
 }

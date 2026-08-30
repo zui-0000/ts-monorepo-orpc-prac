@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import * as v from "valibot";
 
-import { sessionQueryOptions } from "~/api/queries/auth/get-session";
+import { getSessionQueryOption } from "~/api/contexts/auth/get-session-query-option";
 import { SignInPage } from "~/components/pages/SignInPage";
 
 /** サインアップ直後だけ案内を出すための印。 */
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/sign-in")({
   beforeLoad: async ({ context }) => {
     // staleTime: "static" は「あれば使い、無ければ取る」。ensureQueryData の後継。
     const session = await context.queryClient.query({
-      ...sessionQueryOptions,
+      ...getSessionQueryOption,
       staleTime: "static",
     });
     if (session) throw redirect({ to: "/" });

@@ -1,14 +1,14 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { sessionQueryOptions } from "~/api/queries/auth/get-session";
-import { getUserQueryOptions } from "~/api/queries/users/get-user";
+import { getSessionQueryOption } from "~/api/contexts/auth/get-session-query-option";
+import { getUserQueryOption } from "~/api/contexts/user/get-user-query-option";
 import { ProfilePage } from "~/components/pages/ProfilePage";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async ({ context }) => {
     // staleTime: "static" は「あれば使い、無ければ取る」。ensureQueryData の後継。
     const session = await context.queryClient.query({
-      ...sessionQueryOptions,
+      ...getSessionQueryOption,
       staleTime: "static",
     });
     if (!session) throw redirect({ to: "/sign-in" });
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
   },
   loader: ({ context }) =>
     context.queryClient.query({
-      ...getUserQueryOptions(context.userId),
+      ...getUserQueryOption(context.userId),
       staleTime: "static",
     }),
   component: ProfilePage,

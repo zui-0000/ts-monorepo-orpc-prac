@@ -1,25 +1,24 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { authErrorMessage } from "~/api/errors/auth-error";
+import { authErrorMessage } from "~/api/contexts/auth/auth-error";
 import {
   MIN_PASSWORD_LENGTH,
-  signUpMutationOptions,
-} from "~/api/mutations/auth/sign-up";
-import { QUERY_KEYS } from "~/api/queries/keys";
+  useSignUpMutation,
+} from "~/api/contexts/auth/use-sign-up-mutation";
+import { CONTEXT_KEYS } from "~/api/shared/keys";
 
 export const SignUpPage: FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
 
-  const signUpMutation = useMutation({
-    ...signUpMutationOptions,
+  const signUp = useSignUpMutation({
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
+        queryKey: CONTEXT_KEYS.AUTH_CONTEXT_KEY.session(),
       });
       await router.navigate({ to: "/sign-in", search: { registered: true } });
     },
@@ -31,7 +30,7 @@ export const SignUpPage: FC = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          signUpMutation.mutate(form);
+          signUp.mutate(form);
         }}
       >
         <p>
@@ -72,12 +71,10 @@ export const SignUpPage: FC = () => {
           </small>
         </p>
 
-        <button type="submit" disabled={signUpMutation.isPending}>
+        <button type="submit" disabled={signUp.isPending}>
           登録する
         </button>
-        {signUpMutation.isError && (
-          <p role="alert">{authErrorMessage(signUpMutation.error)}</p>
-        )}
+        {signUp.isError && <p role="alert">{authErrorMessage(signUp.error)}</p>}
       </form>
       <p>
         登録済みなら <Link to="/sign-in">サインイン</Link>

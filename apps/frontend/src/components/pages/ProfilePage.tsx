@@ -1,17 +1,13 @@
 import { isDefinedError } from "@orpc/client";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { signOutMutationOptions } from "~/api/mutations/auth/sign-out";
-import { updateProfileMutationOptions } from "~/api/mutations/users/update-profile";
-import { QUERY_KEYS } from "~/api/queries/keys";
-import { getUserQueryOptions } from "~/api/queries/users/get-user";
+import { useSignOutMutation } from "~/api/contexts/auth/use-sign-out-mutation";
+import { getUserQueryOption } from "~/api/contexts/user/get-user-query-option";
+import { useUpdateProfileMutation } from "~/api/contexts/user/use-update-profile-mutation";
+import { CONTEXT_KEYS } from "~/api/shared/keys";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/");
@@ -52,7 +48,7 @@ export const ProfilePage: FC = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: user } = useSuspenseQuery(getUserQueryOptions(userId));
+  const { data: user } = useSuspenseQuery(getUserQueryOption(userId));
 
   const [values, setValues] = useState<FormValues>(
     () =>
@@ -61,19 +57,17 @@ export const ProfilePage: FC = () => {
       ) as FormValues,
   );
 
-  const update = useMutation({
-    ...updateProfileMutationOptions,
+  const update = useUpdateProfileMutation({
     onSuccess: () =>
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.USER_QUERY_KEY.get(userId),
+        queryKey: CONTEXT_KEYS.USER_CONTEXT_KEY.get(userId),
       }),
   });
 
-  const signOutMutation = useMutation({
-    ...signOutMutationOptions,
+  const signOut = useSignOutMutation({
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
+        queryKey: CONTEXT_KEYS.AUTH_CONTEXT_KEY.session(),
       });
       await router.navigate({ to: "/sign-in" });
     },
@@ -98,8 +92,8 @@ export const ProfilePage: FC = () => {
         </dl>
         <button
           type="button"
-          disabled={signOutMutation.isPending}
-          onClick={() => signOutMutation.mutate()}
+          disabled={signOut.isPending}
+          onClick={() => signOut.mutate()}
         >
           サインアウト
         </button>

@@ -1,11 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { authErrorMessage } from "~/api/errors/auth-error";
-import { signInMutationOptions } from "~/api/mutations/auth/sign-in";
-import { QUERY_KEYS } from "~/api/queries/keys";
+import { authErrorMessage } from "~/api/contexts/auth/auth-error";
+import { useSignInMutation } from "~/api/contexts/auth/use-sign-in-mutation";
+import { CONTEXT_KEYS } from "~/api/shared/keys";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/sign-in");
@@ -16,11 +16,10 @@ export const SignInPage: FC = () => {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const signInMutation = useMutation({
-    ...signInMutationOptions,
+  const signIn = useSignInMutation({
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
+        queryKey: CONTEXT_KEYS.AUTH_CONTEXT_KEY.session(),
       });
       await router.navigate({ to: "/" });
     },
@@ -37,7 +36,7 @@ export const SignInPage: FC = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          signInMutation.mutate(form);
+          signIn.mutate(form);
         }}
       >
         <p>
@@ -65,12 +64,10 @@ export const SignInPage: FC = () => {
           />
         </p>
 
-        <button type="submit" disabled={signInMutation.isPending}>
+        <button type="submit" disabled={signIn.isPending}>
           サインイン
         </button>
-        {signInMutation.isError && (
-          <p role="alert">{authErrorMessage(signInMutation.error)}</p>
-        )}
+        {signIn.isError && <p role="alert">{authErrorMessage(signIn.error)}</p>}
       </form>
       <p>
         未登録なら <Link to="/sign-up">サインアップ</Link>

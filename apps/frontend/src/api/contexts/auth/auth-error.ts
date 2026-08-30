@@ -18,7 +18,13 @@ export class EmailAlreadyTakenError extends TaggedError(
 /** パスワードが長さの要件を満たさない (`PASSWORD_TOO_SHORT` / `PASSWORD_TOO_LONG`)。 */
 export class WeakPasswordError extends TaggedError("WeakPasswordError")<{}> {}
 
-/** 上のどれでもない失敗。通信断や未知のコードが来たとき。 */
+/**
+ * 上のどれでもない失敗。通信断や、こちらが知らないコードが来たとき。
+ *
+ * `message` はライブラリが返した文言をそのまま持つ。**診断用で、画面には出さない**
+ * (通信断のときは "Fetch related error. Captured by catchAllError option..." という
+ * 開発者向けの文字列が入る)。
+ */
 export class UnexpectedAuthError extends TaggedError("UnexpectedAuthError")<{
   readonly message: string;
 }> {}
@@ -31,7 +37,7 @@ export type AuthError =
   | UnexpectedAuthError;
 
 /** better-auth の応答に載る失敗の形。 */
-interface BetterAuthFailure {
+export interface BetterAuthFailure {
   readonly code?: string | undefined;
   readonly message?: string | undefined;
 }
@@ -58,9 +64,7 @@ export const toAuthError = ({
     case "PASSWORD_TOO_LONG":
       return new WeakPasswordError();
     default:
-      return new UnexpectedAuthError({
-        message: message ?? "通信に失敗しました",
-      });
+      return new UnexpectedAuthError({ message: message ?? "(文言なし)" });
   }
 };
 
@@ -77,5 +81,6 @@ export const authErrorMessage = (error: AuthError): string =>
     InvalidCredentialsError: () => "メールアドレスまたはパスワードが違います",
     EmailAlreadyTakenError: () => "このメールアドレスは登録済みです",
     WeakPasswordError: () => "パスワードが要件を満たしていません",
-    UnexpectedAuthError: ({ message }) => message,
+    // ライブラリの文言をそのまま出さない。英語だったり開発者向けだったりする。
+    UnexpectedAuthError: () => "通信に失敗しました。時間をおいて試してください",
   });

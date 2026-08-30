@@ -1,6 +1,15 @@
+import { contract } from "@orpc-prac/contract";
+import type { ApiClient } from "@orpc-prac/contract";
+import { createORPCClient } from "@orpc/client";
+import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 
-import { client } from "./api-client";
+/** 契約が REST 形式 (`.route()` を持つ) なので OpenAPILink を使う。 */
+const link = new OpenAPILink(contract, {
+  url: `${window.location.origin}/api`,
+});
+
+const client: ApiClient = createORPCClient(link);
 
 /**
  * 契約から導かれる TanStack Query 用の道具。
