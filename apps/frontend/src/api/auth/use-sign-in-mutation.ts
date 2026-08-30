@@ -1,14 +1,15 @@
+import type { UseMutationOptions } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 
-import { CONTEXT_KEYS } from "~/api/shared/keys";
-import type { MutationCallbacks } from "~/api/shared/mutation-callbacks";
+import { CONTEXT_KEYS } from "~/api/keys";
+import type { MutationCallbacks } from "~/api/mutation-callbacks";
 
 import type { AuthError } from "./auth-error";
-import type { SignInInput } from "./infrastructure/auth-repository";
-import { authRepository } from "./infrastructure/auth-repository";
+import type { SignInInput } from "./auth-repository";
+import { authRepository } from "./auth-repository";
 
 export const useSignInMutation = (
-  options?: MutationCallbacks<void, AuthError, SignInInput>,
+  options?: MutationCallbacks<UseMutationOptions<void, AuthError, SignInInput>>,
 ) =>
   useMutation({
     mutationKey: CONTEXT_KEYS.AUTH_CONTEXT_KEY.signIn(),

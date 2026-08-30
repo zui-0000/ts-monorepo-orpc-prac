@@ -4,10 +4,10 @@ import { getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { useSignOutMutation } from "~/api/contexts/auth/use-sign-out-mutation";
-import { getUserQueryOption } from "~/api/contexts/user/get-user-query-option";
-import { useUpdateProfileMutation } from "~/api/contexts/user/use-update-profile-mutation";
-import { CONTEXT_KEYS } from "~/api/shared/keys";
+import { useSignOutMutation } from "~/api/auth/use-sign-out-mutation";
+import { CONTEXT_KEYS } from "~/api/keys";
+import { getUserQueryOption } from "~/api/user/get-user-query-option";
+import { useUpdateProfileMutation } from "~/api/user/use-update-profile-mutation";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/");

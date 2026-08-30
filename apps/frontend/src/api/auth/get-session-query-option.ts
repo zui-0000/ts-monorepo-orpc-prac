@@ -1,8 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
 
-import { CONTEXT_KEYS } from "~/api/shared/keys";
+import { CONTEXT_KEYS } from "~/api/keys";
 
-import { authRepository } from "./infrastructure/auth-repository";
+import { authRepository } from "./auth-repository";
 
 /**
  * セッションの取得。

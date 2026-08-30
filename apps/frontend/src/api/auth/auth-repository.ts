@@ -1,8 +1,8 @@
 import { createAuthClient } from "better-auth/react";
 import { Result } from "better-result";
 
-import type { AuthError, BetterAuthFailure } from "../auth-error";
-import { UnexpectedAuthError, toAuthError } from "../auth-error";
+import type { AuthError, BetterAuthFailure } from "./auth-error";
+import { UnexpectedAuthError, toAuthError } from "./auth-error";
 
 /**
  * better-auth のクライアント。`/api/auth/*` を叩き、応答は MSW が返す (src/mocks/)。

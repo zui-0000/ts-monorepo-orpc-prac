@@ -3,12 +3,12 @@ import { Link, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { authErrorMessage } from "~/api/contexts/auth/auth-error";
+import { authErrorMessage } from "~/api/auth/auth-error";
 import {
   MIN_PASSWORD_LENGTH,
   useSignUpMutation,
-} from "~/api/contexts/auth/use-sign-up-mutation";
-import { CONTEXT_KEYS } from "~/api/shared/keys";
+} from "~/api/auth/use-sign-up-mutation";
+import { CONTEXT_KEYS } from "~/api/keys";
 
 export const SignUpPage: FC = () => {
   const router = useRouter();

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 
+import type { MutationCallbacks } from "~/api/mutation-callbacks";
 import { orpc } from "~/api/orpc";
 
 /**
@@ -11,5 +12,5 @@ import { orpc } from "~/api/orpc";
 const baseOptions = orpc.user.updateProfile.mutationOptions();
 
 export const useUpdateProfileMutation = (
-  options?: Pick<typeof baseOptions, "onSuccess" | "onError" | "onSettled">,
+  options?: MutationCallbacks<typeof baseOptions>,
 ) => useMutation({ ...baseOptions, ...options });

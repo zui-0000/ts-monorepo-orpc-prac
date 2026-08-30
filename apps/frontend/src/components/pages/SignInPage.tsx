@@ -3,9 +3,9 @@ import { Link, getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { authErrorMessage } from "~/api/contexts/auth/auth-error";
-import { useSignInMutation } from "~/api/contexts/auth/use-sign-in-mutation";
-import { CONTEXT_KEYS } from "~/api/shared/keys";
+import { authErrorMessage } from "~/api/auth/auth-error";
+import { useSignInMutation } from "~/api/auth/use-sign-in-mutation";
+import { CONTEXT_KEYS } from "~/api/keys";
 
 // ルートから Route を import すると循環するため、ID で引く。
 const route = getRouteApi("/sign-in");

@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { getSessionQueryOption } from "~/api/contexts/auth/get-session-query-option";
+import { getSessionQueryOption } from "~/api/auth/get-session-query-option";
 import { SignUpPage } from "~/components/pages/SignUpPage";
 
 export const Route = createFileRoute("/sign-up")({

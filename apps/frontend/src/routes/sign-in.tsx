@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import * as v from "valibot";
 
-import { getSessionQueryOption } from "~/api/contexts/auth/get-session-query-option";
+import { getSessionQueryOption } from "~/api/auth/get-session-query-option";
 import { SignInPage } from "~/components/pages/SignInPage";
 
 /** サインアップ直後だけ案内を出すための印。 */

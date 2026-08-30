@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import { getSessionQueryOption } from "~/api/contexts/auth/get-session-query-option";
-import { getUserQueryOption } from "~/api/contexts/user/get-user-query-option";
+import { getSessionQueryOption } from "~/api/auth/get-session-query-option";
+import { getUserQueryOption } from "~/api/user/get-user-query-option";
 import { ProfilePage } from "~/components/pages/ProfilePage";
 
 export const Route = createFileRoute("/")({
