@@ -2,13 +2,16 @@ import type { UseMutationOptions } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 
 import { CONTEXT_KEYS } from "~/api/keys";
-import type { MutationCallbacks } from "~/api/mutation-callbacks";
 
 import type { AuthError } from "./auth-error";
 import { authRepository } from "./auth-repository";
 
 export const useSignOutMutation = (
-  options?: MutationCallbacks<UseMutationOptions<void, AuthError, void>>,
+  // 渡させるのは callback だけ。mutationFn や retry は api 層が握る。
+  options?: Pick<
+    UseMutationOptions<void, AuthError, void>,
+    "onSuccess" | "onError" | "onSettled"
+  >,
 ) =>
   useMutation({
     mutationKey: CONTEXT_KEYS.AUTH_CONTEXT_KEY.signOut(),
