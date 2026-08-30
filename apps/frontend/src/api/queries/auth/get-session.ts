@@ -6,7 +6,13 @@ import type { AuthError } from "~/api/errors/auth-error";
 import { toAuthError } from "~/api/errors/auth-error";
 import { QUERY_KEYS } from "~/api/queries/keys";
 
-type Session = Awaited<ReturnType<typeof authClient.getSession>>["data"];
+/**
+ * セッションの中身。未サインインなら `null`。
+ *
+ * **`$Infer` から取る。** `ReturnType<typeof authClient.getSession>` は
+ * better-fetch の条件型が解決しきれず `any` に落ちる (実測)。
+ */
+type Session = typeof authClient.$Infer.Session | null;
 
 /** 現在のセッション (`GET /api/auth/get-session`)。未サインインなら `null`。 */
 export const getSession = async (): Promise<Result<Session, AuthError>> => {
