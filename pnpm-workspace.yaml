@@ -56,5 +56,6 @@ catalog:
   react-dom: ^19.2.8
   react-error-boundary: ^6.1.3
   typescript: ^7.0.2
+  uuidv7: ^1.2.1
   valibot: ^1.4.2
   vite: ^8.2.2

@@ -1,12 +1,7 @@
 import { HttpResponse, http } from "msw";
+import { uuidv7 } from "uuidv7";
 
-import {
-  currentUser,
-  findUserByEmail,
-  persist,
-  state,
-  uuidV7,
-} from "../data/state";
+import { currentUser, findUserByEmail, persist, state } from "../data/state";
 
 /** backend の `emailAndPassword.minPasswordLength` に合わせる。 */
 const MIN_PASSWORD_LENGTH = 15;
@@ -73,7 +68,7 @@ export const authHandlers = [
 
     // better-auth は小文字で保存する。
     const user = {
-      id: uuidV7(),
+      id: uuidv7(),
       name,
       email: email.toLowerCase(),
       password,
@@ -82,7 +77,7 @@ export const authHandlers = [
     };
     state.users.push(user);
 
-    const token = uuidV7();
+    const token = uuidv7();
     state.verifications[token] = user.id;
     persist();
 
@@ -135,7 +130,7 @@ export const authHandlers = [
     persist();
     return HttpResponse.json({
       redirect: false,
-      token: uuidV7(),
+      token: uuidv7(),
       user: toAuthUser(user),
     });
   }),
@@ -151,7 +146,7 @@ export const authHandlers = [
     if (!user) return HttpResponse.json(null);
 
     return HttpResponse.json({
-      session: { id: uuidV7(), userId: user.id },
+      session: { id: uuidv7(), userId: user.id },
       user: toAuthUser(user),
     });
   }),

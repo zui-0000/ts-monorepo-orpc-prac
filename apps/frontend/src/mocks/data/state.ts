@@ -40,32 +40,6 @@ export const persist = () => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 };
 
-/**
- * UUID v7 を組み立てる。
- *
- * 契約の `UuidSchema` が版を見ているため `crypto.randomUUID()` (v4) は通らない。
- * 先頭 48 ビットが時刻、版が 7、variant が 8〜b (RFC 9562)。
- */
-export const uuidV7 = (): string => {
-  const bytes = crypto.getRandomValues(new Uint8Array(16));
-  const now = Date.now();
-
-  for (let i = 0; i < 6; i += 1) {
-    bytes[i] = Math.floor(now / 256 ** (5 - i)) & 0xff;
-  }
-  bytes[6] = 0x70 | (bytes[6]! & 0x0f);
-  bytes[8] = 0x80 | (bytes[8]! & 0x3f);
-
-  const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
-  return [
-    hex.slice(0, 8),
-    hex.slice(8, 12),
-    hex.slice(12, 16),
-    hex.slice(16, 20),
-    hex.slice(20),
-  ].join("-");
-};
-
 export const findUserByEmail = (email: string): MockUser | undefined =>
   state.users.find((u) => u.email === email.toLowerCase());
 
