@@ -109,6 +109,13 @@ docs           ADR-10 / ADR-11 の見直し
 - **Google OAuth** — `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` が未取得。
   Google Cloud Console での作業が要る。10 経路がこれ待ち
   (`/sign-in/social` `/callback/:id` `/link-social` ほか)
+- **エラー文言の置き場所** — いま 2 箇所に分かれている。`authErrorMessage` は
+  `api/auth/auth-error.ts` (タグ付きエラーの `match` の隣。1 つ足すとコンパイル
+  エラーになる利点がある)、`FIELD_MESSAGES` は `ProfilePage.tsx` の中 (他から
+  使えない)。**方針が決まっていないので構造だけ先に決めない。** 文言の網羅や
+  トーンを実装するときに、api 側へ寄せるか画面側へ寄せるかを判断する。
+  なお **user コンテキストにエラーの定義は要らない**。oRPC が契約から型を生やし、
+  `isDefinedError` で絞れるため
 - **見た目** — CSS を 1 行も書いていない。素の HTML のまま。
   `PageLoadingSpinner` は回らないので、スタイルを入れるか改名するかを決める
 - **`sendResetPassword` / `sendChangeEmailVerification`** — 未設定のため
