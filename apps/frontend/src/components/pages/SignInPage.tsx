@@ -3,9 +3,8 @@ import { Link, getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import type { AuthError } from "~/api/errors/auth-error";
 import { authErrorMessage } from "~/api/errors/auth-error";
-import { signIn } from "~/api/mutations/auth/sign-in";
+import { signInMutationOptions } from "~/api/mutations/auth/sign-in";
 import { QUERY_KEYS } from "~/api/queries/keys";
 
 // ルートから Route を import すると循環するため、ID で引く。
@@ -17,12 +16,8 @@ export const SignInPage: FC = () => {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ email: "", password: "" });
 
-  const signInMutation = useMutation<void, AuthError>({
-    mutationFn: async () => {
-      // **TanStack は throw でしか失敗を認識しない。** Result を返すと成功扱いになる。
-      const result = await signIn(form);
-      if (result.isErr()) throw result.error;
-    },
+  const signInMutation = useMutation({
+    ...signInMutationOptions,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
@@ -42,7 +37,7 @@ export const SignInPage: FC = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          signInMutation.mutate();
+          signInMutation.mutate(form);
         }}
       >
         <p>

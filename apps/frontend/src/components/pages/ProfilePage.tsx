@@ -8,8 +8,8 @@ import { getRouteApi, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { signOut } from "~/api/mutations/auth/sign-out";
-import { orpc } from "~/api/orpc";
+import { signOutMutationOptions } from "~/api/mutations/auth/sign-out";
+import { updateProfileMutationOptions } from "~/api/mutations/users/update-profile";
 import { QUERY_KEYS } from "~/api/queries/keys";
 import { getUserQueryOptions } from "~/api/queries/users/get-user";
 
@@ -61,21 +61,16 @@ export const ProfilePage: FC = () => {
       ) as FormValues,
   );
 
-  const update = useMutation(
-    orpc.user.updateProfile.mutationOptions({
-      onSuccess: () =>
-        queryClient.invalidateQueries({
-          queryKey: QUERY_KEYS.USER_QUERY_KEY.get(userId),
-        }),
-    }),
-  );
+  const update = useMutation({
+    ...updateProfileMutationOptions,
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.USER_QUERY_KEY.get(userId),
+      }),
+  });
 
   const signOutMutation = useMutation({
-    mutationFn: async () => {
-      // **TanStack は throw でしか失敗を認識しない。** Result を返すと成功扱いになる。
-      const result = await signOut();
-      if (result.isErr()) throw result.error;
-    },
+    ...signOutMutationOptions,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,

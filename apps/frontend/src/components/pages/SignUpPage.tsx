@@ -3,9 +3,11 @@ import { Link, useRouter } from "@tanstack/react-router";
 import type { FC } from "react";
 import { useState } from "react";
 
-import type { AuthError } from "~/api/errors/auth-error";
 import { authErrorMessage } from "~/api/errors/auth-error";
-import { MIN_PASSWORD_LENGTH, signUp } from "~/api/mutations/auth/sign-up";
+import {
+  MIN_PASSWORD_LENGTH,
+  signUpMutationOptions,
+} from "~/api/mutations/auth/sign-up";
 import { QUERY_KEYS } from "~/api/queries/keys";
 
 export const SignUpPage: FC = () => {
@@ -13,12 +15,8 @@ export const SignUpPage: FC = () => {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
 
-  const signUpMutation = useMutation<void, AuthError>({
-    mutationFn: async () => {
-      // **TanStack は throw でしか失敗を認識しない。** Result を返すと成功扱いになる。
-      const result = await signUp(form);
-      if (result.isErr()) throw result.error;
-    },
+  const signUpMutation = useMutation({
+    ...signUpMutationOptions,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.SESSION_QUERY_KEY.all,
@@ -33,7 +31,7 @@ export const SignUpPage: FC = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          signUpMutation.mutate();
+          signUpMutation.mutate(form);
         }}
       >
         <p>

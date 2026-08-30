@@ -23,7 +23,20 @@ const USER_QUERY_KEY = {
   updateProfile: () => orpc.user.updateProfile.mutationKey(),
 } as const;
 
+/**
+ * 認証の操作。**oRPC を通らないため自前で持つ。**
+ *
+ * `useIsMutating` や `useMutationState` で送信中を拾うときの目印になる。
+ */
+const AUTH_MUTATION_KEY = {
+  all: ["auth"] as const,
+  signIn: () => [...AUTH_MUTATION_KEY.all, "sign-in"] as const,
+  signUp: () => [...AUTH_MUTATION_KEY.all, "sign-up"] as const,
+  signOut: () => [...AUTH_MUTATION_KEY.all, "sign-out"] as const,
+} as const;
+
 export const QUERY_KEYS = {
+  AUTH_MUTATION_KEY,
   SESSION_QUERY_KEY,
   USER_QUERY_KEY,
 } as const;
