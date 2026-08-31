@@ -1,8 +1,27 @@
+import type { HttpHandler } from "msw";
 import { setupWorker } from "msw/browser";
 
 import { handlers } from "./handlers";
+import { scenarios } from "./scenarios";
 
-const worker = setupWorker(...handlers);
+/** `?scenario=<名前>` で選ばれた上書き。知らない名前なら知らせて既定で動く。 */
+const selectedScenario = (): readonly HttpHandler[] => {
+  const requested = new URLSearchParams(location.search).get("scenario");
+  if (!requested) return [];
+
+  const found = scenarios[requested];
+  if (!found) {
+    console.warn(
+      `[mock] 知らないシナリオ "${requested}"。既定の正常系で動きます。`,
+      `\n使えるのは: ${Object.keys(scenarios).join(" / ")}`,
+    );
+    return [];
+  }
+  return found;
+};
+
+// **上書きを前に置く。** MSW は左のハンドラを優先する。
+const worker = setupWorker(...selectedScenario(), ...handlers);
 
 /**
  * モックの受け口を立ち上げる。
