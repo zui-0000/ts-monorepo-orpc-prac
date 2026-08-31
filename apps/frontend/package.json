@@ -22,11 +22,9 @@
     "@tanstack/react-router": "catalog:",
     "better-auth": "catalog:",
     "better-result": "catalog:",
-    "msw": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-error-boundary": "catalog:",
-    "uuidv7": "catalog:",
     "valibot": "catalog:"
   },
   "devDependencies": {
@@ -37,10 +35,12 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "msw": "catalog:",
     "oxc-transform-react": "catalog:",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
+    "uuidv7": "catalog:",
     "vite": "catalog:"
   },
   "msw": {
