@@ -25,6 +25,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-error-boundary": "catalog:",
+    "uuidv7": "catalog:",
     "valibot": "catalog:"
   },
   "devDependencies": {
@@ -40,7 +41,6 @@
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
-    "uuidv7": "catalog:",
     "vite": "catalog:"
   },
   "msw": {
