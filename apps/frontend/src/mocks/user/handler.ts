@@ -1,61 +1,19 @@
-import { HttpResponse, http } from "msw";
+import { http } from "msw";
 
-import type { UserFailure } from "./service";
-import { getUser, updateProfile } from "./service";
+import { getUser, updateProfile } from "./controller";
 
 /**
- * oRPC の既定のエラー本文。
+ * 利用者の経路 (`/api/users/*`)。**宣言だけを置き、中身は controller が持つ。**
  *
- * `{ defined, code, status, message }` に、追加情報があるものだけ `data` が付く
- * (契約の errors/index.ts)。
+ * 失敗を画面で見たいときは `userFailure` を直に返す形へ書き換える。例:
+ *
+ * ```ts
+ * http.get("/api/users/:id", () => userFailure.forbidden()),
+ * ```
  */
-const orpcError = (
-  code: string,
-  status: number,
-  message: string,
-  data?: unknown,
-) =>
-  HttpResponse.json(
-    {
-      defined: true,
-      code,
-      status,
-      message,
-      ...(data === undefined ? {} : { data }),
-    },
-    { status },
-  );
-
-/** 事由から HTTP へ。**応答に載せるのはフィールド名だけ。入力値は返さない。** */
-const failed = (failure: UserFailure) => {
-  switch (failure.kind) {
-    case "UNAUTHORIZED":
-      return orpcError("UNAUTHORIZED_ERROR", 401, "認証が必要です");
-    case "FORBIDDEN":
-      return orpcError(
-        "FORBIDDEN_ERROR",
-        403,
-        "この操作を行う権限がありません",
-      );
-    case "BAD_REQUEST":
-      return orpcError("BAD_REQUEST_ERROR", 400, "リクエスト内容が不正です", {
-        errors: failure.fields.map((field) => ({ field })),
-      });
-  }
-};
-
 export const userHandlers = [
-  http.get("/api/users/:id", ({ params }) =>
-    getUser(String(params.id)).match({
-      ok: (user) => HttpResponse.json(user),
-      err: failed,
-    }),
-  ),
-
-  http.put("/api/users/:id/profile", async ({ params, request }) =>
-    updateProfile(String(params.id), await request.json()).match({
-      ok: () => new HttpResponse(null, { status: 204 }),
-      err: failed,
-    }),
+  http.get("/api/users/:id", ({ params }) => getUser(String(params.id))),
+  http.put("/api/users/:id/profile", ({ params, request }) =>
+    updateProfile(String(params.id), request),
   ),
 ];
