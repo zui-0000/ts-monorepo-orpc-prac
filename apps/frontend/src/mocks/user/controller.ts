@@ -1,33 +1,16 @@
-import { UpdateUserProfileRequestSchema } from "@orpc-prac/contract";
+import {
+  BadRequestError,
+  ForbiddenError,
+  UnauthorizedError,
+  UpdateUserProfileRequestSchema,
+} from "@orpc-prac/contract";
 import { HttpResponse } from "msw";
 import * as v from "valibot";
 
 import type { AuthUser } from "../auth/data";
 import { currentUser } from "../auth/data";
+import { orpcErrorResponse } from "../utils/orpc-error-response";
 import { findProfile, saveProfile } from "./data";
-
-/**
- * oRPC の既定のエラー本文。
- *
- * `{ defined, code, status, message }` に、追加情報があるものだけ `data` が付く
- * (契約の errors/index.ts)。
- */
-const orpcError = (
-  code: string,
-  status: number,
-  message: string,
-  data?: unknown,
-) =>
-  HttpResponse.json(
-    {
-      defined: true,
-      code,
-      status,
-      message,
-      ...(data === undefined ? {} : { data }),
-    },
-    { status },
-  );
 
 /**
  * 失敗の応答。**`handler.ts` で手で差し替えると、その失敗を画面で再現できる。**
@@ -36,11 +19,11 @@ const orpcError = (
  * (契約の error-item.ts)。
  */
 export const userFailure = {
-  unauthorized: () => orpcError("UNAUTHORIZED_ERROR", 401, "認証が必要です"),
-  forbidden: () =>
-    orpcError("FORBIDDEN_ERROR", 403, "この操作を行う権限がありません"),
+  unauthorized: () =>
+    orpcErrorResponse("UNAUTHORIZED_ERROR", UnauthorizedError),
+  forbidden: () => orpcErrorResponse("FORBIDDEN_ERROR", ForbiddenError),
   badRequest: (fields: readonly string[]) =>
-    orpcError("BAD_REQUEST_ERROR", 400, "リクエスト内容が不正です", {
+    orpcErrorResponse("BAD_REQUEST_ERROR", BadRequestError, {
       errors: fields.map((field) => ({ field })),
     }),
 } as const;
