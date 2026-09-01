@@ -4,20 +4,22 @@ import { setupWorker } from "msw/browser";
 import { handlers } from "./handlers";
 import { scenarios } from "./scenarios";
 
+const isScenarioName = (name: string): name is keyof typeof scenarios =>
+  name in scenarios;
+
 /** `?scenario=<名前>` で選ばれた上書き。知らない名前なら知らせて既定で動く。 */
 const selectedScenario = (): readonly HttpHandler[] => {
   const requested = new URLSearchParams(location.search).get("scenario");
   if (!requested) return [];
 
-  const found = scenarios[requested];
-  if (!found) {
+  if (!isScenarioName(requested)) {
     console.warn(
       `[mock] 知らないシナリオ "${requested}"。既定の正常系で動きます。`,
       `\n使えるのは: ${Object.keys(scenarios).join(" / ")}`,
     );
     return [];
   }
-  return found;
+  return scenarios[requested];
 };
 
 // **上書きを前に置く。** MSW は左のハンドラを優先する。
