@@ -36,7 +36,7 @@ catalog:
   # LTS の系列を跨ぐときだけ上げる。check:updates は 26 系を報告するが追わない。
   "@types/node": ^24.13.3
   "@types/react": ^19.2.18
-  "@types/react-dom": ^19.2.5
+  "@types/react-dom": ^19.2.7
   "@vitejs/plugin-react": ^6.1.1
   better-auth: ^1.7.2
   better-result: ^3.0.1
@@ -46,15 +46,13 @@ catalog:
   hono: ^4.13.5
   lefthook: ^2.1.12
   msw: ^2.15.0
-  # React Compiler の実体。@vitejs/plugin-react の peer が ^0.145.0 で、
-  # 0.x では ^ がマイナー固定のため 0.147 は使えない。plugin 側が上げたら追う。
-  oxc-transform-react: ^0.145.0
-  oxfmt: ^0.65.0
-  oxlint: ^1.80.0
+  oxc-transform-react: ^0.148.0
+  oxfmt: ^0.66.0
+  oxlint: ^1.81.0
   oxlint-tsgolint: ^7.0.2001
   react: ^19.2.8
   react-dom: ^19.2.8
-  react-error-boundary: ^6.1.3
+  react-error-boundary: ^6.1.4
   typescript: ^7.0.2
   uuidv7: ^1.2.1
   valibot: ^1.4.2
