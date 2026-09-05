@@ -7,9 +7,9 @@ import {
 import { HttpResponse } from "msw";
 import * as v from "valibot";
 
+import { orpcErrorResponse } from "../../utils/orpc-error-response";
 import type { AuthUser } from "../auth/data";
 import { currentUser } from "../auth/data";
-import { orpcErrorResponse } from "../utils/orpc-error-response";
 import { findProfile, saveProfile } from "./data";
 
 /**

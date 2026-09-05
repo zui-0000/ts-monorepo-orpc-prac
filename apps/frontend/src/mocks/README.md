@@ -8,10 +8,11 @@
 mocks/
 ├── browser.ts        画面用の起動 (setupWorker)。?scenario= を読む
 ├── server.ts         単体テスト用 (setupServer)
-├── handlers.ts       正常系のハンドラを束ねる
 ├── scenarios.ts      失敗の上書きを束ねる
-├── auth/             認証基盤 (/api/auth/*)
-├── user/             利用者 (/api/users/*)
+├── handlers/
+│   ├── index.ts      正常系のハンドラを束ねる
+│   ├── auth/         認証基盤 (/api/auth/*)
+│   └── user/         利用者 (/api/users/*)
 └── utils/            oRPC の封筒など、経路をまたぐもの
 ```
 
@@ -26,7 +27,7 @@ mocks/
 
 **保管は実物のテーブル構成に寄せてある。** backend では認証基盤が `auth.t_user` を、
 ドメインが `t_user_profile` を持つ (設計関連/ADR-09)。`localStorage` の鍵も分けている。
-`user/controller.ts` が `auth/data.ts` を読むのは、backend の
+`handlers/user/controller.ts` が `handlers/auth/data.ts` を読むのは、backend の
 `get-user-query-service.ts` と同じ **CQRS の射影**である。読むだけで書かない。
 
 ## 失敗した画面を見る
@@ -38,7 +39,7 @@ mocks/
 http://localhost:5173/sign-in?scenario=sign-in-unverified
 ```
 
-**コードは書き換えない。** `handlers.ts` は常に正常系のままで、選ばれた上書きが
+**コードは書き換えない。** `handlers/index.ts` は常に正常系のままで、選ばれた上書きが
 その前に差し込まれる。外して再読み込みすれば元に戻る。
 
 ```ts
@@ -46,8 +47,9 @@ http://localhost:5173/sign-in?scenario=sign-in-unverified
 const worker = setupWorker(...selectedScenario(), ...handlers);
 ```
 
-使える名前は `auth/scenarios.ts` と `user/scenarios.ts` にある。**間違えたときは
-既定の正常系で動きつつ、一覧をコンソールへ出す**ので、そこで確かめてもよい。
+使える名前は `handlers/auth/scenarios.ts` と `handlers/user/scenarios.ts` にある。
+**間違えたときは既定の正常系で動きつつ、一覧をコンソールへ出す**ので、そこで
+確かめてもよい。
 
 ```txt
 [mock] 知らないシナリオ "sign-in-unverifed"。既定の正常系で動きます。

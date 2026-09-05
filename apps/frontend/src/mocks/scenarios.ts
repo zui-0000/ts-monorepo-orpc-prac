@@ -1,5 +1,5 @@
-import { authScenarios } from "./auth/scenarios";
-import { userScenarios } from "./user/scenarios";
+import { authScenarios } from "./handlers/auth/scenarios";
+import { userScenarios } from "./handlers/user/scenarios";
 
 const merged = { ...authScenarios, ...userScenarios };
 
@@ -21,7 +21,7 @@ type UniqueNames =
  * http://localhost:5173/sign-in?scenario=sign-in-unverified
  * ```
  *
- * 既定 (`handlers.ts`) は正常系だけを持ち、ここが前に差し込まれて優先される
+ * 既定 (`handlers/index.ts`) は正常系だけを持ち、ここが前に差し込まれて優先される
  * (MSW の Best Practices「Dynamic mock scenarios」)。
  */
 export const scenarios: UniqueNames = merged;

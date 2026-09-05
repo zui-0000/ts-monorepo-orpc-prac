@@ -3,7 +3,7 @@ import { uuidv7 } from "uuidv7";
 /**
  * 認証基盤が持つ利用者。**backend の `auth.t_user` にあたる** (設計関連/ADR-09)。
  *
- * 氏名などのプロフィールはここに置かない。あちらは `user/data.ts` が持つ。
+ * 氏名などのプロフィールはここに置かない。あちらは `handlers/user/data.ts` が持つ。
  */
 export interface AuthUser {
   readonly id: string;
