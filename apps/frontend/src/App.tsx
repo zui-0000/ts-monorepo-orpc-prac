@@ -1,11 +1,27 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { RouterProvider } from "@tanstack/react-router";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { FC } from "react";
 import { useState } from "react";
 
-import { createAppRouter } from "~/routes/create-router";
+import { routeTree } from "~/routeTree.gen";
+
+/** Link と useNavigate の `to` を既知の経路だけに絞る。 */
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: ReturnType<typeof createAppRouter>;
+  }
+}
+
+/** context の型は routeTree 越しに __root.tsx の RouterContext と照合される。 */
+const createAppRouter = (queryClient: QueryClient) =>
+  createRouter({
+    routeTree,
+    context: { queryClient },
+    defaultPreload: "intent",
+    scrollRestoration: true,
+  });
 
 export const App: FC = () => {
   // モジュールスコープではなく useState で初期化することで、マウントごとに独立した
