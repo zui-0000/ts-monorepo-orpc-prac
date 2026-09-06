@@ -5,6 +5,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import type { FC } from "react";
 import { useState } from "react";
 
+import { PageLoadingSpinner } from "~/components/elements/PageLoadingSpinner";
 import { routeTree } from "~/routeTree.gen";
 
 /** Link と useNavigate の `to` を既知の経路だけに絞る。 */
@@ -20,6 +21,8 @@ const createAppRouter = (queryClient: QueryClient) =>
     routeTree,
     context: { queryClient },
     defaultPreload: "intent",
+    // 出るのは既定で 1 秒以上かかったときだけ。個別の経路は pendingComponent で上書きする。
+    defaultPendingComponent: PageLoadingSpinner,
     scrollRestoration: true,
   });
 
