@@ -46,7 +46,9 @@ catalog:
   hono: ^4.13.5
   lefthook: ^2.1.12
   msw: ^2.15.0
-  oxc-transform-react: ^0.148.0
+  # @vitejs/plugin-react の peer が要求する範囲。0.x では ^ がマイナー固定のため、
+  # 上げると peer を満たせなくなる。check:updates は 0.149 を報告するが追わない。
+  oxc-transform-react: ^0.145.0
   oxfmt: ^0.66.0
   oxlint: ^1.81.0
   oxlint-tsgolint: ^7.0.2001
