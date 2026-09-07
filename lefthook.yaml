@@ -52,8 +52,16 @@ pre-commit:
       glob: "apps/backend/**"
       run: pnpm check:lint && pnpm check:type && pnpm check:deps
 
-    frontend:
+    ui:
+      # dist を作らないので順序の必然性は無いが、frontend より先に置く。
+      # frontend の tsc は ui の src も読むため、先に単体で落としたほうが原因が早い。
       priority: 4
+      root: packages/ui/
+      glob: "packages/ui/**"
+      run: pnpm check:lint && pnpm check:type
+
+    frontend:
+      priority: 5
       root: apps/frontend/
       glob: "apps/frontend/**"
       run: pnpm check:lint && pnpm check:type

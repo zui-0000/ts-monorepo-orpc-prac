@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // **frontend の設定を写したもの。** 見るものが JSX である点は同じ。
+  // typeAware は入れていない。ここに置くのは見た目と挙動だけで、
+  // 型情報を要するルール (no-floating-promises 等) の対象が無いため。
+  "plugins": ["typescript", "unicorn", "oxc", "react", "jsx-a11y"],
+  "categories": {
+    "correctness": "error",
+  },
+  "rules": {
+    // コンポーネントのファイル名は型名と揃える慣習があるため PascalCase も許す。
+    "unicorn/filename-case": [
+      "error",
+      { "cases": { "kebabCase": true, "pascalCase": true } },
+    ],
+    "typescript/consistent-type-imports": "error",
+    "typescript/consistent-type-definitions": "off",
+    "require-unicode-regexp": "error",
+    // **src がそのまま利用者のブラウザに乗る。** 消し忘れた console が残らないようにする。
+    "no-console": "error",
+  },
+  "env": {
+    "builtin": true,
+  },
+}

@@ -207,6 +207,9 @@ importers:
       '@orpc-prac/contract':
         specifier: workspace:*
         version: link:../../packages/contract
+      '@orpc-prac/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@orpc/client':
         specifier: 'catalog:'
         version: 1.15.0
@@ -316,6 +319,27 @@ importers:
         version: 7.0.2
 
   packages/typescript-config: {}
+
+  packages/ui:
+    devDependencies:
+      '@orpc-prac/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.18
+      oxfmt:
+        specifier: 'catalog:'
+        version: 0.66.0
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.81.0(oxlint-tsgolint@7.0.2001)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
 
 packages:
 

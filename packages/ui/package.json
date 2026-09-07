@@ -1,0 +1,27 @@
+{
+  "name": "@orpc-prac/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check:type": "tsc --noEmit -p .",
+    "check:lint": "oxlint -c .oxlintrc.jsonc",
+    "format:check": "oxfmt --check src",
+    "format:fix": "oxfmt src",
+    "lint:fix": "pnpm check:lint --fix && pnpm format:fix && pnpm check:type"
+  },
+  "devDependencies": {
+    "@orpc-prac/typescript-config": "workspace:*",
+    "@types/react": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "react": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  }
+}

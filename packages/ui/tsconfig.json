@@ -1,0 +1,10 @@
+{
+  "extends": "@orpc-prac/typescript-config/bundler.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["esnext", "dom", "dom.iterable"]
+    // paths は置かない。src をそのまま配るため、`~` の解決は取り込む側の
+    // バンドラ設定に依存してしまう。このパッケージ内は相対 import で書く。
+  },
+  "include": ["src"]
+}
