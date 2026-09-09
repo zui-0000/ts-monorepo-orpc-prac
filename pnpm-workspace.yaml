@@ -25,36 +25,36 @@ catalog:
   "@orpc/server": ^1.15.0
   "@orpc/tanstack-query": ^1.15.0
   "@orpc/valibot": ^1.15.0
-  "@swc/core": ^1.16.1
+  "@swc/core": ^1.16.2
   "@tanstack/react-query": ^5.102.8
   "@tanstack/react-query-devtools": ^5.102.8
-  "@tanstack/react-router": ^1.170.32
+  "@tanstack/react-router": ^1.170.33
   "@tanstack/react-router-devtools": ^1.167.1
-  "@tanstack/router-plugin": ^1.168.35
-  "@types/bun": ^1.4.0
+  "@tanstack/router-plugin": ^1.168.36
+  "@types/bun": ^1.4.2
   # Node のランタイムに合わせる (mise.toml と engines が 24 系)。
   # LTS の系列を跨ぐときだけ上げる。check:updates は 26 系を報告するが追わない。
   "@types/node": ^24.13.3
   "@types/react": ^19.2.18
   "@types/react-dom": ^19.2.7
   "@vitejs/plugin-react": ^6.1.1
-  better-auth: ^1.7.2
+  better-auth: ^1.7.3
   better-result: ^3.0.1
   dependency-cruiser: ^18.2.0
   drizzle-kit: ^0.31.10
   drizzle-orm: ^0.45.2
-  hono: ^4.13.5
+  hono: ^4.13.7
   lefthook: ^2.1.12
   msw: ^2.15.0
   # @vitejs/plugin-react の peer が要求する範囲。0.x では ^ がマイナー固定のため、
   # 上げると peer を満たせなくなる。check:updates は 0.149 を報告するが追わない。
   oxc-transform-react: ^0.145.0
-  oxfmt: ^0.66.0
-  oxlint: ^1.81.0
+  oxfmt: ^0.67.0
+  oxlint: ^1.82.0
   oxlint-tsgolint: ^7.0.2001
   react: ^19.2.8
   react-dom: ^19.2.8
-  react-error-boundary: ^6.1.4
+  react-error-boundary: ^6.1.5
   typescript: ^7.0.2
   uuidv7: ^1.2.1
   valibot: ^1.4.2
