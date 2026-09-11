@@ -59,3 +59,4 @@ catalog:
   uuidv7: ^1.2.1
   valibot: ^1.4.2
   vite: ^8.2.2
+  zustand: ^5.0.15
